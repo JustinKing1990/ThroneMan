@@ -31,6 +31,7 @@ module.exports = {
         const filter = (message) => {
             return !message.author.bot
         }
+        if(message.attachments.length > 0){
         message.attachments.forEach(attachment => {
             ImageLink = attachment.attachment;
             });
@@ -47,6 +48,21 @@ module.exports = {
                     })
                 })
         })
+    } else {
+        ImageLink = message.content;
+        message.channel.send(`What is the character's name, <@${user.id}>`).then(() => {
+            message.channel.awaitMessages({ filter, max: 1, time: 10000, errors: ['time']})
+                .then(collected => {
+                    characterNameCollected = collected.first().content.toLowerCase();
+                    const characters = Characters.create({
+                        userID: message.author.id,
+                        userName: message.author.username,
+                        characterName: characterNameCollected,
+                        characterSheet: message.content
+                    })
+                })
+        })
+    }
         await wait.execute(10000);
         message.delete();
         
