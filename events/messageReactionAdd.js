@@ -1,14 +1,18 @@
+const { Permissions } = require('discord.js');
 module.exports = {
     name: "messageReactionAdd",
     once: false,
-    execute(reaction, user) {
+    async execute(reaction, user) {
         const config = require('../env/config.json');
         let roleToAdd = "";
         let roleToRemove = "";
         let message = reaction.message, emoji = reaction.emoji, member = reaction.message.guild.members.cache.get(user.id)
-        if (message.id === config.genderMessage) {
-
+        const approve = require('../helpercommands/approve')
+        const update = require('../helpercommands/update')
+        if (reaction.partial) {
+            await reaction.fetch();
         }
+
         switch (message.id) {
             case config.genderMessage:
                 switch (emoji.name) {
@@ -29,7 +33,7 @@ module.exports = {
                 }
                 break;
             case config.rulesMessage:
-                if(emoji.name === "✅"){
+                if (emoji.name === "✅") {
                     roleToAdd = message.guild.roles.cache.get('904410613655146518');
                     roleToRemove = message.guild.roles.cache.get('904410457304092722');
                     member.roles.add(roleToAdd);
@@ -39,7 +43,7 @@ module.exports = {
                 }
                 break;
             case config.introMessage:
-                if(emoji.name === "✅"){
+                if (emoji.name === "✅") {
                     roleToRemove = message.guild.roles.cache.get('904410613655146518');
                     roleToAdd = message.guild.roles.cache.get('904410659922526258');
                     member.roles.add(roleToAdd);
@@ -48,8 +52,8 @@ module.exports = {
                     message.reactions.cache.get(emoji.id).remove();
                 }
                 break;
-            case config.characterMakingMessage: 
-                if(emoji.name === "✅"){
+            case config.characterMakingMessage:
+                if (emoji.name === "✅") {
                     roleToRemove = message.guild.roles.cache.get('904410659922526258');
                     roleToAdd = message.guild.roles.cache.get('904410746736214146');
                     member.roles.add(roleToAdd);
@@ -59,7 +63,7 @@ module.exports = {
                 }
                 break;
             case config.adventurerMessage:
-                if(emoji.name === "✅"){
+                if (emoji.name === "✅") {
                     roleToRemove = message.guild.roles.cache.get('904410746736214146');
                     roleToAdd = message.guild.roles.cache.get('904414276817670265');
                     member.roles.add(roleToAdd);
@@ -69,7 +73,7 @@ module.exports = {
                 }
                 break;
             case config.worldEventMessage:
-                if(emoji.name === "✅"){
+                if (emoji.name === "✅") {
                     roleToRemove = message.guild.roles.cache.get('904410746736214146');
                     roleToAdd = message.guild.roles.cache.get('904218067339468800');
                     member.roles.add(roleToAdd);
@@ -77,7 +81,27 @@ module.exports = {
                 } else {
                     message.reactions.cache.get(emoji.id).remove();
                 }
-                    
+            default:
+                if (emoji.name === "greencheck" && message.channel === message.guild.channels.cache.get('904144801388175470') && message.guild.members.cache.get(user.id).permissions.has([Permissions.FLAGS.MANAGE_CHANNELS])) {
+                    try {
+
+                        if (!message.author.bot) {
+                            approve.execute(message, reaction, user);
+                        }
+
+                    } catch (error) {
+                        console.log(error)
+                    }
+                } else if (emoji.name === "update" && message.channel === message.guild.channels.cache.get('904566520846352474') && message.guild.members.cache.get(user.id).permissions.has([Permissions.FLAGS.MANAGE_CHANNELS])) {
+                    try {
+                        if (!message.author.bot) {
+                            update.execute(message, reaction, user);
+                        }
+                    } catch (error) {
+                        console.log(error)
+                    }
+                }
+
         }
     },
 };
