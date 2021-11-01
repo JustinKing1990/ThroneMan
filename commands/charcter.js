@@ -37,6 +37,7 @@ module.exports = {
         const list = charactersAll.map(c => c.userName);
         if (charactersAll.length === 1) {
             const characters = await Characters.findOne({ where: { characterName: name } });
+            if(characters.characterSheet )
             message.channel.send(`User Name: ${characters.userName}\nCharacter Name: ${characters.characterName[0].toUpperCase() + characters.characterName.substring(1)}`);
             message.channel.send({
                 files:[
