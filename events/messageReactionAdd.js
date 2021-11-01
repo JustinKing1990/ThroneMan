@@ -18,15 +18,15 @@ module.exports = {
                 switch (emoji.name) {
                     case '🔵':
                         roleToAdd = message.guild.roles.cache.get('904213405240528968');
-                        member.roles.add(role);
+                        member.roles.add(roleToAdd);
                         break;
                     case '🟣':
                         roleToAdd = message.guild.roles.cache.get('904213449813426186');
-                        member.roles.add(role);
+                        member.roles.add(roleToAdd);
                         break;
                     case '🟡':
                         roleToAdd = message.guild.roles.cache.get('904213530255958027');
-                        member.roles.add(role);
+                        member.roles.add(roleToAdd);
                         break;
                     default:
                         message.reactions.cache.get(emoji.id).remove();
@@ -78,11 +78,13 @@ module.exports = {
                     roleToAdd = message.guild.roles.cache.get('904218067339468800');
                     member.roles.add(roleToAdd);
                     member.roles.remove(roleToRemove);
+                    roleToRemove = message.guild.roles.cache.get('904414276817670265');
+                    member.roles.remove(roleToRemove)
                 } else {
                     message.reactions.cache.get(emoji.id).remove();
                 }
             default:
-                if (emoji.name === "greencheck" && message.channel === message.guild.channels.cache.get('904144801388175470') && message.guild.members.cache.get(user.id).permissions.has([Permissions.FLAGS.MANAGE_CHANNELS])) {
+                if (emoji.name === "greencheck" && (message.channel === message.guild.channels.cache.get('904144801388175470') || message.channel === message.guild.channels.cache.get('904208920141242439')) && message.guild.members.cache.get(user.id).permissions.has([Permissions.FLAGS.MANAGE_CHANNELS])) {
                     try {
 
                         if (!message.author.bot) {
