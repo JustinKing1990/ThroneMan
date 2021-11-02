@@ -12,6 +12,10 @@
             {
                 "title": "Threads",
                 "text": "When a character sheet is in review, this will automatically generate a thread for discussions."
+            },
+            {
+                "title": "Automatic Database Update",
+                "text": "Will update the UserName section of the discord bot should someone update their discord name"
             }
         ],
         "footer":[
