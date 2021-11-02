@@ -10,10 +10,17 @@ module.exports = {
 
         const wait = require('../helpercommands/timer')
         if(interaction){
-            if(!(interaction.member.guild.members.cache.get(interaction.user.id).permissions.has("MANAGE_CHANNELS"))){ 
+            try{ 
+                if(!(interaction.member.guild.members.cache.get(interaction.user.id).permissions.has("MANAGE_CHANNELS"))){ 
                 interaction.reply({content: "You do not have permission to perform that action", ephemeral: true})
                 return;
             }
+        }catch {
+            if(!message.guild.members.cache.get(user.id).permissions.has([Permissions.FLAGS.MANAGE_CHANNELS])){
+                message.reply("You do not have permission to perform that action.");
+                return;
+            }
+        }
         }
 
         try{
