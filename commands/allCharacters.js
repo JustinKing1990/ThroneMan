@@ -30,7 +30,7 @@ module.exports = {
             try {
                 const charactersAll = await Characters.findAll({ attributes: ['characterName', 'userName', 'characterSheet'] });
                 const list = charactersAll.map(c => c.characterName);
-                if (charactersAll.length > 1) {
+                if (charactersAll.length >= 1) {
                     for (let i = 0; i < list.length; i++) {
                         listString[i] = `[${i + 1}] ${message.guild.members.cache.find(n => n.user.username === list[i])}`
                     }
