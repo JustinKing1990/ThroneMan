@@ -17,8 +17,8 @@ module.exports = {
             messageArray[i] = changelogMessage.NewFeatures.intheworks[i].text;
         }
         const messageEmbed = new MessageEmbed()
-        .setColor("AQUA")
-        .setTitle("Change Log")
+        .setColor("PURPLE")
+        .setTitle("What I'm working on")
         .setThumbnail(guildMember.displayAvatarURL({dynamic: true}))
         .setFooter(footerMessage)
         for(let i = 0; i < messageTitleArray.length; i++){
