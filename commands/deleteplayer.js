@@ -39,7 +39,7 @@ module.exports = {
             const list = charactersAll.map(c => c.userName);
             if (list.length === 1) {
                 let deletePath = await Characters.findOne({where: {userName: name}}).characterSheet
-                    if(deletePath.endsWith(".pdf")){
+                    if(deletePath.endsWith('.pdf')){
                         // try{
                         // fs.unlinkSync(deletePath)
                         // } catch(err){
