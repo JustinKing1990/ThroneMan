@@ -36,7 +36,7 @@ module.exports = {
             const charactersAll = await Characters.findAll({ attributes: ['characterName', 'userName', 'characterSheet'], where: { characterName: name } });
             const list = charactersAll.map(c => c.userName);
             if (list.length === 1) {
-                let deletePath = await Characters.findOne({where: {userName: list[i]}})
+                let deletePath = await Characters.findOne({where: {userName: name}})
                     if(deletePath.characterSheet.endsWith(".pdf")){
                         try{
                             fs.unlinkSync(deletePath.characterSheet)
