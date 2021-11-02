@@ -1,6 +1,6 @@
 {
   "name": "throneman",
-  "version": "1.0.102",
+  "version": "1.0.112",
   "description": "Custom Bot for new Alwal server",
   "main": "throneman.js",
   "scripts": {

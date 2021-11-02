@@ -30,6 +30,10 @@
                 "text": "allcharacters, deletecharacter, whatsintheworks, payyaboi, deleteplayer"
             },
             {
+                "title": "New Automations",
+                "text": "New Member Welcome Message"
+            },
+            {
                 "title": "AllCharacters",
                 "text": "Displays a complete list of all of the characters. This is something to be reworked in the future when/if the amount of characters becomes a list too long to post through discord."
             },
@@ -48,6 +52,10 @@
             {
                 "title": "DeletePlayer",
                 "text": "This command will delete all the characters for a player, and the provided player from the database. This will be the groundwork for the automated deletion upon player leaving server"
+            },
+            {
+                "title": "NewMember",
+                "text": "Will tag new members in the welcome channel, and provide the new user with introductionary help fow what they need to do."
             }
         ],
         "footer": [
