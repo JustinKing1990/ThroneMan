@@ -38,7 +38,12 @@ module.exports = {
             const charactersAll = await Characters.findAll({ attributes: ['characterName', 'userName', 'characterSheet', 'UserID'], where: { userID: id } });
             const list = charactersAll.map(c => c.userName);
             if (list.length === 1) {
+                let deletePath = await Characters.findOne({where: {userName: list[i]}}).characterSheet
+                    if(deletePath.endsWith(".pdf")){
+                        fs.unlinkSync(deletePath)
+                    }
                 const characters = await Characters.destroy({ where: { userName: name} });
+                
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void`)
             } else if(charactersAll.length > 1) {
                 for(let i = 0; i < list.length; i++){
