@@ -23,7 +23,7 @@ module.exports = {
             return interaction.user.send({ embeds: [helpEmbed] })
                 .then(() => {
                     if (interaction.channel.type === 'dm') return;
-                    interaction.reply({content:'I\'ve sent you a DM with all my commands!', ephemeral: true});
+                    interaction.reply({content:'Lemme slide up in them DM\'s', ephemeral: true});
                 });
         } else {
             const commandRequested = interaction.options.get('command').value;
@@ -60,7 +60,7 @@ module.exports = {
                     return message.author.send({ embeds: [helpEmbed] })
                         .then(() => {
                             if (message.channel.type === 'dm') return;
-                            message.reply('I\'ve sent you a DM with all my commands!');
+                            message.reply('Lemme slide up in them DM\'s');
                         });
                 } else {
                     const title = `Here\'s more information on the command: ${args[0]}`;
