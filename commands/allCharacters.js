@@ -37,6 +37,8 @@ module.exports = {
                     listString = listString.join("\n")
                     message.channel.send(`These are all of the charcters that I could find.\n${listString}`)
 
+                } else {
+                    message.reply(`Sorry, it appears as if I don't have any characters to show you. I don't know how this happened, or do I?`)
                 }
             } catch {
                 message.reply(`Sorry, Something went catastrophically wrong. I'm probably on fire now. Do not panic, I will survive`)
