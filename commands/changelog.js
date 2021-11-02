@@ -8,6 +8,7 @@ module.exports = {
         .setDescription('Displays the current changelog message to show my users what\'s new'),
     async execute(client, message, args, Discord, interaction) {
         guildMember = message.guild.members.cache.find(u => u.user.username === message.author.username);
+        const version = require('../package-lock.json')
         const changelogMessage = require('../changelog.json');
         const footerMessage = JSON.stringify(changelogMessage.NewChanges.footer).replace(/\[/gmi, "").replace(/\]/gmi, "").replace(/"/gmi, "")
         let messageTitleArray = [];
@@ -18,7 +19,7 @@ module.exports = {
         }
         const messageEmbed = new MessageEmbed()
         .setColor("AQUA")
-        .setTitle("Change Log")
+        .setTitle(`Change Log ${version.version}`)
         .setThumbnail(guildMember.displayAvatarURL({dynamic: true}))
         .setFooter(footerMessage)
         for(let i = 0; i < messageTitleArray.length; i++){
