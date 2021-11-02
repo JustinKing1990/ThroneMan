@@ -14,6 +14,6 @@ module.exports = {
         .setColor("AQUA")
         .setTitle("Change Log")
         .setDescription(`${changelogMessage.text}`)
-        .setThumbnail(changelogImage)
+        .setThumbnail(changelogImage({dynamic: true}))
     },
 };
