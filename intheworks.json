@@ -1,0 +1,21 @@
+{
+    "NewFeatures":{
+        "intheworks":[
+            {
+                "title": "Automatic Player Deletion",
+                "text": "This feature will automatically remove a player from the database when they leave the server"
+            },
+            {
+                "title": "Manual Player Deletion",
+                "text": "This feature will allow mods to delete a player from the database for whatever reason."
+            },
+            {
+                "title": "Threads",
+                "text": "When a character sheet is in review, this will automatically generate a thread for discussions."
+            }
+        ],
+        "footer":[
+            "I'll try to post one of these every time I start on a new feature, or when one is requested. As always, you can type !help to get a list of commands, and !help <commandname> to get more specific information on a command"
+        ]
+    }
+}
