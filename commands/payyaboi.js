@@ -7,6 +7,8 @@ module.exports = {
         .setName('payyaboi')
         .setDescription('Provides a link to pay the creator of this bot. '),
     async execute(client, message, args, Discord, interaction) {
+        guildMember = message.guild.members.cache.find(u => u.user.username === message.author.username);
+
         const messageEmbed = new MessageEmbed()
         .setColor("PURPLE")
         .setTitle("Pay the dev")
