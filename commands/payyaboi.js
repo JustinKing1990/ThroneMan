@@ -8,11 +8,12 @@ module.exports = {
         .setDescription('Provides a link to pay the creator of this bot. '),
     async execute(client, message, args, Discord, interaction) {
         const messageEmbed = new MessageEmbed()
-        .setColor("GREEN")
-        .setTitle("Pay Ya Boi")
-        .setDescription("This is how you can pay the creator of the bot. ILY if you do")
-        .addField("PayPal link", "https://www.paypal.com/paypalme/itsyaboi1v4")
-        .addFooter("If you pay into this, I'll be forever thankful of you <3")
+        .setColor("PURPLE")
+        .setTitle("Pay the dev")
+        .setThumbnail(guildMember.displayAvatarURL({dynamic: true}))
+        .addField("PayYaBoi", "https://www.paypal.com/paypalme/itsyaboi1v4")
+        .setFooter("If you do this, I'll be forever thankful to you <3")
+        message.channel.send({embeds: [messageEmbed]});
     },
     
 };
