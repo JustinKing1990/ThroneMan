@@ -27,7 +27,7 @@
             },
             {
                 "title": "New Commands",
-                "text": "allcharacters, deletecharacter, whatsintheworks, payyaboi"
+                "text": "allcharacters, deletecharacter, whatsintheworks, payyaboi, deleteplayer"
             },
             {
                 "title": "AllCharacters",
@@ -44,6 +44,10 @@
             {
                 "title": "PayYaBoi",
                 "text": "This will post a link for anyone to access a way to pay the dev of this bot."
+            },
+            {
+                "title": "DeletePlayer",
+                "text": "This command will delete all the characters for a player, and the provided player from the database. This will be the groundwork for the automated deletion upon player leaving server"
             }
         ],
         "footer": [
