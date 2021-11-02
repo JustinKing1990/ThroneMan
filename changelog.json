@@ -36,6 +36,10 @@
             {
                 "title": "DeleteCharacter",
                 "text": "Does what you'd think it would do. If there is only one character, it's yeeted. If there is more than one, it'll ask for some verifications."
+            },
+            {
+                "title": "WhatsInTheWorks",
+                "text": "This feature will display all of the things that I've listed that I'm actively working on, or things that have been discussed and are in the queue of things to do."
             }
         ],
         "footer": [
