@@ -8,6 +8,7 @@
     "nodemon": "^2.0.14",
     "request": "^2.88.2",
     "sequelize": "^6.8.0",
+    "version": "1.0.1",
     "sqlite3": "^4.2.0"
   }
 }
