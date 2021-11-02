@@ -24,7 +24,7 @@ module.exports = {
         .setName('character')
         .setDescription('Shows information about a character'),
     async execute(client, message, args, Discord, interaction) {
-        const name = args[0].toLowerCase();
+        const name = args.join(" ").toLowerCase()
         const wait = require('../helpercommands/timer')
         let listString = [];
         let usernameToFind = "";
