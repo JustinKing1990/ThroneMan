@@ -27,7 +27,7 @@
             },
             {
                 "title": "New Commands",
-                "text": "allcharacters and deletecharacter"
+                "text": "allcharacters, deletecharacter, whatsintheworks, payyaboi"
             },
             {
                 "title": "AllCharacters",
@@ -40,6 +40,10 @@
             {
                 "title": "WhatsInTheWorks",
                 "text": "This feature will display all of the things that I've listed that I'm actively working on, or things that have been discussed and are in the queue of things to do."
+            },
+            {
+                "title": "PayYaBoi",
+                "text": "This will post a link for anyone to access a way to pay the dev of this bot."
             }
         ],
         "footer": [
