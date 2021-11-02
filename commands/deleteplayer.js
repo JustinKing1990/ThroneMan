@@ -24,8 +24,8 @@ module.exports = {
         .setName('deleteplayer')
         .setDescription('Deletes a player from the database'),
     async execute(client, message, args, Discord, interaction) {
-        console.log(args)
-        const name = message.guild.members.cache.get(args.replace(/<@!>/gmi, "")).username.toLowerCase();
+        console.log(args.join(">"))
+        const name = message.guild.members.cache.get().username.toLowerCase();
         const wait = require('../helpercommands/timer')
         const usernameToFind = "";
         let listString = [];
