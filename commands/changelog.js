@@ -15,5 +15,7 @@ module.exports = {
         .setTitle("Change Log")
         .setDescription(`${changelogMessage.text}`)
         .setThumbnail(changelogImage({dynamic: true}))
+        .setFooter(changelogMessage.footer);
+        message.channel.send(messageEmbed)
     },
 };
