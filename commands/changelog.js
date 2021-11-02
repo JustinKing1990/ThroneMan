@@ -15,7 +15,7 @@ module.exports = {
         .setTitle("Change Log")
         .setDescription(`${changelogMessage.text}`)
         .setImage('attachment://changelogImage.gif')
-        .setFooter(changelogMessage.footer);
+        .setFooter(changelogMessage.footer.join(" "));
         message.channel.send({embeds: [messageEmbed], files: [changelogImage]});
     },
 };
