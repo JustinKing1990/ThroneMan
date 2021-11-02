@@ -34,15 +34,15 @@ module.exports = {
                 return message.author === message.author
             }
             try{
-            const charactersAll = await Characters.findAll({ attributes: ['characterName', 'userName', 'characterSheet', 'UserID'], where: { userName: name } });
+            const charactersAll = await Characters.findAll({ attributes: ['characterName', 'userName', 'characterSheet', 'UserID'], where: { userID: id } });
             const list = charactersAll.map(c => c.userID);
             if (charactersAll.length === 1) {
                 const characters = await Characters.destroy({ where: { userName: name} });
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void`)
             } else if(charactersAll.length > 1) {
                 for(let i = 0; i < charactersAll.length; i++){
-                    console.log(charactersAll[i].userID)
-                    const deleteCharacter = await Characters.destroy({where: {userID: charactersAll[i].userID}});
+                    console.log(charactersAll[i])
+                    const deleteCharacter = await Characters.destroy({where: {userID: charactersAll[i]}});
                 }
                 await wait.execute(10000);
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void.`);
