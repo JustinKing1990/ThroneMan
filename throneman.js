@@ -1,4 +1,4 @@
-const { Client, Intents, Discord, Collection } = require('discord.js');
+const { Client, Intents, Discord, Collection } = require('discord.js')
 const fs = require('fs');
 const config = require("./env/config.json")
 
