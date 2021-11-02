@@ -25,5 +25,6 @@ module.exports = {
             messageEmbed.addField(messageTitleArray[i], messageArray[i]);
         }
         message.channel.send({embeds: [messageEmbed]});
+        message.delete();
     },
 };
