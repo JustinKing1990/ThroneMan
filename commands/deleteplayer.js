@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { waitForDebugger } = require('inspector');
 const { Sequelize } = require('sequelize');
+const fs = require('fs')
 
 const sequelize = new Sequelize('database', 'user', 'password', {
     host: 'localhost',
@@ -35,14 +36,17 @@ module.exports = {
             }
             try{
             const charactersAll = await Characters.findAll({ attributes: ['characterName', 'userName', 'characterSheet', 'UserID'], where: { userID: id } });
-            const list = charactersAll.map(c => c.userID);
-            if (charactersAll.length === 1) {
+            const list = charactersAll.map(c => c.userName);
+            if (list.length === 1) {
                 const characters = await Characters.destroy({ where: { userName: name} });
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void`)
             } else if(charactersAll.length > 1) {
-                for(let i = 0; i < charactersAll.length; i++){
-                    console.log(charactersAll[i])
-                    const deleteCharacter = await Characters.destroy({where: {userName: charactersAll[i].userName}});
+                for(let i = 0; i < list.length; i++){
+                    let deletePath = await Characters.findOne({where: {userName: list[i]}}).characterSheet
+                    if(deletePath.endsWith(".pdf")){
+                        fs.unlinkSync(deletePath)
+                    }
+                    const deleteCharacter = await Characters.destroy({where: {userName: list[i]}});
                 }
                 await wait.execute(10000);
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void.`);
