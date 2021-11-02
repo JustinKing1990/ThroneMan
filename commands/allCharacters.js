@@ -21,8 +21,8 @@ const Characters = sequelize.define('characters', {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('character')
-        .setDescription('Shows information about a character'),
+        .setName('allcharacters')
+        .setDescription('Provides a list of all of the characters I have'),
     async execute(client, message, args, Discord, interaction) {
         const wait = require('../helpercommands/timer')
         let listString = [];
