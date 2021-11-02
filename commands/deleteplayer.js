@@ -36,12 +36,12 @@ module.exports = {
             const charactersAll = await Characters.findAll({ attributes: ['characterName', 'userName', 'characterSheet', 'UserID'], where: { userName: name } });
             const list = charactersAll.map(c => c.userID);
             if (charactersAll.length === 1) {
-                const characters = await Characters.destroy({ where: { userName: name } });
+                const characters = await Characters.destroy({ where: { userName: name} });
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void`)
             } else if(charactersAll.length > 1) {
-                charactersAll.forEach(entry => {
-                    const characterToDelete = await Characters.destroy({where: {userID: entry}})
-                })
+                for(let i = 0; i < charactersAll.length; i++){
+                    const deleteCharacter = await Characters.destroy({where: {userID: charactersAll[i]}});
+                }
                 await wait.execute(10000);
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void.`);
                 
