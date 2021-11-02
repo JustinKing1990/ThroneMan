@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, MessageAttachment } = require('discord.js');
 const { waitForDebugger } = require('inspector');
 const { Sequelize } = require('sequelize');
 
@@ -9,12 +9,13 @@ module.exports = {
         .setDescription('Displays the current changelog message to show my users what\'s new'),
     async execute(client, message, args, Discord, interaction) {
         const changelogMessage = require('../changelog.json');
+        const changelogImage = new MessageAttachment('../Images/changelog.gif');
         const messageEmbed = new MessageEmbed()
         .setColor("AQUA")
         .setTitle("Change Log")
         .setDescription(`${changelogMessage.text}`)
-        .setThumbnail(message.author.displayAvatar({dynamic: true}))
+        .setThumbnail('attachment://changelogImage.gif'({dynamic: true}))
         .setFooter(changelogMessage.footer);
-        message.channel.send(messageEmbed)
+        message.channel.send({embeds: [messageEmbed], files: [changelogImage]});
     },
 };
