@@ -38,7 +38,11 @@ module.exports = {
             if (list.length === 1) {
                 let deletePath = await Characters.findOne({where: {userName: list[i]}}).characterSheet
                     if(deletePath.endsWith(".pdf")){
-                        fs.unlinkSync(deletePath)
+                        try{
+                            fs.unlinkSync(deletePath)
+                        } catch(err){
+                            console.error(err)
+                        }
                     }
                 const characters = await Characters.destroy({ where: { characterName: name } });
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void`)
@@ -56,11 +60,11 @@ module.exports = {
                 await wait.execute(10000);
                 let deletePath = await Characters.findOne({where: {userName: list[i]}}).characterSheet
                     if(deletePath.endsWith(".pdf")){
-                        // try{
-                        //     fs.unlinkSync(deletePath);
-                        // } catch(err){
-                        //     console.error(err);
-                        // }
+                        try{
+                            fs.unlinkSync(deletePath);
+                        } catch(err){
+                            console.error(err);
+                        }
                     }
                 const characterFromList = await Characters.destroy({where: {userName: list[usernameToFind-1], characterName: name}})
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void.`);
