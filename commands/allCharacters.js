@@ -32,7 +32,7 @@ module.exports = {
                 const list = charactersAll.map(c => c.characterName);
                 if (charactersAll.length >= 1) {
                     for (let i = 0; i < list.length; i++) {
-                        listString[i] = `[${i + 1}] ${message.guild.members.cache.find(n => n.user.username === list[i])}`
+                        listString[i] = `[${i + 1}] ${list[i]}`
                     }
                     listString = listString.join("\n")
                     message.channel.send(`These are all of the charcters that I could find.\n${listString}`)
