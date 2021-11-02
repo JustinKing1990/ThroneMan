@@ -36,10 +36,10 @@ module.exports = {
             const charactersAll = await Characters.findAll({ attributes: ['characterName', 'userName', 'characterSheet'], where: { characterName: name } });
             const list = charactersAll.map(c => c.userName);
             if (list.length === 1) {
-                let deletePath = await Characters.findOne({where: {userName: list[i]}}).characterSheet
-                    if(deletePath.endsWith(".pdf")){
+                let deletePath = await Characters.findOne({where: {userName: list[i]}})
+                    if(deletePath.characterSheet.endsWith(".pdf")){
                         try{
-                            fs.unlinkSync(deletePath)
+                            fs.unlinkSync(deletePath.characterSheet)
                         } catch(err){
                             console.error(err)
                         }
@@ -58,10 +58,10 @@ module.exports = {
                         })
                 })
                 await wait.execute(10000);
-                let deletePath = await Characters.findOne({where: {userName: list[i]}}).characterSheet
-                    if(deletePath.endsWith(".pdf")){
+                let deletePath = await Characters.findOne({where: {userName: list[i]}})
+                    if(deletePath.characterSheet.endsWith(".pdf")){
                         try{
-                            fs.unlinkSync(deletePath);
+                            fs.unlinkSync(deletePath.characterSheet);
                         } catch(err){
                             console.error(err);
                         }
