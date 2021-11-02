@@ -9,7 +9,6 @@ module.exports = {
         .setDescription('Displays the current changelog message to show my users what\'s new'),
     async execute(client, message, args, Discord, interaction) {
         const changelogMessage = require('../changelog.json');
-        const attachment = new Discord.MessageAttachment('../');
         const messageEmbed = new MessageEmbed()
         .setColor("AQUA")
         .setTitle("Change Log")
