@@ -21,8 +21,8 @@ const Characters = sequelize.define('characters', {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('deletecharacter')
-        .setDescription('Deletes a character from the database'),
+        .setName('deletePlayer')
+        .setDescription('Deletes a player from the database'),
     async execute(client, message, args, Discord, interaction) {
         const name = args.join(" ").toLowerCase();
         const wait = require('../helpercommands/timer')
