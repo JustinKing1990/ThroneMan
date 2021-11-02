@@ -14,7 +14,7 @@ module.exports = {
         .setColor("AQUA")
         .setTitle("Change Log")
         .setDescription(`${changelogMessage.text}`)
-        .setImage('attachment://changelogImage.gif'({dynamic: true}))
+        .setImage('attachment://changelogImage.gif')
         .setFooter(changelogMessage.footer);
         message.channel.send({embeds: [messageEmbed], files: [changelogImage]});
     },
