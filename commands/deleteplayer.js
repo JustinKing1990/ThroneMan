@@ -41,8 +41,8 @@ module.exports = {
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void`)
             } else if(charactersAll.length > 1) {
                 for(let i = 0; i < charactersAll.length; i++){
-                    console.log(charactersAll[i].characterName)
-                    const deleteCharacter = await Characters.destroy({where: {userID: charactersAll[i].characterName}});
+                    console.log(charactersAll[i].userID)
+                    const deleteCharacter = await Characters.destroy({where: {userID: charactersAll[i].userID}});
                 }
                 await wait.execute(10000);
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void.`);
