@@ -35,10 +35,14 @@ module.exports = {
             try{
             const charactersAll = await Characters.findAll({ attributes: ['characterName', 'userName', 'characterSheet'], where: { characterName: name } });
             const list = charactersAll.map(c => c.userName);
-            if (charactersAll.length === 1) {
+            if (list.length === 1) {
+                let deletePath = await Characters.findOne({where: {userName: list[i]}}).characterSheet
+                    if(deletePath.endsWith(".pdf")){
+                        fs.unlinkSync(deletePath)
+                    }
                 const characters = await Characters.destroy({ where: { characterName: name } });
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void`)
-            } else if(charactersAll.length > 1) {
+            } else if(list.length > 1) {
                 for (let i = 0; i < list.length; i++) {
                     listString[i] = `[${i + 1}] ${message.guild.members.cache.find(n => n.user.username === list[i])}`
                 }
@@ -50,6 +54,10 @@ module.exports = {
                         })
                 })
                 await wait.execute(10000);
+                let deletePath = await Characters.findOne({where: {userName: list[i]}}).characterSheet
+                    if(deletePath.endsWith(".pdf")){
+                        fs.unlinkSync(deletePath)
+                    }
                 const characterFromList = await Characters.destroy({where: {userName: list[usernameToFind-1], characterName: name}})
                 message.channel.send(`I have destroyed ${name}. They shall forever exist within the void.`);
                 
