@@ -1,4 +1,13 @@
 {
+  "name": "throneman",
+  "version": "1.0.1",
+  "description": "Custom Bot for new Alwal server",
+  "main": "throneman.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "It'sYaBoi",
+  "license": "ISC",
   "dependencies": {
     "@discordjs/builders": "^0.8.2",
     "@discordjs/rest": "^0.1.0-canary.0",
@@ -8,7 +17,6 @@
     "nodemon": "^2.0.14",
     "request": "^2.88.2",
     "sequelize": "^6.8.0",
-    "version": "1.0.1",
     "sqlite3": "^4.2.0"
   }
 }
