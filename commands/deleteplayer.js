@@ -40,11 +40,11 @@ module.exports = {
             if (list.length === 1) {
                 let deletePath = await Characters.findOne({where: {userName: list[i]}}).characterSheet
                     if(deletePath.endsWith(".pdf")){
-                        try{
-                        fs.unlinkSync(deletePath)
-                        } catch(err){
-                            console.error(err)
-                        }
+                        // try{
+                        // fs.unlinkSync(deletePath)
+                        // } catch(err){
+                        //     console.error(err)
+                        // }
                     }
                 const characters = await Characters.destroy({ where: { userName: name} });
                 
