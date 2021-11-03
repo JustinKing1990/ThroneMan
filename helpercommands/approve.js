@@ -31,7 +31,7 @@ module.exports = {
         const filter = (message) => {
             return !message.author.bot
         }
-        if(message.attachments.length > 0){
+        if(message.attachments.size > 0){
         message.attachments.forEach(attachment => {
             ImageLink = attachment.attachment;
             });
@@ -44,11 +44,12 @@ module.exports = {
                         userID: message.author.id,
                         userName: message.author.username,
                         characterName: characterNameCollected,
-                        characterSheet: `/root/throneman/ThroneMan/Charcter_PDFs/${characterNameCollected}_${message.author.username}.pdf`
+                        characterSheet: `./Charcter_PDFs/${characterNameCollected}_${message.author.username}.pdf`
                     })
                 })
         })
     } else {
+        console.log('now here')
         ImageLink = message.content;
         message.channel.send(`What is the character's name, <@${user.id}>`).then(() => {
             message.channel.awaitMessages({ filter, max: 1, time: 10000, errors: ['time']})
@@ -66,11 +67,11 @@ module.exports = {
         await wait.execute(10000);
         message.delete();
         
-    function download(url){
-        request.get(url)
-            .on('error', console.error)
-            .pipe(fs.createWriteStream(`/root/throneman/ThroneMan/Charcter_PDFs/${characterNameCollected}_${message.author.username}.pdf`));
-    }
+        function download(url){
+            request.get(url)
+                .on('error', console.error)
+                .pipe(fs.createWriteStream(`.\\Character_PDFs\\${characterNameCollected}_${message.author.username}.pdf`));
+        }
     }
     
 };

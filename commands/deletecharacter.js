@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { waitForDebugger } = require('inspector');
 const { Sequelize } = require('sequelize');
+const fs = require('fs')
 
 const sequelize = new Sequelize('database', 'user', 'password', {
     host: 'localhost',
