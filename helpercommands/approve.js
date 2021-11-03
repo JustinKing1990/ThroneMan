@@ -3,6 +3,7 @@ const { DiscordAPIError, ReactionCollector, Discord } = require('discord.js');
 const { waitForDebugger } = require('inspector');
 const request = require('request');
 const fs = require('fs');
+const path = require('path')
 
 const { Sequelize } = require('sequelize');
 
