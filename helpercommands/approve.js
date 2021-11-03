@@ -69,7 +69,7 @@ module.exports = {
         characterListChannelID = "904144926135164959"
         characterListChannel = message.guild.channels.cache.get(characterListChannelID)
         const characterPost = await Characters.findOne({where: {characterName: characterNameCollected, userID: message.author.id}})
-        if(characterPost.characterSheet.endswith('.pdf')){
+        if(characterPost.characterSheet.endsWith('.pdf')){
             characterListChannel.send(`User Name: ${characterPost.userName}\nCharacter Name: ${characterPost.characterName[0].toUpperCase() + characterPost.characterName.substring(1)}`);
             characterListChannel.send({
                 files: [
