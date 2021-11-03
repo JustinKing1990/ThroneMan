@@ -44,7 +44,7 @@ module.exports = {
                         userID: message.author.id,
                         userName: message.author.username,
                         characterName: characterNameCollected,
-                        characterSheet: `/root/throneman/ThroneMan/Charcter_PDFs/${characterNameCollected}_${message.author.username}.pdf`
+                        characterSheet: `sftp://root@108.61.214.58/root/throneman/ThroneMan/Charcter_PDFs/${characterNameCollected}_${message.author.username}.pdf`
                     })
                 })
         })
@@ -69,7 +69,7 @@ module.exports = {
     function download(url){
         request.get(url)
             .on('error', console.error)
-            .pipe(fs.createWriteStream(`/root/throneman/ThroneMan/Charcter_PDFs/${characterNameCollected}_${message.author.username}.pdf`));
+            .pipe(fs.createWriteStream(`sftp://root@108.61.214.58/root/throneman/ThroneMan/Charcter_PDFs/${characterNameCollected}_${message.author.username}.pdf`));
     }
     }
     
