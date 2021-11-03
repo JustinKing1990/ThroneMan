@@ -44,7 +44,7 @@ module.exports = {
                         userID: message.author.id,
                         userName: message.author.username,
                         characterName: characterNameCollected,
-                        characterSheet: `/root/throneman/ThroneMan/Charcter_PDFs/${characterNameCollected}_${message.author.username}.pdf`
+                        characterSheet: `/root/throneman/ThroneMan/Character_PDFs/${characterNameCollected}_${message.author.username}.pdf`
                     })
                 })
         })
