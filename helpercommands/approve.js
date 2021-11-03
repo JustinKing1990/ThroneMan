@@ -70,15 +70,7 @@ module.exports = {
 
         function download(url) {
             let dirname = `/root/throneman/ThroneMan/Character_PDFs/${characterNameCollected}_${message.author.username}.pdf`
-            function ensureDirectoryExistence(filePath) {
-                var dirname = path.dirname(filePath);
-                if (fs.existsSync(dirname)) {
-                    return true;
-                }
-            }
-                ensureDirectoryExistence(dirname);
-                fs.mkdirSync(dirname);
-            
+           
             request.get(url)
                 .on('error', console.error)
                 .pipe(fs.createWriteStream(dirname));
