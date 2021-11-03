@@ -50,7 +50,6 @@ module.exports = {
                     })
             })
         } else {
-            console.log('now here')
             ImageLink = message.content;
             message.channel.send(`What is the character's name, <@${user.id}>`).then(() => {
                 message.channel.awaitMessages({ filter, max: 1, time: 10000, errors: ['time'] })
@@ -66,7 +65,7 @@ module.exports = {
             })
         }
         await wait.execute(10000);
-        message.delete();
+        message.send("I have added this character to the datbase. Please don't forget to delete the original posting.")
 
         function download(url) {
             let dirname = `/root/throneman/ThroneMan/Character_PDFs/${characterNameCollected}_${message.author.username}.pdf`
