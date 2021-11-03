@@ -39,7 +39,7 @@
             },
             {
                 "title": "Approval",
-                "text": "Fixed error with pdf files not saving. Removed the automatic deletion of the original post to help prevent lag related issues"
+                "text": "Fixed error with pdf files not saving. Removed the automatic deletion of the original post to help prevent lag related issues. Will post the approved character to the character channel so you don't have to."
             }
         ],
         "footer": [

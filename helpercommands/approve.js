@@ -66,7 +66,19 @@ module.exports = {
         }
         await wait.execute(10000);
         message.send("I have added this character to the datbase. Please don't forget to delete the original posting.")
-
+        characterListChannelID = "904144926135164959"
+        characterListChannel = message.guild.channels.cache.get(characterListChannelID)
+        const characterPost = await Characters.findOne({where: {characterName: characterNameCollected, userID: message.author.id}})
+        if(characterPost.characterSheet.endswith('.pdf')){
+            characterListChannel.send(`User Name: ${characterPost.userName}\nCharacter Name: ${characterPost.characterName[0].toUpperCase() + characterPost.characterName.substring(1)}`);
+            characterListChannel.send({
+                files: [
+                    characterPost.characterSheet
+                ]
+            })
+        } else {
+            characterListChannel.send(`User Name: ${characterPost.userName}\nCharacter Name: ${characterPost.characterName[0].toUpperCase() + characterPost.characterName.substring(1)}\nCharacter Sheet: ${characterPost.characterSheet}`);
+        }
         function download(url) {
             let dirname = `/root/throneman/ThroneMan/Character_PDFs/${characterNameCollected}_${message.author.username}.pdf`
            

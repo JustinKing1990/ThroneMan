@@ -52,13 +52,21 @@ module.exports = {
             await wait.execute(10000);
             const characterFromList = await Characters.findOne({ where: { characterName: characterList[usernameToFind - 1]} })
             characterNameCollected = characterFromList.characterName
+            if(characterFromList.characterSheet.endswith('.pdf')){
             download(ImageLink)
+            } else{
+                const updateCharacter = await Characters.update({characterSheet: message.content}, {where: {characterName: characterList[usernameToFind - 1]}})
+            }
             message.channel.send(`I've successfully updated ${characterNameCollected}!`)
 
         } else if (characterList.length === 1) {
             const characterToUpdate = await Characters.findOne({where: {userName: message.author.username}})
             characterNameCollected = characterToUpdate.characterName
+            if(characterToUpdate.characterSheet.endswith('.pdf')){
             download(ImageLink)
+            } else{
+                const updateSingleCharacter = await Characters.update({characterSheet: message.content}, {where: {userName: message.author.username}})
+            }
             message.channel.send(`I've successfully updated ${characterNameCollected}!`)
         } else {
             message.reply(`Sorry, I could not find a character named: ${name[0].toUpperCase() + name.substring(1)}. Please check your spelling and try again.`)
@@ -67,9 +75,10 @@ module.exports = {
         message.delete();
 
         function download(url) {
+            let dirname = `/root/throneman/ThroneMan/Character_PDFs/${characterNameCollected}_${message.author.username}.pdf`
             request.get(url)
                 .on('error', console.error)
-                .pipe(fs.createWriteStream(`./Character PDFs/${characterNameCollected}_${message.author.username}.pdf`));
+                .pipe(fs.createWriteStream(dirname));
         }
     }
 
