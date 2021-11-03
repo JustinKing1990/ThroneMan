@@ -65,7 +65,7 @@ module.exports = {
             })
         }
         await wait.execute(10000);
-        message.send("I have added this character to the datbase. Please don't forget to delete the original posting.")
+        message.channel.send("I have added this character to the datbase. Please don't forget to delete the original posting.")
         characterListChannelID = "904144926135164959"
         characterListChannel = message.guild.channels.cache.get(characterListChannelID)
         const characterPost = await Characters.findOne({where: {characterName: characterNameCollected, userID: message.author.id}})
