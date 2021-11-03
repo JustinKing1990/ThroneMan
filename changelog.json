@@ -39,7 +39,7 @@
             },
             {
                 "title": "Approval",
-                "text": "Fixed error with pdf files not saving"
+                "text": "Fixed error with pdf files not saving. Removed the automatic deletion of the original post to help prevent lag related issues"
             }
         ],
         "footer": [
