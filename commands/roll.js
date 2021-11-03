@@ -26,6 +26,7 @@ module.exports = {
             try {
                 let tempArgs = args;
                 args = [];
+                eachDie = [];
                 tempArgs = tempArgs.join('').replace(/ /g, "")
                 tempArgs = tempArgs.toLowerCase();
                 tempArgs = tempArgs.replace("d", " ").replace("+", " ").replace("-", " -").split(" ");
@@ -36,44 +37,50 @@ module.exports = {
                     args[i] = parseInt(args[i]);
                 }
                 for (let i = 0; i < args[0]; i++) {
-                    temp += Math.floor(Math.random() * args[1]) + 1;
-                    temp2 = args[2];
+                 eachDie[i] = Math.floor(Math.random() * args[1]) + 1;
                 }
+                    for(let i = 0; i< eachDie.length; i++){
+                        temp += eachDie[i]
+                    }
+                    temp2 = args[2];
                 if (args[2] > 0) {
-                    if (temp === 20) return interaction.reply(`You rolled a natural 20.\n**${temp}** + ${temp2}: ${temp + temp2}`);
-                    if (temp === 1) return interaction.reply(`You rolled a natural 1. \n **${temp}** + ${temp2}: ${temp + temp2}`);
-                    return interaction.reply(`You rolled ${temp}+${temp2}: ${temp + temp2}`);
+                    if (temp === 20 && args[0] === 1) return interaction.reply(`You rolled a natural 20.\n**${temp}** + ${temp2}: ${temp + temp2}`);
+                    if (temp === 1 && args[0] === 1) return interaction.reply(`You rolled a natural 1. \n **${temp}** + ${temp2}: ${temp + temp2}`);
+                    return interaction.reply(`You rolled ${eachDie}+${temp2}: ${temp + temp2}`);
                 }
                 if (args[2] < 0) {
-                    if (temp === 20) return interaction.reply(`You rolled a natural 20.\n**${temp}** ${temp2}: ${temp + temp2}`);
-                    if (temp === 1) return interaction.reply(`You rolled a natural 1. \n **${temp}** ${temp2}: ${temp + temp2}`);
-                    return interaction.reply(`You rolled ${temp} ${temp2}: ${temp + temp2}`);
+                    if (temp === 20 && args[0] === 1) return interaction.reply(`You rolled a natural 20.\n**${temp}** ${temp2}: ${temp + temp2}`);
+                    if (temp === 1 && args[0] === 1) return interaction.reply(`You rolled a natural 1. \n **${temp}** ${temp2}: ${temp + temp2}`);
+                    return interaction.reply(`You rolled ${eachDie} ${temp2}: ${temp + temp2}`);
                 }
                 if(args[2] === 0){
-                    if (temp === 20) return interaction.reply(`You rolled a natural 20.\n**${temp}**`);
-                    if (temp === 1) return interaction.reply(`You rolled a natural 1. \n **${temp}**`);
-                    return interaction.reply(`You rolled ${temp}`);
+                    if (temp === 20 && args[0] === 1) return interaction.reply(`You rolled a natural 20.\n**${temp}**`);
+                    if (temp === 1 && args[0] === 1) return interaction.reply(`You rolled a natural 1. \n **${temp}**`);
+                    return interaction.reply(`You rolled ${eachDie}: ${temp}`);
                 }
             } catch {
                 temp = 0;
                 for (let i = 0; i < args[0]; i++) {
-                    temp += Math.floor(Math.random() * args[1]) + 1;
-                    temp2 = args[2];
+                    eachDie[i] = Math.floor(Math.random() * args[1]) + 1;
                 }
+                for(let i =0; i< eachDie.length; i++){
+                    temp += eachDie[i]
+                }
+                    temp2 = args[2];
                 if (args[2] > 0) {
-                    if (temp === 20) return message.reply(`You rolled a natural 20.\n**${temp}** + ${temp2}: ${temp + temp2}`)
-                    if (temp === 1) return message.reply(`You rolled a natural 1. \n **${temp}** + ${temp2}: ${temp + temp2}`)
-                    return message.reply(`You rolled ${temp}+${temp2}: ${temp + temp2}`)
+                    if (temp === 20 && args[0] === 1) return message.reply(`You rolled a natural 20.\n**${temp}** + ${temp2}: ${temp + temp2}`)
+                    if (temp === 1 && args[0] === 1) return message.reply(`You rolled a natural 1. \n **${temp}** + ${temp2}: ${temp + temp2}`)
+                    return message.reply(`You rolled ${eachDie}+${temp2}: ${temp + temp2}`)
                 }
                 if (args[2] < 0) {
-                    if (temp === 20) return message.reply(`You rolled a natural 20.\n**${temp}** ${temp2}: ${temp + temp2}`)
-                    if (temp === 1) return message.reply(`You rolled a natural 1. \n **${temp}** ${temp2}: ${temp + temp2}`)
-                    return message.reply(`You rolled ${temp} ${temp2}: ${temp + temp2}`)
+                    if (temp === 20 && args[0] === 1) return message.reply(`You rolled a natural 20.\n**${temp}** ${temp2}: ${temp + temp2}`)
+                    if (temp === 1 && args[0] === 1) return message.reply(`You rolled a natural 1. \n **${temp}** ${temp2}: ${temp + temp2}`)
+                    return message.reply(`You rolled ${eachDie} ${temp2}: ${temp + temp2}`)
                 }
                 if(args[2] === 0){
-                    if (temp === 20) return message.reply(`You rolled a natural 20.\n**${temp}**`)
-                    if (temp === 1) return message.reply(`You rolled a natural 1. \n **${temp}**`)
-                    return message.reply(`You rolled ${temp}`)
+                    if (temp === 20 && args[0] === 1) return message.reply(`You rolled a natural 20.\n**${temp}**`)
+                    if (temp === 1 && args[0] === 1) return message.reply(`You rolled a natural 1. \n **${temp}**`)
+                    return message.reply(`You rolled ${eachDie}: ${temp}`)
                 }
 
             }
