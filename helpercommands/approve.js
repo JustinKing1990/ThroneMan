@@ -31,47 +31,55 @@ module.exports = {
         const filter = (message) => {
             return !message.author.bot
         }
-        if(message.attachments.size > 0){
-        message.attachments.forEach(attachment => {
-            ImageLink = attachment.attachment;
+        if (message.attachments.size > 0) {
+            message.attachments.forEach(attachment => {
+                ImageLink = attachment.attachment;
             });
-        message.channel.send(`What is the character's name, <@${user.id}>`).then(() => {
-            message.channel.awaitMessages({ filter, max: 1, time: 10000, errors: ['time']})
-                .then(collected => {
-                    characterNameCollected = collected.first().content.toLowerCase();
-                    download(ImageLink);
-                    const characters = Characters.create({
-                        userID: message.author.id,
-                        userName: message.author.username,
-                        characterName: characterNameCollected,
-                        characterSheet: `/root/throneman/ThroneMan/Character_PDFs/${characterNameCollected}_${message.author.username}.pdf`
+            message.channel.send(`What is the character's name, <@${user.id}>`).then(() => {
+                message.channel.awaitMessages({ filter, max: 1, time: 10000, errors: ['time'] })
+                    .then(collected => {
+                        characterNameCollected = collected.first().content.toLowerCase();
+                        download(ImageLink);
+                        const characters = Characters.create({
+                            userID: message.author.id,
+                            userName: message.author.username,
+                            characterName: characterNameCollected,
+                            characterSheet: `/root/throneman/ThroneMan/Character_PDFs/${characterNameCollected}_${message.author.username}.pdf`
+                        })
                     })
-                })
-        })
-    } else {
-        console.log('now here')
-        ImageLink = message.content;
-        message.channel.send(`What is the character's name, <@${user.id}>`).then(() => {
-            message.channel.awaitMessages({ filter, max: 1, time: 10000, errors: ['time']})
-                .then(collected => {
-                    characterNameCollected = collected.first().content.toLowerCase();
-                    const characters = Characters.create({
-                        userID: message.author.id,
-                        userName: message.author.username,
-                        characterName: characterNameCollected,
-                        characterSheet: message.content
+            })
+        } else {
+            console.log('now here')
+            ImageLink = message.content;
+            message.channel.send(`What is the character's name, <@${user.id}>`).then(() => {
+                message.channel.awaitMessages({ filter, max: 1, time: 10000, errors: ['time'] })
+                    .then(collected => {
+                        characterNameCollected = collected.first().content.toLowerCase();
+                        const characters = Characters.create({
+                            userID: message.author.id,
+                            userName: message.author.username,
+                            characterName: characterNameCollected,
+                            characterSheet: message.content
+                        })
                     })
-                })
-        })
-    }
+            })
+        }
         await wait.execute(10000);
         message.delete();
-        
-        function download(url){
+
+        function download(url) {
+            function ensureDirectoryExistence(filePath) {
+                var dirname = path.dirname(filePath);
+                if (fs.existsSync(dirname)) {
+                    return true;
+                }
+                ensureDirectoryExistence(dirname);
+                fs.mkdirSync(dirname);
+            }
             request.get(url)
                 .on('error', console.error)
                 .pipe(fs.createWriteStream(`/root/throneman/ThroneMan/Character_PDFs/${characterNameCollected}_${message.author.username}.pdf`));
         }
     }
-    
+
 };
