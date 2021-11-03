@@ -70,7 +70,7 @@ module.exports = {
         function download(url){
             request.get(url)
                 .on('error', console.error)
-                .pipe(fs.createWriteStream(`.\\Character_PDFs\\${characterNameCollected}_${message.author.username}.pdf`));
+                .pipe(fs.createWriteStream(`\\root\\throneman\\Throneman\\Character_PDFs\\${characterNameCollected}_${message.author.username}.pdf`));
         }
     }
     
