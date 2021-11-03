@@ -6,26 +6,6 @@
                 "text": "Brief rundown of how the bot stores characters, and the newest commands"
             },
             {
-                "title": "Change List",
-                "text": " Bot has 4 entries to the database: UserName, UserID, CharacterName, and CharacterSheet"
-            },
-            {
-                "title": "UserName",
-                "text": "The current name of the user. Not their nickname, but their Discord name. I plan to make a change in the future to update this entry should someone change their name. The bot gathers this based on who **posted** the post that you react to"
-            },
-            {
-                "title": "UserID",
-                "text": "This is the unique identifier of who is who. This ID can never be changed. This is also gathered based on who posted the message that you react to."
-            },
-            {
-                "title": "CharcterName",
-                "text": "This is found by you answering the question it asks. When doing this, try to avoid special characters as we can't all type those as easily. I.E. É is not so easy for American keyboards to find. You can now have character names of longer than one word. Will likely break if you put in commas or periods."
-            },
-            {
-                "title": "CharacterSheet",
-                "text": "This is gathered by the message that you react to. If this is a .pdf file, it will store the pdf on the remote host for later use. If this isn't, because some asshat doesn't/won't/can't make a pdf, this will instead store whatever link they provide. This likely will only really work when the entirety of the message is the link, and I am aware of this bug."
-            },
-            {
                 "title": "New Commands",
                 "text": "allcharacters, deletecharacter, whatsintheworks, payyaboi, deleteplayer"
             },
@@ -56,6 +36,10 @@
             {
                 "title": "NewMember",
                 "text": "Will tag new members in the welcome channel, and provide the new user with introductionary help fow what they need to do."
+            },
+            {
+                "title": "Approval",
+                "text": "Fixed error with pdf files not saving"
             }
         ],
         "footer": [
