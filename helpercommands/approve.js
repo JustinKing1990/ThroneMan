@@ -30,7 +30,7 @@ module.exports = {
         let characterNameCollected = '';
         let ImageLink = '';
         const filter = (message) => {
-            return !message.author.bot
+            return !message.author.bot && message.author.id === user.id
         }
         if (message.attachments.size > 0) {
             message.attachments.forEach(attachment => {
@@ -79,6 +79,9 @@ module.exports = {
         } else {
             characterListChannel.send(`User Name: ${characterPost.userName}\nCharacter Name: ${characterPost.characterName[0].toUpperCase() + characterPost.characterName.substring(1)}\nCharacter Sheet: ${characterPost.characterSheet}`);
         }
+        const channel = message.guild.channels.cache.get("904144801388175470")
+        const thread = await channel.threads.cache.find(x => x.name === `${message.author.username} new character`)
+        await thread.delete();
         function download(url) {
             let dirname = `/root/throneman/ThroneMan/Character_PDFs/${characterNameCollected}_${message.author.username}.pdf`
            

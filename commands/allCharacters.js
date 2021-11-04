@@ -43,6 +43,7 @@ module.exports = {
             } catch {
                 message.reply(`Sorry, Something went catastrophically wrong. I'm probably on fire now. Do not panic, I will survive`)
             }
+            message.delete();
         }
     }
 };
