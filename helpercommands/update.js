@@ -52,7 +52,7 @@ module.exports = {
             await wait.execute(10000);
             const characterFromList = await Characters.findOne({ where: { characterName: characterList[usernameToFind - 1]} })
             characterNameCollected = characterFromList.characterName
-            if(characterFromList.characterSheet.endswith('.pdf')){
+            if(characterFromList.characterSheet.endsWith('.pdf')){
             download(ImageLink)
             } else{
                 const updateCharacter = await Characters.update({characterSheet: message.content}, {where: {characterName: characterNameCollected}})
@@ -62,7 +62,7 @@ module.exports = {
         } else if (characterList.length === 1) {
             const characterToUpdate = await Characters.findOne({where: {userName: message.author.username}})
             characterNameCollected = characterToUpdate.characterName
-            if(characterToUpdate.characterSheet.endswith('.pdf')){
+            if(characterToUpdate.characterSheet.endsWith('.pdf')){
             download(ImageLink)
             } else{
                 const updateSingleCharacter = await Characters.update({characterSheet: message.content}, {where: {userName: characterToUpdate.userName}})
