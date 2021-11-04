@@ -106,6 +106,7 @@ module.exports = {
                 } else if (emoji.name === "inreview" && message.channel === message.guild.channels.cache.get('904566520846352474') && message.guild.members.cache.get(user.id).permissions.has([Permissions.FLAGS.MANAGE_CHANNELS])) {
                     try {
                         if (!message.author.bot) {
+                            console.log('here')
                             review.execute(message, reaction, user);
                         }
                     } catch (err) {
