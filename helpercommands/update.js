@@ -55,7 +55,7 @@ module.exports = {
             if(characterFromList.characterSheet.endswith('.pdf')){
             download(ImageLink)
             } else{
-                const updateCharacter = await Characters.update({characterSheet: message.content}, {where: {characterName: characterList[usernameToFind - 1]}})
+                const updateCharacter = await Characters.update({characterSheet: message.content}, {where: {characterName: characterNameCollected}})
             }
             message.channel.send(`I've successfully updated ${characterNameCollected}!`)
 
@@ -65,7 +65,7 @@ module.exports = {
             if(characterToUpdate.characterSheet.endswith('.pdf')){
             download(ImageLink)
             } else{
-                const updateSingleCharacter = await Characters.update({characterSheet: message.content}, {where: {userName: message.author.username}})
+                const updateSingleCharacter = await Characters.update({characterSheet: message.content}, {where: {userName: characterToUpdate.userName}})
             }
             message.channel.send(`I've successfully updated ${characterNameCollected}!`)
         } else {
