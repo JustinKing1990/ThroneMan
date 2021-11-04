@@ -103,7 +103,7 @@ module.exports = {
                     } catch (error) {
                         console.log(error)
                     }
-                } else if (emoji.name === "inreview" && message.channel === message.guild.channels.cache.get('904566520846352474') && message.guild.members.cache.get(user.id).permissions.has([Permissions.FLAGS.MANAGE_CHANNELS])) {
+                } else if (emoji.name === "inreview" && message.channel === message.guild.channels.cache.get('904144801388175470') && message.guild.members.cache.get(user.id).permissions.has([Permissions.FLAGS.MANAGE_CHANNELS])) {
                     try {
                         if (!message.author.bot) {
                             console.log('here')
@@ -113,6 +113,7 @@ module.exports = {
                         console.error(err)
                     }
                 }
+                break;
         }
     },
 };
