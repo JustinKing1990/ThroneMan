@@ -9,10 +9,10 @@ module.exports = {
 
         const wait = require('../helpercommands/timer')
 
-        if(!interaction) return message.channel.send("Pong")
+        if(!interaction) return message.channel.send("Pong").then(message.delete());
         await interaction.deferReply();
         await wait.execute(4000);
-        await interaction.editReply({content: 'Pong'});
+        await interaction.editReply({content: 'Pong'})
     },
     
 };
