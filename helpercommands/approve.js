@@ -82,6 +82,7 @@ module.exports = {
         const channel = message.guild.channels.cache.get("904144801388175470")
         const thread = await channel.threads.cache.find(x => x.name === `${message.author.username} new character`)
         await thread.delete();
+        message.guild.members.cache.get(message.author.id).roles.add('903864074134249484')
         function download(url) {
             let dirname = `/root/throneman/ThroneMan/Character_PDFs/${characterNameCollected}_${message.author.username}.pdf`
            
