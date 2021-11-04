@@ -3,15 +3,11 @@
         "intheworks":[
             {
                 "title": "Automatic Player Deletion",
-                "text": "This feature will automatically remove a player from the database when they leave the server"
-            },
-            {
-                "title": "Threads",
-                "text": "When a character sheet is in review, this will automatically generate a thread for discussions."
+                "text": "~~This feature will automatically remove a player from the database when they leave the server~~"
             },
             {
                 "title": "Automatic Database Update",
-                "text": "Will update the UserName section of the discord bot should someone update their discord name"
+                "text": "~~Will update the UserName section of the discord bot should someone update their discord name~~"
             }
         ],
         "footer":[

@@ -7,39 +7,23 @@
             },
             {
                 "title": "New Commands",
-                "text": "allcharacters, deletecharacter, whatsintheworks, payyaboi, deleteplayer"
+                "text": "Sorry none in this patch"
             },
             {
                 "title": "New Automations",
                 "text": "New Member Welcome Message"
             },
             {
-                "title": "AllCharacters",
-                "text": "Displays a complete list of all of the characters. This is something to be reworked in the future when/if the amount of characters becomes a list too long to post through discord."
-            },
-            {
-                "title": "DeleteCharacter",
-                "text": "Does what you'd think it would do. If there is only one character, it's yeeted. If there is more than one, it'll ask for some verifications."
-            },
-            {
-                "title": "WhatsInTheWorks",
-                "text": "This feature will display all of the things that I've listed that I'm actively working on, or things that have been discussed and are in the queue of things to do."
-            },
-            {
-                "title": "PayYaBoi",
-                "text": "This will post a link for anyone to access a way to pay the dev of this bot."
-            },
-            {
-                "title": "DeletePlayer",
-                "text": "This command will delete all the characters for a player, and the provided player from the database. This will be the groundwork for the automated deletion upon player leaving server"
-            },
-            {
-                "title": "NewMember",
-                "text": "Will tag new members in the welcome channel, and provide the new user with introductionary help fow what they need to do."
+                "title": "In Review!",
+                "text": "Now you can react to a post with our handydandy inreview emote: <:inreview> to create a thread to discuss the things with the things."
             },
             {
                 "title": "Approval",
-                "text": "Fixed error with pdf files not saving. Removed the automatic deletion of the original post to help prevent lag related issues. Will post the approved character to the character channel so you don't have to."
+                "text": "Our approval command has been editied to automatically delete the threads that are created with in review. Lazy FTW"
+            },
+            {
+                "title": "Database Automations",
+                "text": "This had to be put on hold as Discord is a butt with the objects it returns. This will be a headache that future me will tackle when I'm feeling more masochistic."
             }
         ],
         "footer": [
