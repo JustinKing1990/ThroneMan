@@ -30,7 +30,7 @@ module.exports = {
         let characterNameCollected = '';
         let ImageLink = '';
         const filter = (message) => {
-            return !message.author.bot
+            return !message.author.bot && message.author.id === user.id
         }
         if (message.attachments.size > 0) {
             message.attachments.forEach(attachment => {
