@@ -80,6 +80,7 @@ module.exports = {
             characterListChannel.send(`User Name: ${characterPost.userName}\nCharacter Name: ${characterPost.characterName[0].toUpperCase() + characterPost.characterName.substring(1)}\nCharacter Sheet: ${characterPost.characterSheet}`);
         }
         const channel = message.guild.channels.cache.get(message.channel)
+        console.log(channel)
         const thread = await channel.threads.cache.find(x => x.name === `${message.author.username} new character}`)
         await thread.delete();
         function download(url) {
