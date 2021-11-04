@@ -9,6 +9,7 @@ module.exports = {
         let message = reaction.message, emoji = reaction.emoji, member = reaction.message.guild.members.cache.get(user.id)
         const approve = require('../helpercommands/approve')
         const update = require('../helpercommands/update')
+        const review = require('../helpercommands/inreview')
         if (reaction.partial) {
             await reaction.fetch();
         }
@@ -102,8 +103,15 @@ module.exports = {
                     } catch (error) {
                         console.log(error)
                     }
+                } else if (emoji.name === "inreview" && message.channel === message.guild.channels.cache.get('904566520846352474') && message.guild.members.cache.get(user.id).permissions.has([Permissions.FLAGS.MANAGE_CHANNELS])) {
+                    try {
+                        if (!message.author.bot) {
+                            review.execute(message, reaction, user);
+                        }
+                    } catch (err) {
+                        console.error(err)
+                    }
                 }
-
         }
     },
 };
