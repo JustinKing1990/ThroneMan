@@ -75,6 +75,7 @@ module.exports = {
                 } else {
                     message.reply(`Sorry, I could not find a character named: ${name[0].toUpperCase() + name.substring(1)}. Please check your spelling and try again.`)
                 }
+                message.delete();
             } catch {
                 message.reply(`Sorry, Something went catastrophically wrong. I'm probably on fire now. Do not panic, I will survive`)
             }
