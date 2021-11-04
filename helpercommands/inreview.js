@@ -28,7 +28,7 @@ const Characters = sequelize.define('characters', {
 module.exports = {
     async execute(message, reaction, user) {
         const thread = await message.startThread({
-            name: `${message.author.username}\'s new character`,
+            name: `${message.author.username} new character`,
             autoArchiveDuration: 1440,
             reason: 'To discuss the ins and outs of a new character'
         });
