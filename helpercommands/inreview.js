@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path')
 
 const { Sequelize } = require('sequelize');
+const { channel } = require('diagnostics_channel');
 
 const sequelize = new Sequelize('database', 'user', 'password', {
     host: 'localhost',
@@ -26,6 +27,21 @@ const Characters = sequelize.define('characters', {
 
 module.exports = {
     async execute(message, reaction, user) {
-        console.log(message.author.username)
+        const thread = await message.startThread({
+            name: `${message.author.username}\'s new character`,
+            autoArchiveDuration: 1440,
+            reason: 'To discuss the ins and outs of a new character'
+        });
+        if(thread.joinable){
+            await thread.join();
+            await thread.members.add(message.author.id)
+        }
+        const staff = message.guild.roles.get('903864074134249487').members.map(m => m.user.id)
+        const dms = message.guild.roles.get('904122949940965468').members.map(m => m.user.id)
+        const membersToAdd = staff + dms
+        for(let i = 0; i< membersToAdd.length;i++){
+            thread.members.add(memberToAdd[i])
+        }
+        thread.send(`<@${message.author.id}><@&903864074134249487><@&904122949940965468> A new thread has been created for you to talk about the new character that ${message.author.username} made.`)
     }
 };
