@@ -22,13 +22,17 @@ const Characters = sequelize.define('characters', {
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('character')
-        .setDescription('Shows information about a character'),
+        .setDescription('Shows information about a character')
+        .addStringOption(option => option.setName('charactername').setDescription("Input the character you want to lookup")),
     async execute(client, message, args, Discord, interaction) {
-        const name = args.join(" ").toLowerCase()
+        try {
+            var name = [interaction.options.get('charactername').value]
+        } catch {
+            var name = args.join(" ").toLowerCase()
+        }
         const wait = require('../helpercommands/timer')
         let listString = [];
         let usernameToFind = "";
-        if (!interaction) {
             const filter = (message) => {
                 return message.author === message.author
             }
@@ -39,12 +43,21 @@ module.exports = {
                     const characters = await Characters.findOne({ where: { characterName: name } });
                     console.log(characters.characterSheet)
                     if (characters.characterSheet.endsWith('.pdf')) {
-                        message.channel.send(`User Name: ${characters.userName}\nCharacter Name: ${characters.characterName[0].toUpperCase() + characters.characterName.substring(1)}`);
-                        message.channel.send({
-                            files: [
-                                characters.characterSheet
-                            ]
-                        })
+                        try {
+                            interaction.reply(`User Name: ${characters.userName}\nCharacter Name: ${characters.characterName[0].toUpperCase() + characters.characterName.substring(1)}`, files [characters.characterSheet])
+                            // interaction.reply({
+                            //     files: [
+                            //         characters.characterSheet
+                            //     ]
+                            // })
+                        } catch {
+                            message.channel.send(`User Name: ${characters.userName}\nCharacter Name: ${characters.characterName[0].toUpperCase() + characters.characterName.substring(1)}`);
+                            message.channel.send({
+                                files: [
+                                    characters.characterSheet
+                                ]
+                            })
+                        }
                     } else {
                         message.channel.send(`User Name: ${characters.userName}\nCharacter Name: ${characters.characterName[0].toUpperCase() + characters.characterName.substring(1)}\nCharacter Sheet: ${characters.characterSheet}`);
 
@@ -78,8 +91,7 @@ module.exports = {
             } catch {
                 message.reply(`Sorry, Something went catastrophically wrong. I'm probably on fire now. Do not panic, I will survive`)
             }
-                message.delete();
-        }
+            // message.delete();
     },
 
 };
