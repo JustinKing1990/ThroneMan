@@ -3,27 +3,7 @@
         "Changes": [
             {
                 "title": "Change Log",
-                "text": "Moving along getting the functions online and working"
-            },
-            {
-                "title": "New Commands",
-                "text": "Sorry none in this patch"
-            },
-            {
-                "title": "New Automations",
-                "text": "New Member Welcome Message"
-            },
-            {
-                "title": "In Review!",
-                "text": "Now you can react to a post with our handydandy inreview emote: <:inreview:905661294105985044> to create a thread to discuss the things with the things."
-            },
-            {
-                "title": "Approval",
-                "text": "Our approval command has been editied to automatically delete the threads that are created with in review. Lazy FTW"
-            },
-            {
-                "title": "Database Automations",
-                "text": "This had to be put on hold as Discord is a butt with the objects it returns. This will be a headache that future me will tackle when I'm feeling more masochistic."
+                "text": "Changed Prefix from '-' to '$'"
             }
         ],
         "footer": [

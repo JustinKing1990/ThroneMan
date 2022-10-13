@@ -59,6 +59,11 @@ module.exports = {
                     roleToAdd = message.guild.roles.cache.get('904410746736214146');
                     member.roles.add(roleToAdd);
                     member.roles.remove(roleToRemove);
+                } else if(emoji.name === "hmmthrone"){
+                    roleToRemove = message.guild.roles.cache.get('904410659922526258');
+                    roleToAdd = message.guild.roles.cache.get('1029977828978069514');
+                    member.roles.add(roleToAdd);
+                    member.roles.remove(roleToRemove);
                 } else {
                     message.reactions.cache.get(emoji.id).remove();
                 }
@@ -74,6 +79,17 @@ module.exports = {
                 }
                 break;
             case config.worldEventMessage:
+                if (emoji.name === "✅") {
+                    roleToRemove = message.guild.roles.cache.get('904410746736214146');
+                    roleToAdd = message.guild.roles.cache.get('904218067339468800');
+                    member.roles.add(roleToAdd);
+                    member.roles.remove(roleToRemove);
+                    roleToRemove = message.guild.roles.cache.get('904414276817670265');
+                    member.roles.remove(roleToRemove)
+                } else {
+                    message.reactions.cache.get(emoji.id).remove();
+                }
+                case config.worldEventMessage:
                 if (emoji.name === "✅") {
                     roleToRemove = message.guild.roles.cache.get('904410746736214146');
                     roleToAdd = message.guild.roles.cache.get('904218067339468800');
@@ -111,7 +127,7 @@ module.exports = {
                     } catch (err) {
                         console.error(err)
                     }
-                }
+                } 
                 break;
         }
     },
