@@ -26,7 +26,6 @@ module.exports = {
     async execute(client, message, args, Discord, interaction) {
         const wait = require('../helpercommands/timer')
         let listString = [];
-        if (!interaction) {
             try {
                 const charactersAll = await Characters.findAll({ attributes: ['characterName', 'userName', 'characterSheet'] });
                 const list = charactersAll.map(c => c.characterName);
@@ -35,15 +34,27 @@ module.exports = {
                         listString[i] = `[${i + 1}] ${list[i]}`
                     }
                     listString = listString.join("\n")
-                    message.channel.send(`These are all of the charcters that I could find.\n${listString}`)
-
+                    try {
+                        interaction.reply(`These are all of the charcters that I could find.\n${listString}`)
+                    } catch {
+                        message.channel.send(`These are all of the charcters that I could find.\n${listString}`)
+                    }
                 } else {
-                    message.reply(`Sorry, it appears as if I don't have any characters to show you. I don't know how this happened, or do I?`)
+                    try {
+                        interaction.reply(`Sorry, it appears as if I don't have any characters to show you. I don't know how this happened, or do I?`)
+                    } catch {
+                        message.reply(`Sorry, it appears as if I don't have any characters to show you. I don't know how this happened, or do I?`)
+                    }
                 }
             } catch {
-                message.reply(`Sorry, Something went catastrophically wrong. I'm probably on fire now. Do not panic, I will survive`)
+                try {
+                    interaction.reply(`Sorry, Something went catastrophically wrong. I'm probably on fire now. Do not panic, I will survive`)
+                } catch {
+                    message.reply(`Sorry, Something went catastrophically wrong. I'm probably on fire now. Do not panic, I will survive`)
+                }
             }
+            if(!interaction){
             message.delete();
-        }
+            }
     }
 };

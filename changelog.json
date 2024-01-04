@@ -2,12 +2,20 @@
     "NewChanges":{
         "Changes": [
             {
-                "title": "Change Log",
+                "title": "Prefix Change",
                 "text": "Changed Prefix from '-' to '$'"
+            },
+            {
+                "title": "Role functionality",
+                "text": "Added functionality to allow for RP-Only role to be added through typical reaction"
+            },
+            {
+                "title": "Slash Command",
+                "text": "Added new slash command to bring up changelog"
             }
         ],
         "footer": [
-            "I'll try to post one of these every time a new major feature is out, or when there is a major change to an existing. As always, you can type !help to get a list of commands, and !help <commandname> to get more specific information on a command"
+            "I'll try to post one of these every time a new major feature is out, or when there is a major change to an existing. As always, you can type $help to get a list of commands, and !help <commandname> to get more specific information on a command"
         ]
     }
 }
