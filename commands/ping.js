@@ -13,6 +13,7 @@ module.exports = {
         await interaction.deferReply();
         await wait.execute(4000);
         await interaction.editReply({content: 'Pong'})
+        console.log(interaction)
     },
     
 };

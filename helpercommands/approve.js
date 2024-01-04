@@ -54,7 +54,9 @@ module.exports = {
             message.channel.send(`What is the character's name, <@${user.id}>`).then(() => {
                 message.channel.awaitMessages({ filter, max: 1, time: 10000, errors: ['time'] })
                     .then(collected => {
+                        console.log(collected.first())
                         characterNameCollected = collected.first().content.toLowerCase();
+                        console.log(characterNameCollected)
                         const characters = Characters.create({
                             userID: message.author.id,
                             userName: message.author.username,
@@ -68,8 +70,8 @@ module.exports = {
         message.channel.send("I have added this character to the datbase. Please don't forget to delete the original posting.")
         characterListChannelID = "904144926135164959"
         characterListChannel = message.guild.channels.cache.get(characterListChannelID)
-        const characterPost = await Characters.findOne({where: {characterName: characterNameCollected, userID: message.author.id}})
-        if(characterPost.characterSheet.endsWith('.pdf')){
+        const characterPost = await Characters.findOne({ where: { characterName: characterNameCollected, userID: message.author.id } })
+        if (characterPost.characterSheet.endsWith('.pdf')) {
             characterListChannel.send(`User Name: ${characterPost.userName}\nCharacter Name: ${characterPost.characterName[0].toUpperCase() + characterPost.characterName.substring(1)}`);
             characterListChannel.send({
                 files: [
@@ -81,15 +83,24 @@ module.exports = {
         }
         const channel = message.guild.channels.cache.get("904144801388175470")
         const thread = await channel.threads.cache.find(x => x.name === `${message.author.username} new character`)
-        try{ await thread.delete();}catch{}
-        message.guild.members.cache.get(message.author.id).roles.add('903864074134249484')
+        try {
+            await thread.delete();
+        } catch { }
+        try {
+            try {
+                message.guild.members.cache.get(message.author.id).roles.remove('903864074134249484')
+                message.guild.members.cache.get(message.author.id).roles.add('904218067339468800')
+            } catch { }
+        } catch {
+            message.channel.send("something went wrong")
+        }
         function download(url) {
             let dirname = `/root/throneman/ThroneMan/Character_PDFs/${characterNameCollected}_${message.author.username}.pdf`
-           
+
             request.get(url)
                 .on('error', console.error)
                 .pipe(fs.createWriteStream(dirname));
-            
+
         }
     }
 

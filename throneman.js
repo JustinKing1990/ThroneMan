@@ -1,11 +1,11 @@
-const { Client, Intents, Discord, Collection } = require('discord.js')
+const { Client, GatewayIntentBits, Discord, Collection, Partials } = require('discord.js')
 const fs = require('fs');
 const config = require("./env/config.json")
 
 const client = new Client({
-    partials: ['MESSAGE', 'CHANNEL', 'REACTION'],
-    intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_MEMBERS]
-});
+    partials: [Partials.Message, Partials.Channel, Partials.Reaction],
+    intents: [32767, GatewayIntentBits.MessageContent]
+  });
 client.commands = new Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));

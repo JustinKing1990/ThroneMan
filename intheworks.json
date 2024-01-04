@@ -2,16 +2,24 @@
     "NewFeatures":{
         "intheworks":[
             {
-                "title": "Automatic Player Deletion",
-                "text": "~~This feature will automatically remove a player from the database when they leave the server~~"
+                "title": "Update all commands",
+                "text": "This feature will eventually change all commands to work with the slash commands"
             },
             {
-                "title": "Automatic Database Update",
-                "text": "~~Will update the UserName section of the discord bot should someone update their discord name~~"
+                "title": "Update Discord.js",
+                "text": "Updated the framework for the bot, will continue keeping up with getting the stragglers working correctly"
+            },
+            {
+                "title": "Bot Status",
+                "text": "Create a function to update bot status to help display prefix and others"
+            },
+            {
+                "title": "DATABASE!",
+                "text": "Change the database from sqlite3 to mongoDB. This could help with storing those strange files, and I need something like that for a final for school"
             }
         ],
         "footer":[
-            "I'll try to post one of these every time I start on a new feature, or when one is requested. As always, you can type !help to get a list of commands, and !help <commandname> to get more specific information on a command"
+            "I'll try to post one of these every time I start on a new feature, or when one is requested. As always, you can type $help to get a list of commands, and $help <commandname> to get more specific information on a command"
         ]
     }
 }

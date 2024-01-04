@@ -11,11 +11,27 @@
             },
             {
                 "title": "Slash Command",
-                "text": "Added new slash command to bring up changelog"
+                "text": "Added new slash command to bring up changelog\nAdded new slash command for **character** and **deletecharacter** commands"
+            },
+            {
+                "title": "Framework Update",
+                "text": "Updated framework to fit with V14 of Discord.js. This one may still have issues, so please reach out to staff if things stop working"
+            },
+            {
+                "title": "Looking for group",
+                "text": "Added functionality for looking for group reaction message. This can be found in the #misc-roles channel, the same place you can select your gender role"
+            },
+            {
+                "title": "RPOnly",
+                "text": "Added functionality for RP Only reaction message. THis can be found in the #intro-to-character-making channel.\nThere is additional work to add these characters to our ever-growing database"
+            },
+            {
+                "title": "Changelog Change",
+                "text": "Updated bot to automatically update changelog on start. Go me. Begone random notifications"
             }
         ],
         "footer": [
-            "I'll try to post one of these every time a new major feature is out, or when there is a major change to an existing. As always, you can type $help to get a list of commands, and !help <commandname> to get more specific information on a command"
+            "I'll try to post one of these every time a new major feature is out, or when there is a major change to an existing. As always, you can type $help to get a list of commands, and $help <commandname> to get more specific information on a command"
         ]
     }
 }

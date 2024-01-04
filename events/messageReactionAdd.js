@@ -1,4 +1,4 @@
-const { Permissions } = require('discord.js');
+const { PermissionsBitField  } = require('discord.js');
 module.exports = {
     name: "messageReactionAdd",
     once: false,
@@ -59,11 +59,6 @@ module.exports = {
                     roleToAdd = message.guild.roles.cache.get('904410746736214146');
                     member.roles.add(roleToAdd);
                     member.roles.remove(roleToRemove);
-                } else if(emoji.name === "hmmthrone"){
-                    roleToRemove = message.guild.roles.cache.get('904410659922526258');
-                    roleToAdd = message.guild.roles.cache.get('1029977828978069514');
-                    member.roles.add(roleToAdd);
-                    member.roles.remove(roleToRemove);
                 } else {
                     message.reactions.cache.get(emoji.id).remove();
                 }
@@ -81,7 +76,7 @@ module.exports = {
             case config.worldEventMessage:
                 if (emoji.name === "✅") {
                     roleToRemove = message.guild.roles.cache.get('904410746736214146');
-                    roleToAdd = message.guild.roles.cache.get('904218067339468800');
+                    roleToAdd = message.guild.roles.cache.get('903864074134249484');
                     member.roles.add(roleToAdd);
                     member.roles.remove(roleToRemove);
                     roleToRemove = message.guild.roles.cache.get('904414276817670265');
@@ -89,19 +84,27 @@ module.exports = {
                 } else {
                     message.reactions.cache.get(emoji.id).remove();
                 }
-                case config.worldEventMessage:
-                if (emoji.name === "✅") {
-                    roleToRemove = message.guild.roles.cache.get('904410746736214146');
-                    roleToAdd = message.guild.roles.cache.get('904218067339468800');
+                break;
+            case config.rpOnlyMessage:
+                if (emoji.name === "hmmthrone") {
+                    roleToRemove = message.guild.roles.cache.get('904410659922526258');
+                    roleToAdd = message.guild.roles.cache.get('1029977828978069514');
                     member.roles.add(roleToAdd);
                     member.roles.remove(roleToRemove);
-                    roleToRemove = message.guild.roles.cache.get('904414276817670265');
-                    member.roles.remove(roleToRemove)
                 } else {
                     message.reactions.cache.get(emoji.id).remove();
                 }
+                break;
+            case config.lookingForGroupMessage:
+                if (emoji.name === "🇱") {
+                    roleToAdd = message.guild.roles.cache.get('1031312481362137169')
+                    member.roles.add(roleToAdd);
+                } else {
+                    message.reaction.cache.get(emoji.id).remove();
+                }
+            break;
             default:
-                if (emoji.name === "greencheck" && (message.channel === message.guild.channels.cache.get('904144801388175470') || message.channel === message.guild.channels.cache.get('904208920141242439')) && message.guild.members.cache.get(user.id).permissions.has([Permissions.FLAGS.MANAGE_CHANNELS])) {
+                if (emoji.name === "greencheck" && (message.channel === message.guild.channels.cache.get('904144801388175470') || message.channel === message.guild.channels.cache.get('904208920141242439')) && message.guild.members.cache.get(user.id).permissions.has(PermissionsBitField.Flags.Manage_Channels)) {
                     try {
 
                         if (!message.author.bot) {
@@ -111,7 +114,7 @@ module.exports = {
                     } catch (error) {
                         console.log(error)
                     }
-                } else if (emoji.name === "update" && message.channel === message.guild.channels.cache.get('904566520846352474') && message.guild.members.cache.get(user.id).permissions.has([Permissions.FLAGS.MANAGE_CHANNELS])) {
+                } else if (emoji.name === "update" && message.channel === message.guild.channels.cache.get('904566520846352474') && message.guild.members.cache.get(user.id).permissions.has(PermissionsBitField.Flags.Manage_Channels)) {
                     try {
                         if (!message.author.bot) {
                             update.execute(message, reaction, user);
@@ -119,7 +122,7 @@ module.exports = {
                     } catch (error) {
                         console.log(error)
                     }
-                } else if (emoji.name === "inreview" && message.channel === message.guild.channels.cache.get('904144801388175470') && message.guild.members.cache.get(user.id).permissions.has([Permissions.FLAGS.MANAGE_CHANNELS])) {
+                } else if (emoji.name === "inreview" && message.channel === message.guild.channels.cache.get('904144801388175470') && message.guild.members.cache.get(user.id).permissions.has(PermissionsBitField.Flags.ManageChannels)) {
                     try {
                         if (!message.author.bot) {
                             review.execute(message, reaction, user);
@@ -127,7 +130,7 @@ module.exports = {
                     } catch (err) {
                         console.error(err)
                     }
-                } 
+                }
                 break;
         }
     },

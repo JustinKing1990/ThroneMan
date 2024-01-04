@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const { waitForDebugger } = require('inspector');
 
 module.exports = {
@@ -9,45 +9,36 @@ module.exports = {
     async execute(client, message, args, Discord, interaction) {
         try {
             guildMember = message.guild.members.cache.find(u => u.user.username === message.author.username);
-            const version = require('../package.json')
-            const changelogMessage = require('../changelog.json');
-            const footerMessage = JSON.stringify(changelogMessage.NewChanges.footer).replace(/\[/gmi, "").replace(/\]/gmi, "").replace(/"/gmi, "")
-            let messageTitleArray = [];
-            let messageArray = [];
-            for (let i = 0; i < changelogMessage.NewChanges.Changes.length; i++) {
-                messageTitleArray[i] = changelogMessage.NewChanges.Changes[i].title;
-                messageArray[i] = changelogMessage.NewChanges.Changes[i].text;
-            }
-            const messageEmbed = new MessageEmbed()
-                .setColor("AQUA")
-                .setTitle(`Change Log ${version.version}`)
-                .setThumbnail(guildMember.displayAvatarURL({ dynamic: true }))
-                .setFooter(footerMessage)
-            for (let i = 0; i < messageTitleArray.length; i++) {
-                messageEmbed.addField(messageTitleArray[i], messageArray[i]);
-            }
-            message.channel.send({ embeds: [messageEmbed] });
-            message.delete();
         } catch {
-            guildMember = interaction;
-            const version = require('../package.json');
-            const changelogMessage = require('../changelog.json');
-            const footerMessage = JSON.stringify(changelogMessage.NewChanges.footer).replace(/\[/gmi, "").replace(/\]/gmi, "").replace(/"/gmi, "")
-            let messageTitleArray = [];
-            let messageArray = [];
-            for (let i = 0; i < changelogMessage.NewChanges.Changes.length; i++) {
-                messageTitleArray[i] = changelogMessage.NewChanges.Changes[i].title;
-                messageArray[i] = changelogMessage.NewChanges.Changes[i].text;
-            }
-            const messageEmbed = new MessageEmbed()
-                .setColor("AQUA")
-                .setTitle(`Change Log ${version.version}`)
-                .setThumbnail(guildMember.user.displayAvatarURL({ dynamic: true }))
-                .setFooter(footerMessage)
-            for (let i = 0; i < messageTitleArray.length; i++) {
-                messageEmbed.addField(messageTitleArray[i], messageArray[i]);
-            }
-            interaction.reply({ embeds: [messageEmbed] });
+            guildMember = interaction
+        }
+        const version = require('../package.json')
+        const changelogMessage = require('../changelog.json');
+        const footerMessage = JSON.stringify(changelogMessage.NewChanges.footer).replace(/\[/gmi, "").replace(/\]/gmi, "").replace(/"/gmi, "")
+        let messageTitleArray = [];
+        let messageArray = [];
+        for (let i = 0; i < changelogMessage.NewChanges.Changes.length; i++) {
+            messageTitleArray[i] = changelogMessage.NewChanges.Changes[i].title;
+            messageArray[i] = changelogMessage.NewChanges.Changes[i].text;
+        }
+        const changeLogEmbed = new EmbedBuilder()
+            .setColor("AQUA")
+            .setTitle(`Change Log ${version.version}`)
+            .setThumbnail(guildMember.user.displayAvatarURL({ dynamic: true }))
+            .setFooter({
+                text: footerMessage,
+                iconURL: guildMember.user.displayAvatarURL({ dynamic: true })
+            })
+        for (let i = 0; i < messageTitleArray.length; i++) {
+            changeLogEmbed.addFields({
+                name: messageTitleArray[i],
+                value: messageArray[i],
+            })
+        } try {
+            interaction.reply({ embeds: [changeLogEmbed] })
+        } catch {
+            message.channel.send({ embeds: [changeLogEmbed] });
+            message.delete();
         }
     },
 };

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -13,13 +13,19 @@ module.exports = {
             const title = 'Here\'s a list of all my commands:';
             const description = interaction.client.commands.map(command => command.data.name).join(', ');
             const footer = `You can send \\help [command name] to get info on a specific command!`;
-            const helpEmbed = new MessageEmbed()
-                .setColor('RANDOM')
-                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({ dynamic: true }))
+            const helpEmbed = new EmbedBuilder()
+                .setColor('Random')
+                .setAuthor({
+                    name: interaction.user.username,
+                    iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
+                })
                 .setTitle(title)
                 .setDescription(description)
                 .setTimestamp()
-                .setFooter(footer);
+                .setFooter({
+                    text: footer,
+                    iconURL: interaction.user.displayAvatarURL(),
+                });
             return interaction.user.send({ embeds: [helpEmbed] })
                 .then(() => {
                     if (interaction.channel.type === 'dm') return;
@@ -30,13 +36,19 @@ module.exports = {
             const title = `Here\'s more information on the command: ${commandRequested}`;
             const description = interaction.client.commands.find(command => command.data.name === commandRequested).data.description;
             const footer = `You can send \\help [command name] to get info on a specific command!`;
-            const helpEmbed = new MessageEmbed()
-                .setColor('RANDOM')
-                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({ dynamic: true }))
+            const helpEmbed = new EmbedBuilder()
+                .setColor('Random')
+                .setAuthor({
+                    name: interaction.user.username,
+                    iconURL: interaction.user.displayAvatarURL({ dynamic: true }),
+                })
                 .setTitle(title)
                 .setDescription(description)
                 .setTimestamp()
-                .setFooter(footer);
+                .setFooter({
+                    text: footer,
+                    iconURL: interaction.user.displayAvatarURL(),
+                });
             return interaction.user.send({ embeds: [helpEmbed] })
                 .then(() => {
                     if (interaction.channel.type === 'dm') return;
@@ -50,13 +62,19 @@ module.exports = {
                     const title = 'Here\'s a list of all my commands:';
                     const description = message.client.commands.map(command => command.data.name).join(', ');
                     const footer = `You can send ${prefix.prefix}help [command name] to get info on a specific command!`;
-                    const helpEmbed = new MessageEmbed()
-                        .setColor('RANDOM')
-                        .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
+                    const helpEmbed = new EmbedBuilder()
+                        .setColor('Random')
+                        .setAuthor({
+                            name: message.author.tag,
+                            iconURL: message.author.displayAvatarURL({dynamic: true}),
+                        })
                         .setTitle(title)
                         .setDescription(description)
                         .setTimestamp()
-                        .setFooter(footer);
+                        .setFooter({
+                            text: footer,
+                            iconURL: message.author.displayAvatarURL()
+                        });
                     return message.author.send({ embeds: [helpEmbed] })
                         .then(() => {
                             if (message.channel.type === 'dm') return;
@@ -66,9 +84,12 @@ module.exports = {
                     const title = `Here\'s more information on the command: ${args[0]}`;
                     const description = message.client.commands.find(command => command.data.name === args[0]).data.description;
                     console.log(description)
-                    const helpEmbed = new MessageEmbed()
-                        .setColor('RANDOM')
-                        .setAuthor(message.author.tag, message.author.displayAvatarURL({ dynamic: true }))
+                    const helpEmbed = new EmbedBuilder()
+                        .setColor('Random')
+                        .setAuthor({
+                            name: message.author.tag, 
+                            iconURL: message.author.displayAvatarURL({ dynamic: true })},
+                            )
                         .setTitle(title)
                         .setDescription(description)
                         .setTimestamp();
