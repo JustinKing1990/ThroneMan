@@ -105,7 +105,7 @@ module.exports = {
             const row = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
-                        .setCustomId('submit_character')
+                        .setCustomId('submitCharacter')
                         .setLabel('Submit Character')
                         .setStyle(ButtonStyle.Primary),
                 );
@@ -141,12 +141,12 @@ module.exports = {
         const rowButtons = new ActionRowBuilder()
             .addComponents(
                 new ButtonBuilder()
-                    .setCustomId('prev_page')
+                    .setCustomId('prevPage')
                     .setLabel('Previous')
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(currentPage === 0),
                 new ButtonBuilder()
-                    .setCustomId('next_page')
+                    .setCustomId('nextPage')
                     .setLabel('Next')
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(currentPage >= totalPages - 1),

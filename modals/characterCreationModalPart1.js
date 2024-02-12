@@ -31,7 +31,7 @@ module.exports = async (interaction, client) => {
             components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId('character_creation_button_part2')
+                        .setCustomId('characterCreationButtonPart2')
                         .setLabel('Next')
                         .setStyle(ButtonStyle.Primary),
                 )

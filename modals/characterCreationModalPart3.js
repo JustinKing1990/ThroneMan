@@ -32,11 +32,11 @@ module.exports = async (interaction, client) => {
             components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId('character_creation_additional_backstory')
+                        .setCustomId('characterCreationAddditionalBackstory')
                         .setLabel('Yes')
                         .setStyle(ButtonStyle.Success),
                     new ButtonBuilder()
-                        .setCustomId('character_creation_final')
+                        .setCustomId('characterCreationFinal')
                         .setLabel('No')
                         .setStyle(ButtonStyle.Danger),
                 )

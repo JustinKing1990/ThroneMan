@@ -37,11 +37,11 @@ async function postCharacterInfo(interaction, client) {
     const row = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
-                .setCustomId('approve_character')
+                .setCustomId(`approveCharacter_${interaction.user.id}_${characterData.name}`)
                 .setLabel('Approve')
                 .setStyle(ButtonStyle.Success),
             new ButtonBuilder()
-                .setCustomId('deny_character')
+                .setCustomId('denyCharacter')
                 .setLabel('Deny')
                 .setStyle(ButtonStyle.Danger),
         );

@@ -13,7 +13,12 @@ module.exports = {
         }
         // Handle button interactions
         else if (interaction.isButton()) {
-            const buttonHandlerPath = path.join(__dirname, '..', 'buttons', `${interaction.customId}.js`);
+
+            const parts = interaction.customId.split('_');
+            const action = parts[0]; 
+            const params = parts.slice(1);
+
+            const buttonHandlerPath = path.join(__dirname, '..', 'buttons', `${action}.js`);
             if (fs.existsSync(buttonHandlerPath)) {
                 const buttonHandler = require(buttonHandlerPath);
                 await buttonHandler(interaction, client);

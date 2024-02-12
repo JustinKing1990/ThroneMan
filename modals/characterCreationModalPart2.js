@@ -32,7 +32,7 @@ module.exports = async (interaction, client) => {
         components: [
             new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
-                    .setCustomId('character_creation_button_part3')
+                    .setCustomId('characterCreationButtonPart3')
                     .setLabel('Next')
                     .setStyle(ButtonStyle.Primary),
             )

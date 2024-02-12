@@ -33,7 +33,7 @@ module.exports = async (interaction, client) => {
             const confirmButton = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
-                        .setCustomId('confirm-delete-channel')
+                        .setCustomId('confirmDeleteChannel')
                         .setLabel('Confirm and Delete Channel')
                         .setStyle(ButtonStyle.Danger)
                         .setEmoji('🗑️'),

@@ -3,12 +3,12 @@ const { getDb } = require('../mongoClient');
 
 module.exports = async (interaction, client) => {
     const yesButton = new ButtonBuilder()
-            .setCustomId('image_addition_yes')
+            .setCustomId('imageAdditionYes')
             .setLabel('Yes')
             .setStyle(ButtonStyle.Success);
 
         const noButton = new ButtonBuilder()
-            .setCustomId('image_addition_no')
+            .setCustomId('imageAdditionNo')
             .setLabel('No')
             .setStyle(ButtonStyle.Danger);
 
