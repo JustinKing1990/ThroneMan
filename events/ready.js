@@ -286,6 +286,7 @@ module.exports = {
         await updateInTheWorksMessage(client);
         await updateCharacterSubmissionMessage(client);
         await updateImportantCharacterSubmissionMessage(client);
+        await updateLoreSubmissionMessage(client);
         
         // Pass the necessary collection references to these functions
         await updateAllCharactersMessage(client, charactersCollection, settingsCollection);
