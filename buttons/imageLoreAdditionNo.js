@@ -1,6 +1,7 @@
 const ensureMessagePosted = require('../helpercommands/postTrackedMessage');
 const config = require('../env/config.json');
 const {getDb} = require('../mongoClient');
+const path = require('path');
 
 async function updateAllLoreMessage(client, loreCollection, settingsCollection) {
     const channelId = "1207322800424091668"; 
