@@ -7,7 +7,7 @@ const config = require('../env/config.json');
 
 
 
-async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection, interaction) {
+async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
     const channelId = "1207179211845140521"; // All characters channel ID
     const configPath = path.join(__dirname, '../env/config.json');
     const messageConfigKey = 'allImportantCharacterMessage'; // Key in config.json
@@ -66,7 +66,7 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
                 .setDisabled(currentPage >= totalPages - 1),
         );
 
-    await ensureMessagePosted(interaction, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons]});
+    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons]});
 }
 module.exports = async (interaction, client) => {
 
@@ -95,7 +95,7 @@ module.exports = async (interaction, client) => {
                 }
             }
 
-            await updateAllImportantCharactersMessage(client, targetCollection, settingsCollection, interaction);
+            await updateAllImportantCharactersMessage(interaction.client, targetCollection, settingsCollection);
 
             await interaction.followUp({ content: "Character approved and moved successfully.", ephemeral: true });
         } else {

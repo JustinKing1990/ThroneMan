@@ -7,7 +7,7 @@ const config = require('../env/config.json');
 
 
 
-async function updateAllCharactersMessage(client, charactersCollection, settingsCollection, interaction) {
+async function updateAllCharactersMessage(client, charactersCollection, settingsCollection) {
     const channelId = "905554690966704159"; // All characters channel ID
     const configPath = path.join(__dirname, '../env/config.json');
     const messageConfigKey = 'allCharacterMessage'; // Key in config.json
@@ -66,7 +66,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
                 .setDisabled(currentPage >= totalPages - 1),
         );
 
-    await ensureMessagePosted(interaction, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons]});
+    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons]});
 }
 
 module.exports = async (interaction, client) => {
@@ -102,7 +102,8 @@ module.exports = async (interaction, client) => {
             await announcementChannel.send(`<@${userId}>, your character: ${characterDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your character.`);
 
 
-            await updateAllCharactersMessage(client, targetCollection, settingsCollection, interaction);
+                    await updateAllCharactersMessage(interaction.client, targetCollection, settingsCollection);
+;
 
             const guild = await interaction.client.guilds.cache.get('903864074134249483'); 
             const member = await guild.members.fetch(userId);
