@@ -28,7 +28,7 @@ module.exports = async (interaction, client) => {
 
         collector.on('collect', async m => {
             const db = getDb();
-            const charactersCollection = db.collection('importantCharacters');
+            const charactersCollection = db.collection('characters');
             const characterDocument = await charactersCollection.findOne({ userId: interaction.user.id, name: characterName });
 
             const imageEmbed = new EmbedBuilder()
@@ -59,7 +59,7 @@ module.exports = async (interaction, client) => {
                 const retryButton = new ActionRowBuilder()
                     .addComponents(
                         new ButtonBuilder()
-                            .setCustomId(`importantCharacterCreationFinal_${characterName}`) 
+                            .setCustomId(`characterCreationFinal_${characterName}`) 
                             .setLabel('Retry Upload')
                             .setStyle(ButtonStyle.Primary), 
                     );
