@@ -229,11 +229,10 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
         });
 
 
-    // Generate selectMenu for characters
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
-                .setCustomId('selectLoreCharacter')
+                .setCustomId('selectLore')
                 .setPlaceholder('Select a lore')
                 .addOptions(loreData.map(lore => ({
                     label: lore.name,

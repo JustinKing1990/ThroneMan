@@ -23,11 +23,10 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
         });
 
 
-    // Generate selectMenu for characters
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
-                .setCustomId('selectLoreCharacter')
+                .setCustomId('selectLore')
                 .setPlaceholder('Select a lore')
                 .addOptions(loreData.map(lore => ({
                     label: lore.name,
@@ -71,7 +70,7 @@ module.exports = async (interaction, client) => {
             // await announcementChannel.send(`<@${userId}>, your lore: ${loreDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your lore.`);
 
 
-            await updateAllLoresMessage(client, targetCollection, settingsCollection);
+            await updateAllLoreMessage(client, sourceCollection , settingsCollection);
 
             await interaction.followUp({ content: "lore approved and moved successfully.", ephemeral: true });
         } else {
