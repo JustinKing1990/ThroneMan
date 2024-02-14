@@ -71,9 +71,9 @@ console.log(loreName)
 
             await updateAllLoreMessage(client, sourceCollection , settingsCollection);
 
-            await interaction.followUp({ content: "lore approved and moved successfully.", ephemeral: true });
+            await interaction.update({ content: "lore approved and moved successfully.", components: [], ephemeral: true });
         } else {
-            await interaction.followUp({ content: "No pending lore found for this user.", ephemeral: true });
+            await interaction.update({ content: "No pending lore found for this name.", components: [], ephemeral: true });
         }
     } catch (error) {
         console.error('Error processing accept button interaction:', error);
