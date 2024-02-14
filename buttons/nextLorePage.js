@@ -6,10 +6,17 @@ const ensureMessagePosted = require('../helpercommands/postTrackedMessage')
 const config = require('../env/config.json');
 
 async function updateAllLoreMessage(client, loreCollection, settingsCollection) {
-    const channelId = "1207322800424091668"; 
+    const channelId = "1207322800424091668";
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'loreMessageId'; 
-    const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { loreCurrentPage: 0 };
+    const messageConfigKey = 'loreMessageId';
+    let { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { loreCurrentPage: 0 };
+
+    let newPage = currentPage + 1;
+    currentPage = newPage
+
+    // Update the currentPage in the database
+    await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { loreCurrentPage: newPage } }, { upsert: true });
+
     const totalLore = await loreCollection.countDocuments();
     const totalPages = Math.ceil(totalLore / 25);
     const loreData = await loreCollection.find({})
@@ -18,12 +25,12 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
         .limit(25)
         .toArray();
 
-        const loreOptions = loreData.map((lore, index) => {
-            return {
-                label: lore.name,
-                value: `${lore.name}`
-            };
-        });
+    const loreOptions = loreData.map((lore, index) => {
+        return {
+            label: lore.name,
+            value: `${lore.name}`
+        };
+    });
 
 
     const selectMenu = new ActionRowBuilder()
@@ -52,7 +59,7 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
                 .setDisabled(currentPage >= totalPages - 1),
         );
 
-    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons]});
+    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
 }
 module.exports = async (interaction, client) => {
     await interaction.deferReply({ ephemeral: true })
@@ -62,7 +69,7 @@ module.exports = async (interaction, client) => {
 
     try {
         let { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { loreCurrentPage: 0 };
-        
+
         let newPage = currentPage + 1;
         currentPage = newPage
 
@@ -70,7 +77,7 @@ module.exports = async (interaction, client) => {
         await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { loreCurrentPage: newPage } }, { upsert: true });
 
         await updateAllLoreMessage(interaction.client, charactersCollection, settingsCollection);
-        await interaction.deleteReply({ephemeral: true})
+        await interaction.deleteReply({ ephemeral: true })
 
     } catch (error) {
         console.error('Error processing accept button interaction:', error);

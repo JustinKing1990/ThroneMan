@@ -9,7 +9,13 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
     const channelId = "1207322800424091668";
     const configPath = path.join(__dirname, '../env/config.json');
     const messageConfigKey = 'loreMessageId';
-    const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { loreCurrentPage: 0 };
+    let { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
+
+    let newPage = Math.max(0, currentPage - 1);
+    currentPage = newPage
+
+    // Update the currentPage in the database
+    await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { currentPage: newPage } }, { upsert: true });
     const totalLore = await loreCollection.countDocuments();
     const totalPages = Math.ceil(totalLore / 25);
     const loreData = await loreCollection.find({})
