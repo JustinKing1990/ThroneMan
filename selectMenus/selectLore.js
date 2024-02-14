@@ -26,9 +26,7 @@ function calculateEmbedFieldsLength(fields) {
     return fields.reduce((acc, field) => acc + field.name.length + field.value.length, 0);
 }
 
-const createEmbeds = async (character, interaction, imageUrl) => {
-    const guildMember = await interaction.guild.members.fetch(character.userId);
-    let userName = guildMember.displayName;
+const createEmbeds = async (lore, interaction, imageUrl) => {
 
     const embeds = [];
     let currentEmbed = new EmbedBuilder().setColor('#0099ff');
@@ -42,7 +40,6 @@ const createEmbeds = async (character, interaction, imageUrl) => {
 
     if (imageUrl) {
         currentEmbed.setImage(imageUrl);
-        // Approximate the size added by the image URL
         currentEmbedSize += imageUrl.length;
     }
 
@@ -51,7 +48,6 @@ const createEmbeds = async (character, interaction, imageUrl) => {
             const fieldName = index === 0 ? name : `${name} (cont.)`;
             const fieldSize = fieldName.length + value.length;
 
-            // Check if adding this field would exceed the embed limit
             if (currentEmbedSize + fieldSize > MAX_EMBED_CHAR_LIMIT || currentEmbed.data.fields?.length >= 25) {
                 addEmbed(); // Push current embed to the list and start a new one
             }
