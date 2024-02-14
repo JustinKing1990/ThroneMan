@@ -105,6 +105,24 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
         .limit(25)
         .toArray();
 
+        const importantMemberFetchPromises = charactersData.map(character =>
+            client.guilds.cache.get('903864074134249483')
+                .members.fetch(character.userId)
+                .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
+        );
+        const importantMembers = await Promise.all(importantMemberFetchPromises);
+
+        const importantCharacterOptions = importantCharactersData.map((character, index) => {
+            const member = importantMembers[index];
+            const displayName = member ? member.displayName : 'Unknown User';
+
+            return {
+                label: character.name,
+                value: `${character.name}::${character.userId}`,
+                description: `Player: ${displayName}`,
+            };
+        });
+
     // Generate selectMenu for characters
     const selectMenu = new ActionRowBuilder()
         .addComponents(
@@ -149,6 +167,24 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
         .limit(25)
         .toArray();
 
+        const importantMemberFetchPromises = charactersData.map(character =>
+            client.guilds.cache.get('903864074134249483')
+                .members.fetch(character.userId)
+                .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
+        );
+        const importantMembers = await Promise.all(importantMemberFetchPromises);
+
+        const importantCharacterOptions = importantCharactersData.map((character, index) => {
+            const member = importantMembers[index];
+            const displayName = member ? member.displayName : 'Unknown User';
+            return {
+                label: character.name,
+                value: `${character.name}::${character.userId}`,
+                description: `Player: ${displayName}`,
+            };
+        });
+
+
     // Generate selectMenu for characters
     const selectMenu = new ActionRowBuilder()
         .addComponents(
@@ -179,7 +215,6 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
 
     await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
 }
-
 
 module.exports = {
     name: "ready",

@@ -1,9 +1,72 @@
 const { getDb } = require('../mongoClient');
+const postTrackedMessage = require('../helpercommands/postTrackedMessage');
 const config = require('../env/config.json');
 const fs = require('fs');
 const path = require('path');
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, PermissionsBitField } = require('discord.js');
 
+
+async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
+    const channelId = "1207179211845140521"; // All characters channel ID
+    const configPath = path.join(__dirname, '../env/config.json');
+    const messageConfigKey = 'allImportantCharacterMessage'; // Key in config.json
+    const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { importantCurrentPage: 0 };
+    const totalCharacters = await charactersCollection.countDocuments();
+    const totalPages = Math.ceil(totalCharacters / 25);
+    const charactersData = await charactersCollection.find({})
+        .sort({ name: 1 })
+        .skip(currentPage * 25)
+        .limit(25)
+        .toArray();
+
+        const importantMemberFetchPromises = charactersData.map(character =>
+            client.guilds.cache.get('903864074134249483')
+                .members.fetch(character.userId)
+                .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
+        );
+        const importantMembers = await Promise.all(importantMemberFetchPromises);
+
+        const importantCharacterOptions = importantCharactersData.map((character, index) => {
+            const member = importantMembers[index];
+            const displayName = member ? member.displayName : 'Unknown User';
+            return {
+                label: character.name,
+                value: `${character.name}::${character.userId}`,
+                description: `Player: ${displayName}`,
+            };
+        });
+
+
+    // Generate selectMenu for characters
+    const selectMenu = new ActionRowBuilder()
+        .addComponents(
+            new StringSelectMenuBuilder()
+                .setCustomId('selectImportantCharacter')
+                .setPlaceholder('Select a character')
+                .addOptions(charactersData.map(character => ({
+                    label: character.name,
+                    description: `Character ID: ${character._id.toString().substr(0, 18)}`, // Ensure the description is not too long
+                    value: character._id.toString(),
+                }))),
+        );
+
+    // Generate rowButtons for pagination
+    const rowButtons = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('prevImportantPage')
+                .setLabel('Previous')
+                .setStyle(ButtonStyle.Secondary)
+                .setDisabled(currentPage === 0),
+            new ButtonBuilder()
+                .setCustomId('nextImportantPage')
+                .setLabel('Next')
+                .setStyle(ButtonStyle.Secondary)
+                .setDisabled(currentPage >= totalPages - 1),
+        );
+
+    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
+}
 async function handleDeleteCharacterInteraction(interaction) {
     const db = getDb();
     const settingsCollection = db.collection('settings');
@@ -40,75 +103,7 @@ async function handleDeleteCharacterInteraction(interaction) {
     }
 
     try {
-        const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { importantCurrentPage: 0 };
-
-        const totalCharacters = await charactersCollection.countDocuments();
-        const totalPages = Math.ceil(totalCharacters / 25);
-
-        const charactersData = await charactersCollection.find({})
-            .sort({ name: 1 })
-            .skip(currentPage * 25)
-            .limit(25)
-            .toArray();
-
-        const memberFetchPromises = charactersData.map(character =>
-            interaction.client.guilds.cache.get('903864074134249483')
-                .members.fetch(character.userId)
-                .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
-        );
-        const members = await Promise.all(memberFetchPromises);
-
-        const characterOptions = charactersData.map((character, index) => {
-            const member = members[index];
-            const displayName = member ? member.displayName : 'Unknown User';
-
-            return {
-                label: character.name,
-                value: `${character.name}::${character.userId}`,
-                description: `Player: ${displayName}`,
-            };
-        });
-
-        const selectMenu = new ActionRowBuilder()
-            .addComponents(
-                new StringSelectMenuBuilder()
-                    .setCustomId('selectImportantCharacter')
-                    .setPlaceholder('Select a character')
-                    .addOptions(characterOptions),
-            );
-
-        const rowButtons = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('prevPage')
-                    .setLabel('Previous')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setDisabled(currentPage === 0),
-                new ButtonBuilder()
-                    .setCustomId('nextPage')
-                    .setLabel('Next')
-                    .setStyle(ButtonStyle.Secondary)
-                    .setDisabled(currentPage >= totalPages - 1),
-            );
-
-        const allCharactersChannel = await interaction.client.channels.fetch("903864075405127706"); // Adjust channel ID accordingly
-        const allCharactersMessageId = config.allCharacterMessage
-        let allCharacterMessageExists = false;
-        let allCharactersMessage
-
-        try {
-            const message = await allCharactersChannel.messages.fetch(allCharactersMessageId);
-            allCharacterMessageExists = true;
-        } catch (error) {
-        }
-        if (allCharacterMessageExists) {
-            allCharactersMessage = await allCharactersChannel.messages.fetch(allCharactersMessageId);
-            await allCharactersMessage.edit({ content: "Select a character to view more information:", components: [selectMenu, rowButtons] });
-        } else {
-            allCharactersMessage = await allCharactersChannel.send({ content: "Select a character to view more information:", components: [selectMenu, rowButtons] });
-            config.allCharacterMessage = allCharactersMessage.id;
-            fs.writeFileSync(path.join(__dirname, '../env/config.json'), JSON.stringify(config, null, 2));
-        }
+        await updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection);
     } catch (error) {
         console.error('Error updating character list message:', error);
     }
