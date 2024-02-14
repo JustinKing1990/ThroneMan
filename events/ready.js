@@ -127,11 +127,9 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
-                .setCustomId('selectCharacter')
+                .setCustomId('selectImportantCharacter')
                 .setPlaceholder('Select a character')
-                .addOptions(charactersData.map(character => ({
-                    importantCharacterOptions
-                }))),
+                .addOptions(importantCharacterOptions),
         );
 
     // Generate rowButtons for pagination
@@ -189,9 +187,7 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
             new StringSelectMenuBuilder()
                 .setCustomId('selectImportantCharacter')
                 .setPlaceholder('Select a character')
-                .addOptions(charactersData.map(character => ({
-                    importantCharacterOptions
-                }))),
+                .addOptions(importantCharacterOptions),
         );
 
     // Generate rowButtons for pagination
