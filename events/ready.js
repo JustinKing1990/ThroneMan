@@ -27,6 +27,7 @@ async function updateChangelogMessage(client) {
     });
     await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { embeds: [changeLogEmbed] });
 }
+
 async function updateInTheWorksMessage(client) {
     const channelId = '1031582807279030343'; // In The Works channel ID
     const configPath = path.join(__dirname, '../env/config.json');
@@ -43,7 +44,6 @@ async function updateInTheWorksMessage(client) {
     await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { embeds: [inTheWorksEmbed] });
 }
 
-
 async function updateCharacterSubmissionMessage(client) {
     const channelId = "1207094079373049906"; // Character submission channel ID
     const configPath = path.join(__dirname, '../env/config.json');
@@ -55,6 +55,22 @@ async function updateCharacterSubmissionMessage(client) {
             new ButtonBuilder()
                 .setCustomId('submitCharacter')
                 .setLabel('Submit Character')
+                .setStyle(ButtonStyle.Primary),
+        );
+    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { embeds: [embed], components: [row] });
+}
+
+async function updateLoreSubmissionMessage(client) {
+    const channelId = "1207323739163983906"; 
+    const configPath = path.join(__dirname, '../env/config.json');
+    const messageConfigKey = 'createLoreMessageId'; 
+    const embed = new EmbedBuilder()
+        .setDescription('Click the button below to create some lore!');
+    const row = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('submitLore')
+                .setLabel('Submit Lore')
                 .setStyle(ButtonStyle.Primary),
         );
     await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { embeds: [embed], components: [row] });
@@ -119,6 +135,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
 
     await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
 }
+
 async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
     const channelId = "1207179211845140521"; // All characters channel ID
     const configPath = path.join(__dirname, '../env/config.json');
