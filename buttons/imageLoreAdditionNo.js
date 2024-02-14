@@ -71,6 +71,7 @@ module.exports = async (interaction, client) => {
             // await announcementChannel.send(`<@${userId}>, your lore: ${loreDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your lore.`);
 
             await updateAllLoreMessage(interaction, sourceCollection , settingsCollection,);
+            console.log('you made it here')
 
             await interaction.update({ content: "lore approved and moved successfully.", components: [], ephemeral: true });
         } else {
