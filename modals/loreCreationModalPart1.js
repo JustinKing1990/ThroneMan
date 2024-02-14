@@ -3,7 +3,7 @@ const { getDb } = require('../mongoClient');
 
 module.exports = async (interaction, client) => {
     const loreName = interaction.fields.getTextInputValue('lore_name');
-    const loreData = interaction.fields.getTextInputValue('lore_data');
+    const loreData = [interaction.fields.getTextInputValue('lore_data')];
 
     const db = getDb();
     const loreCollection = db.collection('lore');
