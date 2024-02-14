@@ -60,15 +60,20 @@ module.exports = async (interaction, client) => {
     const sourceCollection = db.collection('lore');
     const settingsCollection = db.collection('settings');
     const [action, loreName] = interaction.customId.split('_')
-    let targetChannel = await interaction.client.channels.fetch('1206381988559323166');
+    let targetChannel = await interaction.client.channels.fetch('1207398646035910726');
 
     try {
         const loreDocument = await sourceCollection.findOne({name: loreName });
-        console.log(loreDocument)
         if (loreDocument) {
 
             // const announcementChannel = await interaction.client.channels.fetch("905150985712861274"); 
             // await announcementChannel.send(`<@${userId}>, your lore: ${loreDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your lore.`);
+
+            const reply = await interaction.update({
+                content: "Please upload your images now.",
+                components: [],
+                ephemeral: true
+            });
 
             const filter = m => m.author.id === interaction.user.id;
             const collector = interaction.channel.createMessageCollector({ filter, time: 60000, max: 1 });
