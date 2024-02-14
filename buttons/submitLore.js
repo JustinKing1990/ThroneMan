@@ -14,7 +14,7 @@ module.exports = async (interaction, client) => {
     const loreDataInput = new TextInputBuilder()
         .setCustomId('lore_data')
         .setLabel("Input your Lore")
-        .setStyle(TextInputStyle.Short)
+        .setStyle(TextInputStyle.Paragraph)
         .setRequired(true)
 
  
