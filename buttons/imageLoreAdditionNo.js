@@ -5,7 +5,7 @@ const { getDb } = require('../mongoClient');
 const ensureMessagePosted = require('../helpercommands/postTrackedMessage')
 const config = require('../env/config.json');
 
-async function updateAllLoreMessage(client, loreCollection, settingsCollection,interaction) {
+async function updateAllLoreMessage(interaction, loreCollection, settingsCollection,interaction) {
     const channelId = "1207322800424091668"; 
     const configPath = path.join(__dirname, '../env/config.json');
     const messageConfigKey = 'loreMessageId'; 
@@ -70,7 +70,7 @@ module.exports = async (interaction, client) => {
             // const announcementChannel = await interaction.client.channels.fetch("905150985712861274"); 
             // await announcementChannel.send(`<@${userId}>, your lore: ${loreDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your lore.`);
 
-            await updateAllLoreMessage(client, sourceCollection , settingsCollection);
+            await updateAllLoreMessage(interaction, sourceCollection , settingsCollection,);
 
             await interaction.update({ content: "lore approved and moved successfully.", components: [], ephemeral: true });
         } else {
