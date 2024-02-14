@@ -62,12 +62,12 @@ const createEmbeds = async (character, interaction, imageUrl) => {
     };
 
 
-    const characterDetails = {
-        'Lore': [loreName || 'Unknown']
+    const loreDetails = {
+        'Lore': [name || 'Unknown']
     };
 
     
-    Object.entries(characterDetails).forEach(([name, value]) => {
+    Object.entries(loreDetails).forEach(([name, value]) => {
         addFieldToEmbed(name, value);
     });
 
