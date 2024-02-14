@@ -60,8 +60,8 @@ module.exports = async (interaction, client) => {
         if (loreDocument) {
 
 
-            const announcementChannel = await interaction.client.channels.fetch("905150985712861274"); 
-            await announcementChannel.send(`<@${userId}>, your lore: ${loreDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your lore.`);
+            // const announcementChannel = await interaction.client.channels.fetch("905150985712861274"); 
+            // await announcementChannel.send(`<@${userId}>, your lore: ${loreDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your lore.`);
 
 
             await updateAllloresMessage(client, targetCollection, settingsCollection);
