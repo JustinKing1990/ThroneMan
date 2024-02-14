@@ -127,7 +127,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
-                .setCustomId('selectImportantCharacter')
+                .setCustomId('selectCharacter')
                 .setPlaceholder('Select a character')
                 .addOptions(importantCharacterOptions),
         );
