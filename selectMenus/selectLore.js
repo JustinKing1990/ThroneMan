@@ -116,18 +116,18 @@ async function fetchRandomImage(loreName, interaction) {
 module.exports = async (interaction, client) => {
     const db = getDb();
     const loreCollection = db.collection('lore');
-    const [SelectedLoreId, userId] = interaction.values[0].split("::");
+    const [SelectedLoreId] = interaction.values[0].split("::");
 
-    console.log('Selected lore:', selectedCharacterId, 'User ID:', userId)
+    console.log('Selected lore:', SelectedLoreId)
  
     try {
-        const lore = await loreCollection.findOne({ name: selectedCharacterId, userId });
+        const lore = await loreCollection.findOne({ name: SelectedLoreId });
         if (!character) {
-            await interaction.reply({ content: 'Character not found.', ephemeral: true });
+            await interaction.reply({ content: 'Lore not found.', ephemeral: true });
             return;
         }
 
-        const randomImageUrl = await fetchRandomImage(selectedCharacterId, userId, interaction);
+        const randomImageUrl = await fetchRandomImage(SelectedLoreId, interaction);
         const embeds = await createEmbeds(character, interaction, randomImageUrl);
 
         const userHasKickPermission = interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers);
