@@ -66,7 +66,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
                 .setDisabled(currentPage >= totalPages - 1),
         );
 
-    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
+    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons], interaction });
 }
 
 module.exports = async (interaction, client) => {
