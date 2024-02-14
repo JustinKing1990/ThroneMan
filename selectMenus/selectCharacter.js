@@ -64,6 +64,7 @@ const createEmbeds = async (character, interaction, imageUrl) => {
 
     const characterDetails = {
         'Player': [userName || 'Unknown'],
+        'Name': [character.name || 'Unknown'],
         'Age': [character.age || 'Unknown'],
         'Birthplace': [character.birthplace || 'Unknown'],
         'Gender': [character.gender || 'Unknown'],

@@ -63,7 +63,7 @@ const createEmbeds = async (character, interaction, imageUrl) => {
 
 
     const loreDetails = {
-        'Lore': [name || 'Unknown']
+        'Lore': [lore.name || 'Unknown']
     };
 
     
