@@ -64,6 +64,7 @@ module.exports = async (interaction, client) => {
 
     try {
         const loreDocument = await sourceCollection.findOne({name: loreName });
+        console.log(loreDocument)
         if (loreDocument) {
 
             // const announcementChannel = await interaction.client.channels.fetch("905150985712861274"); 
@@ -117,7 +118,7 @@ module.exports = async (interaction, client) => {
             });
             await updateAllLoreMessage(interaction.client, sourceCollection , settingsCollection,);
 
-            await interaction.update({ content: "lore approved and moved successfully.", components: [], ephemeral: true });
+            await interaction.update({ content: "Images added, lore processed and moved successfully.", components: [], ephemeral: true });
         } else {
             await interaction.update({ content: "No pending lore found for this name.", components: [], ephemeral: true });
         }
