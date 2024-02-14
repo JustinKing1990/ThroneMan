@@ -71,7 +71,7 @@ module.exports = async (interaction, client) => {
                 });
             } else {
                 try {
-                    await postCharacterInfo(interaction, client, characterName);
+                    await postCharacterInfo(interaction.client, client, characterName);
                     await interaction.deleteReply(); 
                     await interaction.followUp({ content: "Character information has been processed and will be posted for staff approval.", ephemeral: true });
                 } catch (error) {

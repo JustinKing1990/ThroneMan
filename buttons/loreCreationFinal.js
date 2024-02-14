@@ -3,7 +3,6 @@ const { getDb } = require('../mongoClient');
 
 module.exports = async (interaction, client) => {
     const [action, loreName] = interaction.customId.split('_')
-    console.log(loreName)
     const yesButton = new ButtonBuilder()
             .setCustomId(`imageLoreAdditionYes_${loreName}`)
             .setLabel('Yes')

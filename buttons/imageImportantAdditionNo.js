@@ -2,7 +2,7 @@ const postCharacterInfo = require('../helpercommands/postImportantCharacterInfo'
 
 module.exports = async (interaction, client) => {
     const [action, characterName] = interaction.customId.split('_')
-    await postCharacterInfo(interaction, client, characterName)
+    await postCharacterInfo(interaction.client, client, characterName)
         .then(() => {
             interaction.update({ content: "Character information will be posted to staff for approval. You will be updated with further information.", components: [], ephemeral: true });
         })

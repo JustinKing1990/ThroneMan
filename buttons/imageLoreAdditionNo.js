@@ -57,7 +57,6 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
 
 module.exports = async (interaction, client) => {
     
-    await interaction.deferUpdate({ ephemeral: true })
     const db = getDb();
     const sourceCollection = db.collection('lore');
     const settingsCollection = db.collection('settings');

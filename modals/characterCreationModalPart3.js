@@ -47,7 +47,6 @@ module.exports = async (interaction, client) => {
             ],
             ephemeral: true
         });
-        // await interaction.deleteReply({ ephemeral: true});
 
 
     } catch (error) {
