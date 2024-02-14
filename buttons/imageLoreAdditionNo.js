@@ -1,5 +1,6 @@
 const postTrackedMessage = require('../helpercommands/postTrackedMessage');
 const config = require('../env/config.json');
+const {getDb} = require('../mongoClient');
 
 
 async function updateAllLoresMessage(client, loresCollection, settingsCollection) {
