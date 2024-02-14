@@ -44,11 +44,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
             new StringSelectMenuBuilder()
                 .setCustomId('selectCharacter')
                 .setPlaceholder('Select a character')
-                .addOptions(charactersData.map(character => ({
-                    label: character.name,
-                    description: `Character ID: ${character._id.toString().substr(0, 18)}`, // Ensure the description is not too long
-                    value: character._id.toString(),
-                }))),
+                .addOptions(importantCharacterOptions),
         );
 
     // Generate rowButtons for pagination
