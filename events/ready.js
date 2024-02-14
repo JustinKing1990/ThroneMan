@@ -130,9 +130,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
                 .setCustomId('selectCharacter')
                 .setPlaceholder('Select a character')
                 .addOptions(charactersData.map(character => ({
-                    label: character.name,
-                    description: `Character ID: ${character._id.toString().substr(0, 18)}`, // Ensure the description is not too long
-                    value: character._id.toString(),
+                    importantCharacterOptions
                 }))),
         );
 
@@ -192,9 +190,7 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
                 .setCustomId('selectImportantCharacter')
                 .setPlaceholder('Select a character')
                 .addOptions(charactersData.map(character => ({
-                    label: character.name,
-                    description: `Character ID: ${character._id.toString().substr(0, 18)}`, // Ensure the description is not too long
-                    value: character._id.toString(),
+                    importantCharacterOptions
                 }))),
         );
 
