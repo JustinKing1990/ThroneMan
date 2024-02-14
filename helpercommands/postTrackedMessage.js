@@ -3,7 +3,11 @@ const path = require('path');
 const { EmbedBuilder, ActionRowBuilder } = require('discord.js');
 
 async function ensureMessagePosted(client, channelId, messageIdConfigPath, messageIdConfigKey, content, interaction) {
-    const channel = await client.channels.fetch(channelId);
+    let channel;
+   try{  channel = await client.channels.fetch(channelId);
+   } catch{
+    channel = await interaction.guild.channels.fetch(channelId);
+   }
     let config = require(messageIdConfigPath);
     let messageExists = false;
     let message;
