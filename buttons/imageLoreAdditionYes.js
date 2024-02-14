@@ -88,7 +88,7 @@ module.exports = async (interaction, client) => {
                     .setTitle('Lore Images')
                     .setDescription(`Images for lore: ${loreDocument ? loreDocument.name : "Unknown Lore"}`)
                     .addFields(
-                        { name: 'LoreName', value: interaction.user.id.toString() }
+                        { name: 'LoreName', value: loreDocument.name }
                     );
     
                 const imageUrls = m.attachments.map(attachment => attachment.url).join('\n');
