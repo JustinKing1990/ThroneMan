@@ -123,7 +123,7 @@ module.exports = async (interaction, client) => {
             });
             await updateAllLoreMessage(interaction.client, sourceCollection , settingsCollection,);
  
-            await interaction.deferUpdate({ content: "Images added, lore processed and moved successfully.", components: [], ephemeral: true });
+            // await interaction.deferUpdate({ content: "Images added, lore processed and moved successfully.", components: [], ephemeral: true });
         } else {
             await interaction.update({ content: "No pending lore found for this name.", components: [], ephemeral: true });
         }
