@@ -207,10 +207,11 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
 
     await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
 }
+
 async function updateAllLoreMessage(client, loreCollection, settingsCollection) {
-    const channelId = "1207322800424091668"; // All characters channel ID
+    const channelId = "1207322800424091668"; 
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'loreMessageId'; // Key in config.json
+    const messageConfigKey = 'loreMessageId'; 
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { loreCurrentPage: 0 };
     const totalLore = await loreCollection.countDocuments();
     const totalPages = Math.ceil(totalLore / 25);
@@ -278,6 +279,7 @@ module.exports = {
         const settingsCollection = db.collection('settings');
         const charactersCollection = db.collection('characters');
         const importantCharactersCollection = db.collection('importantCharacters')
+        const loreCollection = db.collection('lore');
         
         // Use the functions to handle message updates
         await updateChangelogMessage(client);
@@ -288,7 +290,7 @@ module.exports = {
         // Pass the necessary collection references to these functions
         await updateAllCharactersMessage(client, charactersCollection, settingsCollection);
         await updateAllImportantCharactersMessage(client, importantCharactersCollection, settingsCollection);
-
+        await updateAllLoreMessage(client, loreCollection , settingsCollection);
 
     }
 }
