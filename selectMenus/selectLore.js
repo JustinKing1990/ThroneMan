@@ -128,7 +128,7 @@ module.exports = async (interaction, client) => {
         }
 
         const randomImageUrl = await fetchRandomImage(SelectedLoreId, interaction);
-        const embeds = await createEmbeds(character, interaction, randomImageUrl);
+        const embeds = await createEmbeds(lore, interaction, randomImageUrl);
 
         const userHasKickPermission = interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers);
 
