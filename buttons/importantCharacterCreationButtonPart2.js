@@ -4,7 +4,7 @@ module.exports = async (interaction, client) => {
     const [action, characterName] = interaction.customId.split('_')
 
     const modal = new ModalBuilder()
-        .setCustomId(`characterCreationModalPart2_${characterName}`)
+        .setCustomId(`importantCharacterCreationModalPart2_${characterName}`)
         .setTitle('Character Creation - More Details');
 
     // Height

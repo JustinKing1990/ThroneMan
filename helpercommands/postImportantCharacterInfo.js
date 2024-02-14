@@ -3,7 +3,7 @@ const { getDb } = require('../mongoClient');
 
 async function postCharacterInfo(interaction, client, characterName) {
     const db = getDb();
-    const charactersCollection = db.collection('character');
+    const charactersCollection = db.collection('importantCharacter');
 
     // Fetch the character data for the user
     const characterData = await charactersCollection.findOne({ userId: interaction.user.id, name: characterName });
@@ -21,7 +21,7 @@ async function postCharacterInfo(interaction, client, characterName) {
     messageContent += `Birthplace: ${characterData.birthplace || 'N/A'}\n`;
     messageContent += `Height: ${characterData.height || 'N/A'}\n`;
     messageContent += `Species: ${characterData.species || 'N/A'}\n`;
-    messageContent += `Eye Color: ${characterData.eyecolor || 'N/A'}\n`;  // Fixed to eyecolor
+    messageContent += `Eye Color: ${characterData.eyecolor || 'N/A'}\n`;  
     messageContent += `Hair Color: ${characterData.haircolor || 'N/A'}\n`;
     messageContent += `Appearance: ${characterData.appearance || 'N/A'}\n`;
     messageContent += `Weapons: ${characterData.weapons || 'N/A'}\n`;
@@ -37,21 +37,20 @@ async function postCharacterInfo(interaction, client, characterName) {
     const row = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
-                .setCustomId(`approveCharacter_${characterData.userId}_${characterData.name}`)
+                .setCustomId(`approveImportantCharacter_${characterData.userId}_${characterData.name}`)
                 .setLabel('Approve')
                 .setStyle(ButtonStyle.Success),
             new ButtonBuilder()
-                .setCustomId(`denyCharacter_${characterData.userId}_${characterData.name}`)
+                .setCustomId(`denyImportantCharacter_${characterData.userId}_${characterData.name}`)
                 .setLabel('Deny')
                 .setStyle(ButtonStyle.Danger),
         );
 
-    const targetChannel = await interaction.client.channels.fetch("1206393672271134770");
+    const targetChannel = await interaction.client.channels.fetch("1207157063357177947");
     let startIndex = 0;
-    const chunkSize = 1900; // Define chunk size to ensure space for buttons in the last message
+    const chunkSize = 1900; 
     const sentMessagesIds = [];
 
-    // Determine how many chunks and send messages accordingly
     const numChunks = Math.ceil(messageContent.length / chunkSize);
     for (let i = 0; i < numChunks; i++) {
         const endIndex = startIndex + chunkSize;
@@ -62,13 +61,11 @@ async function postCharacterInfo(interaction, client, characterName) {
             components: i === numChunks - 1 ? [row] : []
         });
 
-        // Store the ID of each sent message for later potential deletion
         sentMessagesIds.push(sentMessage.id);
 
         startIndex += chunkSize;
     }
 
-    // Update the character document with the IDs of the messages sent
     await charactersCollection.updateOne(
         {
             userId: interaction.user.id,

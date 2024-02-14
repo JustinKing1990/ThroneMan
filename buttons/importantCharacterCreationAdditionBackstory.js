@@ -3,7 +3,7 @@ const { ModalBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } = req
 module.exports = async (interaction, client) => {
     const [action, characterName] = interaction.customId.split("_")
     const modal = new ModalBuilder()
-        .setCustomId(`characterCreationModalAdditionalBackstory_${characterName}`)
+        .setCustomId(`importantCharacterCreationModalAdditionalBackstory_${characterName}`)
         .setTitle('Character Creation - More Backstory');
 
     const characterAdditionalBackstory = new TextInputBuilder()

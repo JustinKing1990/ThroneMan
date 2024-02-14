@@ -3,6 +3,7 @@ const { getDb } = require('../mongoClient');
 const wait = require('node:timers/promises').setTimeout;
 
 module.exports = async (interaction, client) => {
+    const [action, characterName] = interaction.customId.split('_')
     const characterWeapons = interaction.fields.getTextInputValue('character_weapons');
     const characterArmor = interaction.fields.getTextInputValue('character_armor')
     const characterBeliefs = interaction.fields.getTextInputValue('character_beliefs')
@@ -14,7 +15,10 @@ module.exports = async (interaction, client) => {
 
     try {
         await charactersCollection.updateOne(
-            { userId: interaction.user.id },
+            {
+                userId: interaction.user.id,
+                name: characterName
+            },
             {
                 $set: {
                     weapons: characterWeapons,
@@ -32,11 +36,11 @@ module.exports = async (interaction, client) => {
             components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId('characterCreationAddditionalBackstory')
+                        .setCustomId(`characterCreationAdditionBackstory_${characterName}`)
                         .setLabel('Yes')
                         .setStyle(ButtonStyle.Success),
                     new ButtonBuilder()
-                        .setCustomId('characterCreationFinal')
+                        .setCustomId(`characterCreationFinal_${characterName}`)
                         .setLabel('No')
                         .setStyle(ButtonStyle.Danger),
                 )

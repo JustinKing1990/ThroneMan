@@ -3,10 +3,9 @@ const { ModalBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } = req
 module.exports = async (interaction, client) => {
     const [action, characterName] = interaction.customId.split('_')
     const modal = new ModalBuilder()
-        .setCustomId(`characterCreationModalPart3_${characterName}`)
+        .setCustomId(`importantCharacterCreationModalPart3_${characterName}`)
         .setTitle('Character Creation - Additional Details');
 
-    // Continuing from previous fields...
     
     // Weapons
     const characterWeaponsInput = new TextInputBuilder()

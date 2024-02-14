@@ -133,7 +133,7 @@ async function fetchRandomImage(characterName, userId, interaction) {
 
 module.exports = async (interaction, client) => {
     const db = getDb();
-    const charactersCollection = db.collection('characters');
+    const charactersCollection = db.collection('importantCharacters');
     const [selectedCharacterId, userId] = interaction.values[0].split("::");
  
     try {
@@ -152,7 +152,7 @@ module.exports = async (interaction, client) => {
         let components = [];
         if (userHasKickPermission) {
             const deleteButton = new ButtonBuilder()
-                .setCustomId(`deleteCharacter_${selectedCharacterId}_${userId}`) 
+                .setCustomId(`deleteImportantCharacter_${selectedCharacterId}_${userId}`) 
                 .setLabel('Delete Character')
                 .setStyle(ButtonStyle.Danger);
             components.push(new ActionRowBuilder().addComponents(deleteButton));

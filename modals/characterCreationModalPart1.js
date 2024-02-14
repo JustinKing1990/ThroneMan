@@ -13,10 +13,12 @@ module.exports = async (interaction, client) => {
 
     try {
         await charactersCollection.updateOne(
-            { userId: interaction.user.id },
+            {
+                userId: interaction.user.id,
+                name: characterName
+            },
             {
                 $set: {
-                    name: characterName,
                     title: characterTitle,
                     gender: characterGender,
                     age: characterAge,
@@ -31,7 +33,7 @@ module.exports = async (interaction, client) => {
             components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId('characterCreationButtonPart2')
+                        .setCustomId(`characterCreationButtonPart2_${characterName}`)
                         .setLabel('Next')
                         .setStyle(ButtonStyle.Primary),
                 )

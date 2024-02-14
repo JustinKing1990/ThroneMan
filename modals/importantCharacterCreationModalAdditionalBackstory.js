@@ -7,7 +7,7 @@ module.exports = async (interaction, client) => {
     const characterAdditionalBackstory = interaction.fields.getTextInputValue('character_additional_backstory')
 
     const db = getDb();
-    const charactersCollection = db.collection('character');
+    const charactersCollection = db.collection('importantCharacter');
 
     try {
         const updateResult = await charactersCollection.updateOne(
@@ -27,11 +27,11 @@ module.exports = async (interaction, client) => {
             components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId(`characterCreationAdditionBackstory_${characterName}`)
+                        .setCustomId(`importantCharacterCreationAdditionBackstory_${characterName}`)
                         .setLabel('Yes')
                         .setStyle(ButtonStyle.Success),
                     new ButtonBuilder()
-                        .setCustomId(`characterCreationFinal_${characterName}`)
+                        .setCustomId(`importantCharacterCreationFinal_${characterName}`)
                         .setLabel('No')
                         .setStyle(ButtonStyle.Danger),
                 )

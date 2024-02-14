@@ -1,25 +1,34 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, IntegrationApplication } = require('discord.js');
 const { getDb } = require('../mongoClient');
 const wait = require('node:timers/promises').setTimeout;
 
 module.exports = async (interaction, client) => {
     const [action, characterName] = interaction.customId.split('_')
-    const characterAdditionalBackstory = interaction.fields.getTextInputValue('character_additional_backstory')
+    const characterWeapons = interaction.fields.getTextInputValue('character_weapons');
+    const characterArmor = interaction.fields.getTextInputValue('character_armor')
+    const characterBeliefs = interaction.fields.getTextInputValue('character_beliefs')
+    const characterPowers = interaction.fields.getTextInputValue('character_powers')
+    const characterBackstory = [interaction.fields.getTextInputValue('character_backstory')]
 
     const db = getDb();
-    const charactersCollection = db.collection('character');
+    const charactersCollection = db.collection('importantCharacter');
 
     try {
-        const updateResult = await charactersCollection.updateOne(
+        await charactersCollection.updateOne(
             {
                 userId: interaction.user.id,
                 name: characterName
             },
             {
-                $push: {
-                    backstory: characterAdditionalBackstory
+                $set: {
+                    weapons: characterWeapons,
+                    armor: characterArmor,
+                    beliefs: characterBeliefs,
+                    powers: characterPowers,
+                    backstory: characterBackstory
                 }
-            }
+            },
+            { upsert: true }
         );
 
         await interaction.update({
@@ -27,11 +36,11 @@ module.exports = async (interaction, client) => {
             components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId(`characterCreationAdditionBackstory_${characterName}`)
+                        .setCustomId(`importantCharacterCreationAdditionBackstory_${characterName}`)
                         .setLabel('Yes')
                         .setStyle(ButtonStyle.Success),
                     new ButtonBuilder()
-                        .setCustomId(`characterCreationFinal_${characterName}`)
+                        .setCustomId(`importantCharacterCreationFinal_${characterName}`)
                         .setLabel('No')
                         .setStyle(ButtonStyle.Danger),
                 )

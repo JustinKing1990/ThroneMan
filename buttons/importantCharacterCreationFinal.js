@@ -4,12 +4,12 @@ const { getDb } = require('../mongoClient');
 module.exports = async (interaction, client) => {
     const [action, characterName] = interaction.customId.split('_')
     const yesButton = new ButtonBuilder()
-            .setCustomId(`imageAdditionYes_${characterName}`)
+            .setCustomId(`imageImportantAdditionYes_${characterName}`)
             .setLabel('Yes')
             .setStyle(ButtonStyle.Success);
 
         const noButton = new ButtonBuilder()
-            .setCustomId(`imageAdditionNo_${characterName}`)
+            .setCustomId(`imageImportantAdditionNo_${characterName}`)
             .setLabel('No')
             .setStyle(ButtonStyle.Danger);
 

@@ -9,8 +9,8 @@ module.exports = async (interaction, client) => {
 
     await interaction.deferUpdate({ ephemeral: true })
     const db = getDb();
-    const sourceCollection = db.collection('character');
-    const targetCollection = db.collection('characters');
+    const sourceCollection = db.collection('importantCharacter');
+    const targetCollection = db.collection('importantCharacters');
     const settingsCollection = db.collection('settings');
     const [action, userId, characterName] = interaction.customId.split('_')
 
@@ -21,9 +21,8 @@ module.exports = async (interaction, client) => {
             await targetCollection.insertOne(characterDocument);
             await sourceCollection.deleteOne({ name: characterName, userId: userId });
 
-            // Delete associated messages if there are any messageIds
             if (characterDocument.messageIds && characterDocument.messageIds.length > 0) {
-                const targetChannel = await interaction.client.channels.fetch("1206393672271134770"); // Channel ID where messages were posted
+                const targetChannel = await interaction.client.channels.fetch("1207157063357177947"); 
                 for (const messageId of characterDocument.messageIds) {
                     try {
                         await targetChannel.messages.delete(messageId);
@@ -33,13 +32,7 @@ module.exports = async (interaction, client) => {
                 }
             }
 
-            // Notify the user in the specified channel about their character's acceptance
-            const announcementChannel = await interaction.client.channels.fetch("904144926135164959"); // Update with your channel ID
-            await announcementChannel.send(`<@${userId}>, your character: ${characterDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your character.`);
-
-
-            // Update the selectMenu to include the new character
-            const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
+            const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { importantCurrentPage: 0 };
 
             const totalCharacters = await targetCollection.countDocuments();
             const totalPages = Math.ceil(totalCharacters / 25);
@@ -71,7 +64,7 @@ module.exports = async (interaction, client) => {
             const selectMenu = new ActionRowBuilder()
                 .addComponents(
                     new StringSelectMenuBuilder()
-                        .setCustomId('selectCharacter')
+                        .setCustomId('selectImportantCharacter')
                         .setPlaceholder('Select a character')
                         .addOptions(characterOptions),
                 );
@@ -90,8 +83,8 @@ module.exports = async (interaction, client) => {
                         .setDisabled(currentPage >= totalPages - 1),
                 );
 
-            const allCharactersChannel = await interaction.client.channels.fetch("905554690966704159"); // Adjust channel ID accordingly
-            const allCharactersMessageId = config.allCharacterMessage
+            const allCharactersChannel = await interaction.client.channels.fetch("903864075405127706"); 
+            const allCharactersMessageId = config.allImportantCharacterMessage
             let allCharacterMessageExists = false;
             let allCharactersMessage
 
@@ -109,12 +102,6 @@ module.exports = async (interaction, client) => {
                 fs.writeFileSync(path.join(__dirname, '../env/config.json'), JSON.stringify(config, null, 2));
             }
 
-            const guild = await interaction.client.guilds.cache.get('903864074134249483'); 
-            const member = await guild.members.fetch(userId);
-            let roleId = '903864074134249484'; 
-            await member.roles.add(roleId);
-            roleId = '989853929653305344';
-            await member.roles.remove(roleId);
 
             await interaction.followUp({ content: "Character approved and moved successfully.", ephemeral: true });
         } else {

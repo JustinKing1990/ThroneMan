@@ -6,7 +6,7 @@ module.exports = {
     async execute(interaction, client) {
         // Handle command interactions
         if (interaction.isCommand()) {
-            const command = client.commands.get(interaction.commandName);
+            const command = interaction.client.commands.get(interaction.commandName);
             if (command) {
                 await command.execute(interaction, client);
             }
@@ -26,7 +26,13 @@ module.exports = {
         }
         // Handle modal submit interactions
         else if (interaction.isModalSubmit()) {
-            const modalHandlerPath = path.join(__dirname, '..', 'modals', `${interaction.customId}.js`);
+
+            const parts = interaction.customId.split('_');
+            const action = parts[0]; 
+            const params = parts.slice(1);
+
+
+            const modalHandlerPath = path.join(__dirname, '..', 'modals', `${action}.js`);
             if (fs.existsSync(modalHandlerPath)) {
                 const modalHandler = require(modalHandlerPath);
                 await modalHandler(interaction, client);
@@ -35,6 +41,11 @@ module.exports = {
 
         // Handle select menu interations
         if (interaction.isStringSelectMenu()) {
+
+            const parts = interaction.customId.split('_');
+            const action = parts[0]; 
+            const params = parts.slice(1);
+
             const selectMenuHandlerPath = path.join(__dirname, '..', 'selectMenus', `${interaction.customId}.js`);
             if (fs.existsSync(selectMenuHandlerPath)) {
                 const selectMenuHandler = require(selectMenuHandlerPath);

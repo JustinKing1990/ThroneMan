@@ -4,6 +4,7 @@ const path = require('path');
 const { getDb } = require('../mongoClient');
 const mongoClient = require('../mongoClient')
 const config = require('../env/config.json');
+const interactioncreate = require('./interactioncreate');
 const changelogMessage = config.changelogMessage
 const inTheWorksMessage = config.inTheWorksMessage
 
@@ -12,7 +13,7 @@ module.exports = {
     once: true,
     async execute(client) {
 
-       await mongoClient.connectToServer((err) => {
+        await mongoClient.connectToServer((err) => {
             if (err) {
                 console.error('Failed to connect to MongoDB:', err);
                 return;
@@ -26,8 +27,9 @@ module.exports = {
         const configPath = path.join(__dirname, '../env/config.json')
 
         const db = getDb();
-        const settingsCollection = db.collection('settings'); 
+        const settingsCollection = db.collection('settings');
         const charactersCollection = db.collection('characters');
+        const importantCharactersCollection = db.collection('importantCharacters')
 
         //update the changelog message
         let changelogChannel = client.channels.fetch('1031376354974912633')
@@ -90,7 +92,7 @@ module.exports = {
                 }
             })
 
-        const characterChannel = await client.channels.fetch("904144801388175470");
+        const characterChannel = await client.channels.fetch("1207094079373049906");
         const characterMakingMessageId = config.characterMakingMessage
         let characterMessageExists = false;
         try {
@@ -125,10 +127,23 @@ module.exports = {
             .limit(25)
             .toArray();
 
-        const characterOptions = charactersData.map(character => ({
-            label: character.name,
-            value: character.name
-        }));
+        const memberFetchPromises = charactersData.map(character =>
+            client.guilds.cache.get('903864074134249483') 
+                .members.fetch(character.userId)
+                .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
+        );
+        const members = await Promise.all(memberFetchPromises);
+
+        const characterOptions = charactersData.map((character, index) => {
+            const member = members[index];
+            const displayName = member ? member.displayName : 'Unknown User';
+            
+            return {
+                label: character.name,
+                value: `${character.name}::${character.userId}`,
+                description: `Player: ${displayName}`, 
+            };
+        });
 
         const selectMenu = new ActionRowBuilder()
             .addComponents(
@@ -151,8 +166,8 @@ module.exports = {
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(currentPage >= totalPages - 1),
             );
-
-        const allCharactersChannel = await client.channels.fetch("905554690966704159"); // Adjust channel ID accordingly
+//edit all things after this other than the elements of a collection to be start with important. 
+        const allCharactersChannel = await client.channels.fetch("905554690966704159"); 
         const allCharactersMessageId = config.allCharacterMessage
         let allCharacterMessageExists = false;
 
@@ -161,14 +176,106 @@ module.exports = {
             allCharacterMessageExists = true;
         } catch (error) {
         }
-            if (allCharacterMessageExists) {
-                allCharactersMessage = await allCharactersChannel.messages.fetch(allCharactersMessageId);
-                await allCharactersMessage.edit({ content: "Select a character to view more information:", components: [selectMenu, rowButtons] });
-            } else {
-                allCharactersMessage = await allCharactersChannel.send({ content: "Select a character to view more information:", components: [selectMenu, rowButtons] });
-                config.allCharacterMessage = allCharactersMessage.id;
-                fs.writeFileSync(path.join(__dirname, '../env/config.json'), JSON.stringify(config, null, 2));
-            }
-        
+        if (allCharacterMessageExists) {
+            allCharactersMessage = await allCharactersChannel.messages.fetch(allCharactersMessageId);
+            await allCharactersMessage.edit({ content: "Select a character to view more information:", components: [selectMenu, rowButtons] });
+        } else {
+            allCharactersMessage = await allCharactersChannel.send({ content: "Select a character to view more information:", components: [selectMenu, rowButtons] });
+            config.allCharacterMessage = allCharactersMessage.id;
+            fs.writeFileSync(path.join(__dirname, '../env/config.json'), JSON.stringify(config, null, 2));
+        }
+
+        const importantCharacterChannel = await client.channels.fetch("1207157109632802886");
+        const importantCharacterMakingMessageId = config.importantCharacterMakingMessage
+        let importantCharacterMessageExists = false;
+        try {
+            const message = await importantCharacterChannel.messages.fetch(importantCharacterMakingMessageId);
+            importantCharacterMessageExists = true;
+        } catch (error) {
+        }
+
+        if (!importantCharacterMessageExists) {
+            const embed = new EmbedBuilder()
+                .setDescription('Click the button below to submit your character!');
+            const importantRow = new ActionRowBuilder()
+                .addComponents(
+                    new ButtonBuilder()
+                        .setCustomId('submitImportantCharacter')
+                        .setLabel('Submit Character')
+                        .setStyle(ButtonStyle.Primary),
+                );
+            const sentImportantMessage = await importantCharacterChannel.send({ embeds: [embed], components: [importantRow] });
+            config.importantCharacterMakingMessage = sentImportantMessage.id;
+            fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+        }
+
+        const { currentImportantPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { importantCurrentPage: 0 };
+
+        const totalImportantCharacters = await importantCharactersCollection.countDocuments();
+        const totalImportantPages = Math.ceil(totalImportantCharacters / 25);
+
+        const importantCharactersData = await importantCharactersCollection.find({})
+            .sort({ name: 1 })
+            .skip(currentImportantPage * 25)
+            .limit(25)
+            .toArray();
+
+            const importantMemberFetchPromises = importantCharactersData.map(character =>
+                client.guilds.cache.get('903864074134249483') 
+                    .members.fetch(character.userId)
+                    .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
+            );
+            const importantMembers = await Promise.all(importantMemberFetchPromises);
+    
+        const importantCharacterOptions = importantCharactersData.map((character, index) => {
+            const member = importantMembers[index];
+            const displayName = member ? member.displayName : 'Unknown User';
+            
+            return {
+                label: character.name,
+                value: `${character.name}::${character.userId}`,
+                description: `Player: ${displayName}`, 
+            };
+        });
+
+        const selectImportantMenu = new ActionRowBuilder()
+            .addComponents(
+                new StringSelectMenuBuilder()
+                    .setCustomId('selectImportantCharacter')
+                    .setPlaceholder('Select a character')
+                    .addOptions(importantCharacterOptions),
+            );
+
+        const rowImportantButtons = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('prevImportantPage')
+                    .setLabel('Previous')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(currentPage === 0),
+                new ButtonBuilder()
+                    .setCustomId('nextImportantPage')
+                    .setLabel('Next')
+                    .setStyle(ButtonStyle.Secondary)
+                    .setDisabled(currentPage >= totalPages - 1),
+            );
+
+        const allImportantCharactersChannel = await client.channels.fetch("1207179211845140521");
+        const allImportantCharactersMessageId = config.allImportantCharacterMessage
+        let allImportantCharacterMessageExists = false;
+
+        try {
+            const message = await allImportantCharactersChannel.messages.fetch(allImportantCharactersMessageId);
+            allImportantCharacterMessageExists = true;
+        } catch (error) {
+        }
+        if (allImportantCharacterMessageExists) {
+            allImportantCharactersMessage = await allImportantCharactersChannel.messages.fetch(allImportantCharactersMessageId);
+            await allImportantCharactersMessage.edit({ content: "Select a character to view more information:", components: [selectImportantMenu, rowImportantButtons] });
+        } else {
+            allImportantCharactersMessage = await allImportantCharactersChannel.send({ content: "Select a character to view more information:", components: [selectImportantMenu, rowImportantButtons] });
+            config.allImportantCharacterMessage = allImportantCharactersMessage.id;
+            fs.writeFileSync(path.join(__dirname, '../env/config.json'), JSON.stringify(config, null, 2));
+        }
     }
 }
