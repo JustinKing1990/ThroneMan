@@ -26,7 +26,7 @@ module.exports = async (interaction, client) => {
             components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId(`loreCreationAddition${loreName}`)
+                        .setCustomId(`loreCreationAddition_${loreName}`)
                         .setLabel('Yes')
                         .setStyle(ButtonStyle.Success),
                     new ButtonBuilder()
