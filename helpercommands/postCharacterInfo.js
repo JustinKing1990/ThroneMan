@@ -5,6 +5,7 @@ async function postCharacterInfo(interaction, client, characterName) {
     const db = getDb();
     const charactersCollection = db.collection('character');
 
+    console.log(interaction.user.id, characterName)
     // Fetch the character data for the user
     const characterData = await charactersCollection.findOne({ userId: interaction.user.id, name: characterName });
     if (!characterData) {
