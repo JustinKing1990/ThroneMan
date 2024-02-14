@@ -122,7 +122,7 @@ module.exports = async (interaction, client) => {
  
     try {
         const lore = await loreCollection.findOne({ name: SelectedLoreId });
-        if (!character) {
+        if (!lore) {
             await interaction.reply({ content: 'Lore not found.', ephemeral: true });
             return;
         }
