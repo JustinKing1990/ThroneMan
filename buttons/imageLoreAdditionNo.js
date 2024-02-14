@@ -29,7 +29,7 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
-                .setCustomId(`selectLore_${lore.name}`)
+                .setCustomId(`selectLore`)
                 .setPlaceholder('Select a lore')
                 .addOptions(loreData.map(lore => ({
                     label: lore.name,
