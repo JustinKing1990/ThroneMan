@@ -65,7 +65,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
                 .setDisabled(currentPage >= totalPages - 1),
         );
 
-    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons], interaction });
+    await ensureMessagePosted(interaction, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons]});
 }
 
 async function handleDeleteCharacterInteraction(interaction) {
