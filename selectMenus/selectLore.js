@@ -116,12 +116,12 @@ async function fetchRandomImage(loreName, interaction) {
 module.exports = async (interaction, client) => {
     const db = getDb();
     const loreCollection = db.collection('lore');
-    const [selectedCharacterId, userId] = interaction.values[0].split("::");
+    const [SelectedLoreId, userId] = interaction.values[0].split("::");
 
     console.log('Selected lore:', selectedCharacterId, 'User ID:', userId)
  
     try {
-        const character = await charactersCollection.findOne({ name: selectedCharacterId, userId });
+        const lore = await loreCollection.findOne({ name: selectedCharacterId, userId });
         if (!character) {
             await interaction.reply({ content: 'Character not found.', ephemeral: true });
             return;
