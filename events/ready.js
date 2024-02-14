@@ -215,6 +215,56 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
 
     await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
 }
+async function updateAllLoreMessage(client, loreCollection, settingsCollection) {
+    const channelId = "1207322800424091668"; // All characters channel ID
+    const configPath = path.join(__dirname, '../env/config.json');
+    const messageConfigKey = 'loreMessageId'; // Key in config.json
+    const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { loreCurrentPage: 0 };
+    const totalLore = await loreCollection.countDocuments();
+    const totalPages = Math.ceil(totalLore / 25);
+    const loreData = await loreCollection.find({})
+        .sort({ name: 1 })
+        .skip(currentPage * 25)
+        .limit(25)
+        .toArray();
+
+        const loreOptions = loreData.map((lore, index) => {
+            return {
+                label: lore.name,
+                value: `${lore.name}`
+            };
+        });
+
+
+    // Generate selectMenu for characters
+    const selectMenu = new ActionRowBuilder()
+        .addComponents(
+            new StringSelectMenuBuilder()
+                .setCustomId('selectLoreCharacter')
+                .setPlaceholder('Select a lore')
+                .addOptions(loreData.map(lore => ({
+                    label: lore.name,
+                    value: lore.name,
+                }))),
+        );
+
+    // Generate rowButtons for pagination
+    const rowButtons = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('prevLorePage')
+                .setLabel('Previous')
+                .setStyle(ButtonStyle.Secondary)
+                .setDisabled(currentPage === 0),
+            new ButtonBuilder()
+                .setCustomId('nextLorePage')
+                .setLabel('Next')
+                .setStyle(ButtonStyle.Secondary)
+                .setDisabled(currentPage >= totalPages - 1),
+        );
+
+    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
+}
 
 module.exports = {
     name: "ready",
