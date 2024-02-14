@@ -5,7 +5,7 @@ const { getDb } = require('../mongoClient');
 const ensureMessagePosted = require('../helpercommands/postTrackedMessage')
 const config = require('../env/config.json');
 
-async function updateAllLoreMessage(interaction, loreCollection, settingsCollection,interaction) {
+async function updateAllLoreMessage(interaction, loreCollection, settingsCollection) {
     const channelId = "1207322800424091668"; 
     const configPath = path.join(__dirname, '../env/config.json');
     const messageConfigKey = 'loreMessageId'; 
