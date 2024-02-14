@@ -4,7 +4,7 @@ const postCharacterInfo = require('../helpercommands/postImportantCharacterInfo'
 
 module.exports = async (interaction, client) => {
     const [action, characterName] = interaction.customId.split('_');
-    console.log(characterName)
+    console.log(interaction.user.id)
     let targetChannel = await interaction.client.channels.fetch('1206381988559323166');
 
     const role = interaction.guild.roles.cache.find(role => role.name === 'Character Image Upload');
