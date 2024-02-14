@@ -6,7 +6,7 @@ async function ensureMessagePosted(client, channelId, messageIdConfigPath, messa
     let channel;
    try{  channel = await client.channels.fetch(channelId);
    } catch{
-    channel = await interaction.guild.channels.fetch(channelId);
+    channel = await interaction.client.channels.fetch(channelId);
    }
     let config = require(messageIdConfigPath);
     let messageExists = false;
