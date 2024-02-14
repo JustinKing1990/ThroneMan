@@ -6,7 +6,7 @@ const path = require('path');
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, PermissionsBitField } = require('discord.js');
 
 
-async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
+async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection, interaction) {
     const channelId = "1207179211845140521"; // All characters channel ID
     const configPath = path.join(__dirname, '../env/config.json');
     const messageConfigKey = 'allImportantCharacterMessage'; // Key in config.json
@@ -103,7 +103,7 @@ async function handleDeleteCharacterInteraction(interaction) {
     }
 
     try {
-        await updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection);
+        await updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection, interaction);
     } catch (error) {
         console.error('Error updating character list message:', error);
     }

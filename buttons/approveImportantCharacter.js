@@ -7,7 +7,7 @@ const config = require('../env/config.json');
 
 
 
-async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
+async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection, interaction) {
     const channelId = "1207179211845140521"; // All characters channel ID
     const configPath = path.join(__dirname, '../env/config.json');
     const messageConfigKey = 'allImportantCharacterMessage'; // Key in config.json
@@ -95,7 +95,7 @@ module.exports = async (interaction, client) => {
                 }
             }
 
-            await updateAllImportantCharactersMessage(client, targetCollection, settingsCollection);
+            await updateAllImportantCharactersMessage(client, targetCollection, settingsCollection, interaction);
 
             await interaction.followUp({ content: "Character approved and moved successfully.", ephemeral: true });
         } else {

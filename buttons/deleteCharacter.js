@@ -6,7 +6,7 @@ const path = require('path');
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, PermissionsBitField } = require('discord.js');
 
 
-async function updateAllCharactersMessage(client, charactersCollection, settingsCollection) {
+async function updateAllCharactersMessage(client, charactersCollection, settingsCollection, interaction) {
     const channelId = "905554690966704159"; // All characters channel ID
     const configPath = path.join(__dirname, '../env/config.json');
     const messageConfigKey = 'allCharacterMessage'; // Key in config.json
@@ -107,7 +107,7 @@ async function handleDeleteCharacterInteraction(interaction) {
 
     // Code to update the message with the list of characters after a deletion
     try {
-        await updateAllCharactersMessage(interaction.client, charactersCollection, settingsCollection);
+        await updateAllCharactersMessage(interaction.client, charactersCollection, settingsCollection, interaction);
     } catch (error) {
         console.error('Error updating character list message:', error);
     }

@@ -7,7 +7,7 @@ const config = require('../env/config.json');
 
 
 
-async function updateAllCharactersMessage(client, charactersCollection, settingsCollection) {
+async function updateAllCharactersMessage(client, charactersCollection, settingsCollection, interaction) {
     const channelId = "905554690966704159"; // All characters channel ID
     const configPath = path.join(__dirname, '../env/config.json');
     const messageConfigKey = 'allCharacterMessage'; // Key in config.json
@@ -102,7 +102,7 @@ module.exports = async (interaction, client) => {
             await announcementChannel.send(`<@${userId}>, your character: ${characterDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your character.`);
 
 
-            await updateAllCharactersMessage(client, targetCollection, settingsCollection);
+            await updateAllCharactersMessage(client, targetCollection, settingsCollection, interaction);
 
             const guild = await interaction.client.guilds.cache.get('903864074134249483'); 
             const member = await guild.members.fetch(userId);
