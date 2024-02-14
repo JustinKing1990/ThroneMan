@@ -117,6 +117,8 @@ module.exports = async (interaction, client) => {
     const db = getDb();
     const loreCollection = db.collection('lore');
     const [selectedCharacterId, userId] = interaction.values[0].split("::");
+
+    console.log('Selected lore:', selectedCharacterId, 'User ID:', userId)
  
     try {
         const character = await charactersCollection.findOne({ name: selectedCharacterId, userId });
