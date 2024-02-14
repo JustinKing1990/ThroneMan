@@ -27,7 +27,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
         );
         const importantMembers = await Promise.all(importantMemberFetchPromises);
 
-        const importantCharacterOptions = importantCharactersData.map((character, index) => {
+        const importantCharacterOptions = CharacterData.map((character, index) => {
             const member = importantMembers[index];
             const displayName = member ? member.displayName : 'Unknown User';
 
