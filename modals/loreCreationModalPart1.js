@@ -21,7 +21,7 @@ module.exports = async (interaction, client) => {
             { upsert: true }
         );
 
-        await interaction.update({
+        await interaction.reply({
             content: 'Do you have more lore to add?',
             components: [
                 new ActionRowBuilder().addComponents(

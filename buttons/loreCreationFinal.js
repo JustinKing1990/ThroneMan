@@ -15,7 +15,7 @@ module.exports = async (interaction, client) => {
 
         const row = new ActionRowBuilder().addComponents(yesButton, noButton);
 
-        await interaction.followUp({
+        await interaction.update({
             content: 'Do you have images to add?',
             components: [row],
             ephemeral: true
