@@ -59,7 +59,7 @@ module.exports = async (interaction, client) => {
     const sourceCollection = db.collection('lore');
     const settingsCollection = db.collection('settings');
     const [action, userId, loreName] = interaction.customId.split('_')
-    await intreraction.deferReply({ephemeral: true});
+    await interaction.deferReply({ephemeral: true});
 
     try {
         const loreDocument = await sourceCollection.findOne({name: loreName });
