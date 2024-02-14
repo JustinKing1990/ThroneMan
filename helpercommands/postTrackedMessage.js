@@ -4,6 +4,7 @@ const { EmbedBuilder, ActionRowBuilder } = require('discord.js');
 
 async function ensureMessagePosted(context, channelId, messageIdConfigPath, messageIdConfigKey, content) {
     let channel;
+    console.log(context)
     try{
          channel = await context.channels.fetch(channelId);
     } catch{
