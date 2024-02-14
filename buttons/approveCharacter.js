@@ -2,7 +2,7 @@ const { ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } 
 const fs = require('fs');
 const path = require('path');
 const { getDb } = require('../mongoClient');
-const postTrackedMessage = require('../helpercommands/postTrackedMessage')
+const ensureMessagePosted = require('../helpercommands/postTrackedMessage')
 const config = require('../env/config.json');
 
 
