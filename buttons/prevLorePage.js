@@ -58,7 +58,7 @@ module.exports = async (interaction, client) => {
     await interaction.deferReply({ ephemeral: true })
     const db = getDb();
     const settingsCollection = db.collection('settings');
-    const charactersCollection = db.collection('characters');
+    const charactersCollection = db.collection('lore');
 
     try {
         let { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
