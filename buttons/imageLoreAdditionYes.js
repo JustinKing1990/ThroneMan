@@ -86,9 +86,9 @@ module.exports = async (interaction, client) => {
                 const imageEmbed = new EmbedBuilder()
                     .setColor('#0099ff')
                     .setTitle('Lore Images')
-                    .setDescription(`Images for lore: ${loreDocument ? loreDocument.name : "Unknown Lore"}`)
+                    .setDescription(`Images for lore: ${loreDocument ? loreName : "Unknown Lore"}`)
                     .addFields(
-                        { name: 'LoreName', value: loreDocument.name }
+                        { name: 'LoreName', value: loreName}
                     );
     
                 const imageUrls = m.attachments.map(attachment => attachment.url).join('\n');
