@@ -2,27 +2,34 @@ const postTrackedMessage = require('../helpercommands/postTrackedMessage');
 const config = require('../env/config.json');
 const {getDb} = require('../mongoClient');
 
-
-async function updateAllLoresMessage(client, loresCollection, settingsCollection) {
+async function updateAllLoreMessage(client, loreCollection, settingsCollection) {
     const channelId = "1207322800424091668"; 
     const configPath = path.join(__dirname, '../env/config.json');
     const messageConfigKey = 'loreMessageId'; 
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { loreCurrentPage: 0 };
-    const totallores = await loresCollection.countDocuments();
-    const totalPages = Math.ceil(totallores / 25);
-    const loresData = await loresCollection.find({})
+    const totalLore = await loreCollection.countDocuments();
+    const totalPages = Math.ceil(totalLore / 25);
+    const loreData = await loreCollection.find({})
         .sort({ name: 1 })
         .skip(currentPage * 25)
         .limit(25)
         .toArray();
 
-    // Generate selectMenu for lores
+        const loreOptions = loreData.map((lore, index) => {
+            return {
+                label: lore.name,
+                value: `${lore.name}`
+            };
+        });
+
+
+    // Generate selectMenu for characters
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
-                .setCustomId('selectLore')
+                .setCustomId('selectLoreCharacter')
                 .setPlaceholder('Select a lore')
-                .addOptions(loresData.map(lore => ({
+                .addOptions(loreData.map(lore => ({
                     label: lore.name,
                     value: lore.name,
                 }))),
@@ -64,7 +71,7 @@ module.exports = async (interaction, client) => {
             // await announcementChannel.send(`<@${userId}>, your lore: ${loreDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your lore.`);
 
 
-            await updateAllloresMessage(client, targetCollection, settingsCollection);
+            await updateAllLoresMessage(client, targetCollection, settingsCollection);
 
             await interaction.followUp({ content: "lore approved and moved successfully.", ephemeral: true });
         } else {
