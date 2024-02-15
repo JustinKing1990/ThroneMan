@@ -170,6 +170,6 @@ module.exports = async (interaction, client) => {
         }
     } catch (error) {
         console.error('Error fetching lore from the database:', error);
-        await interaction.reply({ content: 'An error occurred while fetching character details.', ephemeral: true });
+        await interaction.followUp({ content: 'An error occurred while fetching character details.', ephemeral: true });
     }
 };
