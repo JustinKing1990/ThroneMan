@@ -169,7 +169,7 @@ module.exports = async (interaction, client) => {
             }
         }
     } catch (error) {
-        console.error('Error fetching character from the database:', error);
+        console.error('Error fetching lore from the database:', error);
         await interaction.reply({ content: 'An error occurred while fetching character details.', ephemeral: true });
     }
 };
