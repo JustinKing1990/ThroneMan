@@ -1,5 +1,4 @@
-const { SlashCommandBuilder, ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('@discordjs/builders');
-const { PermissionsBitField, EmbedBuilder } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, PermissionsBitField, SlashCommandBuilder } = require('discord.js');
 const { getDb } = require('../mongoClient');
 
 async function generateSelectMenu(interaction, collectionName, page = 0) {
