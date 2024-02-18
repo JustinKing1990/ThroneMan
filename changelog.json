@@ -12,6 +12,10 @@
             {
                 "title": "New Update",
                 "text": "Adjusted Changelog Message to update with commits"
+            },
+            {
+                "title": "New Update",
+                "text": "Added a method to keep the repo up-to-date with the changes it automatically generates"
             }
         ],
         "footer": [
