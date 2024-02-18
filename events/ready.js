@@ -323,7 +323,6 @@ module.exports = {
     name: "ready",
     once: true,
     async execute(client) {
-
         await mongoClient.connectToServer((err) => {
             if (err) {
                 console.error('Failed to connect to MongoDB:', err);
