@@ -1,10 +1,9 @@
-const { ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { getDb } = require('../../mongoClient');
+const ensureMessagePosted = require('../../helpercommands/postTrackedMessage');
+const config = require('../../env/config.json');
 const fs = require('fs');
 const path = require('path');
-const { getDb } = require('../mongoClient');
-const ensureMessagePosted = require('../helpercommands/postTrackedMessage')
-const config = require('../env/config.json');
-
+const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, PermissionsBitField } = require('discord.js');
 
 
 async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
@@ -64,41 +63,46 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
 
     await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons]});
 }
-module.exports = async (interaction, client) => {
-
-    await interaction.deferUpdate({ ephemeral: true })
+async function handleDeleteCharacterInteraction(interaction) {
     const db = getDb();
-    const sourceCollection = db.collection('importantCharacter');
-    const targetCollection = db.collection('importantCharacters');
     const settingsCollection = db.collection('settings');
-    const [action, userId, characterName] = interaction.customId.split('_')
+    const charactersCollection = db.collection('importantCharacters');
+    const characterArchiveCollection = db.collection('importantCharacterArchive'); 
+
+    const [action, characterId, userId] = interaction.customId.split('_');
+
+    if (interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
+        try {
+            const characterToArchive = await charactersCollection.findOne({ name: characterId, userId: userId });
+            if (characterToArchive) {
+                await characterArchiveCollection.insertOne(characterToArchive);
+                const deletionResult = await charactersCollection.deleteOne({ name: characterId, userId: userId });
+
+                if (deletionResult.deletedCount === 0) {
+                    await interaction.reply({ content: 'No character found or you do not have permission to delete this character.', ephemeral: true });
+                    return;
+                } else {
+                    await interaction.reply({ content: 'Character successfully deleted and archived.', ephemeral: true });
+                }
+            } else {
+                await interaction.reply({ content: 'Character not found for archiving and deletion.', ephemeral: true });
+                return; 
+            }
+        } catch (error) {
+            console.error('Error archiving and deleting character:', error);
+            await interaction.reply({ content: 'An error occurred while trying to archive and delete the character.', ephemeral: true });
+            return; 
+        }
+    } else {
+        await interaction.reply({ content: 'You do not have permission to delete this character.', ephemeral: true });
+        return; 
+    }
 
     try {
-        const characterDocument = await sourceCollection.findOne({ userId: userId, name: characterName });
-
-        if (characterDocument) {
-            await targetCollection.insertOne(characterDocument);
-            await sourceCollection.deleteOne({ name: characterName, userId: userId });
-
-            if (characterDocument.messageIds && characterDocument.messageIds.length > 0) {
-                const targetChannel = await interaction.client.channels.fetch("1207157063357177947"); 
-                for (const messageId of characterDocument.messageIds) {
-                    try {
-                        await targetChannel.messages.delete(messageId);
-                    } catch (msgError) {
-                        console.error(`Failed to delete message ${messageId}:`, msgError);
-                    }
-                }
-            }
-
-            await updateAllImportantCharactersMessage(interaction.client, targetCollection, settingsCollection);
-
-            await interaction.followUp({ content: "Character approved and moved successfully.", ephemeral: true });
-        } else {
-            await interaction.followUp({ content: "No pending character found for this user.", ephemeral: true });
-        }
+        await updateAllImportantCharactersMessage(interaction.client, charactersCollection, settingsCollection, interaction);
     } catch (error) {
-        console.error('Error processing accept button interaction:', error);
-        await interaction.update({ content: "There was an error processing the character approval. Yell at your local dev", ephemeral: true });
+        console.error('Error updating character list message:', error);
     }
-};
+}
+
+module.exports = handleDeleteCharacterInteraction;

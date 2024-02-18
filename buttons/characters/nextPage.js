@@ -1,6 +1,7 @@
-const { getDb } = require('../mongoClient');
-const { ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle, InteractionWebhook } = require('discord.js');
-const config = require('../env/config.json')
+const { getDb } = require('../../mongoClient');
+const { ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const config = require('../../env/config.json');
+const { t } = require('tar');
 
 module.exports = async (interaction, client) => {
     await interaction.deferReply({ ephemeral: true })
@@ -10,8 +11,8 @@ module.exports = async (interaction, client) => {
 
     try {
         let { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
-
-        let newPage = Math.max(0, currentPage - 1);
+        
+        let newPage = currentPage + 1;
         currentPage = newPage
 
         // Update the currentPage in the database
@@ -19,7 +20,7 @@ module.exports = async (interaction, client) => {
 
         // Fetch characters for the new page
         const totalCharacters = await charactersCollection.countDocuments();
-        const totalPages = Math.ceil(totalCharacters / 25);
+        const totalPages = Math.ceil(totalCharacters / 25);``
         const charactersData = await charactersCollection.find({})
             .sort({ name: 1 })
             .skip(newPage * 25)
@@ -54,7 +55,8 @@ module.exports = async (interaction, client) => {
                     .setDisabled(currentPage >= totalPages - 1),
             );
 
-        const allCharactersChannel = await interaction.client.channels.fetch("905554690966704159"); // Adjust channel ID accordingly
+
+        const allCharactersChannel = await interaction.client.channels.fetch("905554690966704159"); 
         const allCharactersMessageId = config.allCharacterMessage
         let allCharacterMessageExists = false;
 
@@ -62,9 +64,10 @@ module.exports = async (interaction, client) => {
             const message = await allCharactersChannel.messages.fetch(allCharactersMessageId);
             allCharacterMessageExists = true;
             await message.edit({ content: "Select a character to view more information:", components: [selectMenu, rowButtons] });
+            console.log("Message edited successfully.");
         } catch (error) {
         }
-
+        
         if (allCharacterMessageExists) {
             allCharactersMessage = await allCharactersChannel.messages.fetch(allCharactersMessageId);
             await allCharactersMessage.edit({ content: "Select a character to view more information:", components: [selectMenu, rowButtons] });
@@ -74,10 +77,10 @@ module.exports = async (interaction, client) => {
             fs.writeFileSync(path.join(__dirname, '../env/config.json'), JSON.stringify(config, null, 2));
         }
 
-        await interaction.deleteReply({ ephemeral: true })
+        await interaction.deleteReply({ephemeral: true})
 
     } catch (error) {
         console.error('Error processing accept button interaction:', error);
-        await interaction.update({ content: "There was an error processing the character approval. Yell at your local dev", ephemeral: true });
+        // await interaction.update({ content: "There was an error processing the character approval. Yell at your local dev", ephemeral: true });
     }
 }

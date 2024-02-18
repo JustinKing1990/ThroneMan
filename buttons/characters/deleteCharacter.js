@@ -1,6 +1,6 @@
-const { getDb } = require('../mongoClient');
-const ensureMessagePosted = require('../helpercommands/postTrackedMessage');
-const config = require('../env/config.json');
+const { getDb } = require('../../mongoClient');
+const ensureMessagePosted = require('../../helpercommands/postTrackedMessage');
+const config = require('../../env/config.json');
 const fs = require('fs');
 const path = require('path');
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, PermissionsBitField } = require('discord.js');

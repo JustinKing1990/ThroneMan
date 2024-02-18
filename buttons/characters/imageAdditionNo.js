@@ -1,4 +1,4 @@
-const postCharacterInfo = require('../helpercommands/postImportantCharacterInfo');
+const postCharacterInfo = require('../../helpercommands/postCharacterInfo');
 
 module.exports = async (interaction, client) => {
     const [action, characterName] = interaction.customId.split('_')

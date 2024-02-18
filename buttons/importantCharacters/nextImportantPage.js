@@ -1,16 +1,16 @@
-const { getDb } = require('../mongoClient');
+const { getDb } = require('../../mongoClient');
 const { ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const config = require('../env/config.json');
+const config = require('../../env/config.json');
 const { t } = require('tar');
 
 module.exports = async (interaction, client) => {
     await interaction.deferReply({ ephemeral: true })
     const db = getDb();
     const settingsCollection = db.collection('settings');
-    const charactersCollection = db.collection('characters');
+    const charactersCollection = db.collection('importantCharacters');
 
     try {
-        let { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
+        let { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { importantCurrentPage: 0 };
         
         let newPage = currentPage + 1;
         currentPage = newPage
@@ -36,7 +36,7 @@ module.exports = async (interaction, client) => {
         const selectMenu = new ActionRowBuilder()
             .addComponents(
                 new StringSelectMenuBuilder()
-                    .setCustomId('selectCharacter')
+                    .setCustomId('selectImportantCharacter')
                     .setPlaceholder('Select a character')
                     .addOptions(characterOptions),
             );
@@ -56,8 +56,8 @@ module.exports = async (interaction, client) => {
             );
 
 
-        const allCharactersChannel = await interaction.client.channels.fetch("905554690966704159"); 
-        const allCharactersMessageId = config.allCharacterMessage
+        const allCharactersChannel = await interaction.client.channels.fetch("903864075405127706"); 
+        const allCharactersMessageId = config.allImportantCharacterMessage
         let allCharacterMessageExists = false;
 
         try {
@@ -81,6 +81,5 @@ module.exports = async (interaction, client) => {
 
     } catch (error) {
         console.error('Error processing accept button interaction:', error);
-        // await interaction.update({ content: "There was an error processing the character approval. Yell at your local dev", ephemeral: true });
     }
 }

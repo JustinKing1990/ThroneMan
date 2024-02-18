@@ -1,9 +1,9 @@
 const { ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-const { getDb } = require('../mongoClient');
-const ensureMessagePosted = require('../helpercommands/postTrackedMessage')
-const config = require('../env/config.json');
+const { getDb } = require('../../mongoClient');
+const ensureMessagePosted = require('../../helpercommands/postTrackedMessage')
+const config = require('../../env/config.json');
 
 async function updateAllLoreMessage(client, loreCollection, settingsCollection) {
     const channelId = "1207322800424091668";

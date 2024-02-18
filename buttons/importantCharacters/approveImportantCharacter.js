@@ -1,17 +1,17 @@
 const { ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-const { getDb } = require('../mongoClient');
-const ensureMessagePosted = require('../helpercommands/postTrackedMessage')
-const config = require('../env/config.json');
+const { getDb } = require('../../mongoClient');
+const ensureMessagePosted = require('../../helpercommands/postTrackedMessage')
+const config = require('../../env/config.json');
 
 
 
-async function updateAllCharactersMessage(client, charactersCollection, settingsCollection) {
-    const channelId = "905554690966704159"; // All characters channel ID
+async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
+    const channelId = "1207179211845140521"; // All characters channel ID
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'allCharacterMessage'; // Key in config.json
-    const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
+    const messageConfigKey = 'allImportantCharacterMessage'; // Key in config.json
+    const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { importantCurrentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();
     const totalPages = Math.ceil(totalCharacters / 25);
     const charactersData = await charactersCollection.find({})
@@ -27,10 +27,9 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
         );
         const importantMembers = await Promise.all(importantMemberFetchPromises);
 
-        const importantCharacterOptions = charactersData.map((character, index) => {
+        const importantCharacterOptions = importantCharactersData.map((character, index) => {
             const member = importantMembers[index];
             const displayName = member ? member.displayName : 'Unknown User';
-
             return {
                 label: character.name,
                 value: `${character.name}::${character.userId}`,
@@ -38,11 +37,12 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
             };
         });
 
+
     // Generate selectMenu for characters
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
-                .setCustomId('selectCharacter')
+                .setCustomId('selectImportantCharacter')
                 .setPlaceholder('Select a character')
                 .addOptions(importantCharacterOptions),
         );
@@ -51,12 +51,12 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
-                .setCustomId('prevPage')
+                .setCustomId('prevImportantPage')
                 .setLabel('Previous')
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(currentPage === 0),
             new ButtonBuilder()
-                .setCustomId('nextPage')
+                .setCustomId('nextImportantPage')
                 .setLabel('Next')
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(currentPage >= totalPages - 1),
@@ -64,13 +64,12 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
 
     await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons]});
 }
-
 module.exports = async (interaction, client) => {
 
     await interaction.deferUpdate({ ephemeral: true })
     const db = getDb();
-    const sourceCollection = db.collection('character');
-    const targetCollection = db.collection('characters');
+    const sourceCollection = db.collection('importantCharacter');
+    const targetCollection = db.collection('importantCharacters');
     const settingsCollection = db.collection('settings');
     const [action, userId, characterName] = interaction.customId.split('_')
 
@@ -81,9 +80,8 @@ module.exports = async (interaction, client) => {
             await targetCollection.insertOne(characterDocument);
             await sourceCollection.deleteOne({ name: characterName, userId: userId });
 
-            // Delete associated messages if there are any messageIds
             if (characterDocument.messageIds && characterDocument.messageIds.length > 0) {
-                const targetChannel = await interaction.client.channels.fetch("1206393672271134770"); // Channel ID where messages were posted
+                const targetChannel = await interaction.client.channels.fetch("1207157063357177947"); 
                 for (const messageId of characterDocument.messageIds) {
                     try {
                         await targetChannel.messages.delete(messageId);
@@ -93,20 +91,7 @@ module.exports = async (interaction, client) => {
                 }
             }
 
-            // Notify the user in the specified channel about their character's acceptance
-            const announcementChannel = await interaction.client.channels.fetch("904144926135164959"); // Update with your channel ID
-            await announcementChannel.send(`<@${userId}>, your character: ${characterDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your character.`);
-
-
-                    await updateAllCharactersMessage(interaction.client, targetCollection, settingsCollection);
-;
-
-            const guild = await interaction.client.guilds.cache.get('903864074134249483'); 
-            const member = await guild.members.fetch(userId);
-            let roleId = '903864074134249484'; 
-            await member.roles.add(roleId);
-            roleId = '989853929653305344';
-            await member.roles.remove(roleId);
+            await updateAllImportantCharactersMessage(interaction.client, targetCollection, settingsCollection);
 
             await interaction.followUp({ content: "Character approved and moved successfully.", ephemeral: true });
         } else {

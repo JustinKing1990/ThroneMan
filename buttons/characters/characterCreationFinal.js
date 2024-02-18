@@ -1,15 +1,15 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { getDb } = require('../mongoClient');
+const { getDb } = require('../../mongoClient');
 
 module.exports = async (interaction, client) => {
-    const [action, loreName] = interaction.customId.split('_')
+    const [action, characterName] = interaction.customId.split('_')
     const yesButton = new ButtonBuilder()
-            .setCustomId(`imageLoreAdditionYes_${loreName}`)
+            .setCustomId(`imageAdditionYes_${characterName}`)
             .setLabel('Yes')
             .setStyle(ButtonStyle.Success);
 
         const noButton = new ButtonBuilder()
-            .setCustomId(`imageLoreAdditionNo_${loreName}`)
+            .setCustomId(`imageAdditionNo_${characterName}`)
             .setLabel('No')
             .setStyle(ButtonStyle.Danger);
 

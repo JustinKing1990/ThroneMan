@@ -1,6 +1,6 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { getDb } = require('../mongoClient');
-const postCharacterInfo = require('../helpercommands/postCharacterInfo');
+const { getDb } = require('../../mongoClient');
+const postCharacterInfo = require('../../helpercommands/postImportantCharacterInfo');
 
 module.exports = async (interaction, client) => {
     const [action, characterName] = interaction.customId.split('_');
@@ -28,7 +28,7 @@ module.exports = async (interaction, client) => {
 
         collector.on('collect', async m => {
             const db = getDb();
-            const charactersCollection = db.collection('characters');
+            const charactersCollection = db.collection('importantCharacters');
             const characterDocument = await charactersCollection.findOne({ userId: interaction.user.id, name: characterName });
 
             const imageEmbed = new EmbedBuilder()
@@ -59,7 +59,7 @@ module.exports = async (interaction, client) => {
                 const retryButton = new ActionRowBuilder()
                     .addComponents(
                         new ButtonBuilder()
-                            .setCustomId(`characterCreationFinal_${characterName}`) 
+                            .setCustomId(`importantCharacterCreationFinal_${characterName}`) 
                             .setLabel('Retry Upload')
                             .setStyle(ButtonStyle.Primary), 
                     );
