@@ -53,6 +53,12 @@ async function updateChangelog(commitMessage) {
 async function commitUpdates() {
     try {
         const projectRoot = path.join(__dirname, '..'); 
+        const status = execSync('git status --porcelain').toString();
+
+        if (!status) {
+            console.log('No changes to commit.');
+            return;
+        }
 
         execSync('git add package.json changelog.json', { cwd: projectRoot });
 
