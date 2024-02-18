@@ -8,6 +8,10 @@
             {
                 "title": "New Update",
                 "text": "Adjusted commands to be permission limited"
+            },
+            {
+                "title": "New Update",
+                "text": "Adjusted Changelog Message to update with commits"
             }
         ],
         "footer": [
