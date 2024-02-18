@@ -1,7 +1,6 @@
 const { getDb } = require('../../mongoClient');
 const { ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const config = require('../../env/config.json');
-const { t } = require('tar');
 
 module.exports = async (interaction, client) => {
     await interaction.deferReply({ ephemeral: true })
