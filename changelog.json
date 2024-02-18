@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Working on restore function"
-            },
-            {
-                "title": "New Update",
                 "text": "Adjusted commands to be permission limited"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Working towards getting restore functions in place"
+            },
+            {
+                "title": "New Update",
+                "text": "Working on restore function still. It's being rude"
             }
         ],
         "footer": [
