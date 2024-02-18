@@ -1,13 +1,17 @@
 {
-    "NewChanges":{
+    "NewChanges": {
         "Changes": [
             {
-                "title": "Oh boy have there been changes",
-                "text": "Updated method to upload characters for submission (including important characters)"
+                "title": "New Update",
+                "text": "Working on restore function"
+            },
+            {
+                "title": "New Update",
+                "text": "Adjusted commands to be permission limited"
             }
         ],
         "footer": [
-            "I'll try to post one of these every time a new major feature is out, or when there is a major change to an existing. As always, you can type $help to get a list of commands, and $help <commandname> to get more specific information on a command"
+            "This is now updated whenever I push a commit. A helpful change."
         ]
     }
 }

@@ -8,11 +8,39 @@ const config = require('../env/config.json');
 const interactioncreate = require('./interactioncreate');
 const changelogMessage = config.changelogMessage
 const inTheWorksMessage = config.inTheWorksMessage
+const { execSync } = require('child_process');
+
+async function getLatestGitCommit() {
+    try {
+        const commitMessage = execSync('git log -1 --pretty=%B').toString().trim();
+        return commitMessage;
+    } catch (error) {
+        console.error('Error fetching latest git commit:', error);
+        return null;
+    }
+}
+
+async function updateChangelog(commitMessage) {
+    const changelogPath = path.join(__dirname, '../changelog.json');
+    let changelog = require(changelogPath);
+
+    const commitMessages = commitMessage.split('\n').filter(line => line.trim() !== '');
+
+    commitMessages.reverse().forEach(message => {
+        const isDuplicate = changelog.NewChanges.Changes.some(change => change.text === message);
+
+        if (!isDuplicate) {
+            changelog.NewChanges.Changes.push({ title: 'New Update', text: message });
+        }
+    })
+
+    fs.writeFileSync(changelogPath, JSON.stringify(changelog, null, 4));
+}
 
 async function updateChangelogMessage(client) {
-    const channelId = '1031376354974912633'; 
+    const channelId = '1031376354974912633';
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'changelogMessage'; 
+    const messageConfigKey = 'changelogMessage';
     const version = require('../package.json');
     const changelogData = require('../changelog.json');
     const footerMessage = JSON.stringify(changelogData.NewChanges.footer).replace(/\[/gmi, "").replace(/\]/gmi, "").replace(/"/gmi, "");
@@ -29,9 +57,9 @@ async function updateChangelogMessage(client) {
 }
 
 async function updateInTheWorksMessage(client) {
-    const channelId = '1031582807279030343'; 
+    const channelId = '1031582807279030343';
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'inTheWorksMessage'; 
+    const messageConfigKey = 'inTheWorksMessage';
     const inTheWorksData = require('../intheworks.json');
     const footerMessage = JSON.stringify(inTheWorksData.NewFeatures.footer).replace(/\[/gmi, "").replace(/\]/gmi, "").replace(/"/gmi, "");
     const inTheWorksEmbed = new EmbedBuilder()
@@ -45,9 +73,9 @@ async function updateInTheWorksMessage(client) {
 }
 
 async function updateCharacterSubmissionMessage(client) {
-    const channelId = "1207094079373049906"; 
+    const channelId = "1207094079373049906";
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'characterMakingMessage'; 
+    const messageConfigKey = 'characterMakingMessage';
     const embed = new EmbedBuilder()
         .setDescription('Click the button below to submit your character!');
     const row = new ActionRowBuilder()
@@ -61,9 +89,9 @@ async function updateCharacterSubmissionMessage(client) {
 }
 
 async function updateLoreSubmissionMessage(client) {
-    const channelId = "1207323739163983906"; 
+    const channelId = "1207323739163983906";
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'createLoreMessageId'; 
+    const messageConfigKey = 'createLoreMessageId';
     const embed = new EmbedBuilder()
         .setDescription('Click the button below to create some lore!');
     const row = new ActionRowBuilder()
@@ -77,9 +105,9 @@ async function updateLoreSubmissionMessage(client) {
 }
 
 async function updateImportantCharacterSubmissionMessage(client) {
-    const channelId = "1207157109632802886"; 
+    const channelId = "1207157109632802886";
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'importantCharacterMakingMessage'; 
+    const messageConfigKey = 'importantCharacterMakingMessage';
     const embed = new EmbedBuilder()
         .setDescription('Click the button below to submit your important character!');
     const row = new ActionRowBuilder()
@@ -93,9 +121,9 @@ async function updateImportantCharacterSubmissionMessage(client) {
 }
 
 async function updateAllCharactersMessage(client, charactersCollection, settingsCollection) {
-    const channelId = "905554690966704159"; 
+    const channelId = "905554690966704159";
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'allCharacterMessage'; 
+    const messageConfigKey = 'allCharacterMessage';
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();
     const totalPages = Math.ceil(totalCharacters / 25);
@@ -105,25 +133,25 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
         .limit(25)
         .toArray();
 
-        const importantMemberFetchPromises = charactersData.map(character =>
-            client.guilds.cache.get('903864074134249483')
-                .members.fetch(character.userId)
-                .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
-        );
-        const importantMembers = await Promise.all(importantMemberFetchPromises);
+    const importantMemberFetchPromises = charactersData.map(character =>
+        client.guilds.cache.get('903864074134249483')
+            .members.fetch(character.userId)
+            .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
+    );
+    const importantMembers = await Promise.all(importantMemberFetchPromises);
 
-        const importantCharacterOptions = charactersData.map((character, index) => {
-            const member = importantMembers[index];
-            const displayName = member ? member.displayName : 'Unknown User';
+    const importantCharacterOptions = charactersData.map((character, index) => {
+        const member = importantMembers[index];
+        const displayName = member ? member.displayName : 'Unknown User';
 
-            return {
-                label: character.name,
-                value: `${character.name}::${character.userId}`,
-                description: `Player: ${displayName}`,
-            };
-        });
+        return {
+            label: character.name,
+            value: `${character.name}::${character.userId}`,
+            description: `Player: ${displayName}`,
+        };
+    });
 
-    
+
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
@@ -132,7 +160,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
                 .addOptions(importantCharacterOptions),
         );
 
-    
+
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -151,9 +179,9 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
 }
 
 async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
-    const channelId = "1207179211845140521"; 
+    const channelId = "1207179211845140521";
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'allImportantCharacterMessage'; 
+    const messageConfigKey = 'allImportantCharacterMessage';
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { importantCurrentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();
     const totalPages = Math.ceil(totalCharacters / 25);
@@ -163,25 +191,25 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
         .limit(25)
         .toArray();
 
-        const importantMemberFetchPromises = charactersData.map(character =>
-            client.guilds.cache.get('903864074134249483')
-                .members.fetch(character.userId)
-                .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
-        );
-        const importantMembers = await Promise.all(importantMemberFetchPromises);
+    const importantMemberFetchPromises = charactersData.map(character =>
+        client.guilds.cache.get('903864074134249483')
+            .members.fetch(character.userId)
+            .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
+    );
+    const importantMembers = await Promise.all(importantMemberFetchPromises);
 
-        const importantCharacterOptions = charactersData.map((character, index) => {
-            const member = importantMembers[index];
-            const displayName = member ? member.displayName : 'Unknown User';
-            return {
-                label: character.name,
-                value: `${character.name}::${character.userId}`,
-                description: `Player: ${displayName}`,
-            };
-        });
+    const importantCharacterOptions = charactersData.map((character, index) => {
+        const member = importantMembers[index];
+        const displayName = member ? member.displayName : 'Unknown User';
+        return {
+            label: character.name,
+            value: `${character.name}::${character.userId}`,
+            description: `Player: ${displayName}`,
+        };
+    });
 
 
-    
+
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
@@ -190,7 +218,7 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
                 .addOptions(importantCharacterOptions),
         );
 
-    
+
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -209,9 +237,9 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
 }
 
 async function updateAllLoreMessage(client, loreCollection, settingsCollection) {
-    const channelId = "1207322800424091668"; 
+    const channelId = "1207322800424091668";
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'loreMessageId'; 
+    const messageConfigKey = 'loreMessageId';
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { loreCurrentPage: 0 };
     const totalLore = await loreCollection.countDocuments();
     const totalPages = Math.ceil(totalLore / 25);
@@ -221,12 +249,12 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
         .limit(25)
         .toArray();
 
-        const loreOptions = loreData.map((lore, index) => {
-            return {
-                label: lore.name,
-                value: `${lore.name}`
-            };
-        });
+    const loreOptions = loreData.map((lore, index) => {
+        return {
+            label: lore.name,
+            value: `${lore.name}`
+        };
+    });
 
 
     const selectMenu = new ActionRowBuilder()
@@ -240,7 +268,7 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
                 }))),
         );
 
-    
+
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -279,18 +307,21 @@ module.exports = {
         const charactersCollection = db.collection('characters');
         const importantCharactersCollection = db.collection('importantCharacters')
         const loreCollection = db.collection('lore');
-        
-        
+
+        const commitMessage = await getLatestGitCommit();
+        if (commitMessage) {
+            await updateChangelog(commitMessage);
+        }
         await updateChangelogMessage(client);
         await updateInTheWorksMessage(client);
         await updateCharacterSubmissionMessage(client);
         await updateImportantCharacterSubmissionMessage(client);
         await updateLoreSubmissionMessage(client);
-        
-        
+
+
         await updateAllCharactersMessage(client, charactersCollection, settingsCollection);
         await updateAllImportantCharactersMessage(client, importantCharactersCollection, settingsCollection);
-        await updateAllLoreMessage(client, loreCollection , settingsCollection);
+        await updateAllLoreMessage(client, loreCollection, settingsCollection);
 
     }
 }
