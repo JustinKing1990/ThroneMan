@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Adjusted commands to be permission limited"
-            },
-            {
-                "title": "New Update",
                 "text": "Adjusted Changelog Message to update with commits"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Working on restore function still. It's being rude"
+            },
+            {
+                "title": "New Update",
+                "text": "trying to get things back online"
             }
         ],
         "footer": [
