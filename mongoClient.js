@@ -8,6 +8,7 @@ async function connectToServer() {
   const client = new MongoClient(config.mongoURI);
   await client.connect();
   db = client.db('Throneman');
+  console.log('Connected to MongoDB');
 }
 
 function getDb() {
