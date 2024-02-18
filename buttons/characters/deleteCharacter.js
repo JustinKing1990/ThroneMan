@@ -8,7 +8,7 @@ const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, P
 
 async function updateAllCharactersMessage(client, charactersCollection, settingsCollection) {
     const channelId = "905554690966704159"; 
-    const configPath = path.join(__dirname, '../env/config.json');
+    const configPath = path.join(__dirname, '../../env/config.json');
     const messageConfigKey = 'allCharacterMessage'; 
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();
@@ -26,7 +26,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
         );
         const importantMembers = await Promise.all(importantMemberFetchPromises);
 
-        const importantCharacterOptions = importantCharactersData.map((character, index) => {
+        const importantCharacterOptions = charactersData.map((character, index) => {
             const member = importantMembers[index];
             const displayName = member ? member.displayName : 'Unknown User';
 
@@ -36,7 +36,6 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
                 description: `Player: ${displayName}`,
             };
         });
-
     
     const selectMenu = new ActionRowBuilder()
         .addComponents(
@@ -103,7 +102,8 @@ async function handleDeleteCharacterInteraction(interaction) {
 
     
     try {
-        await updateAllCharactersMessage(interaction.client, charactersCollection, settingsCollection);
+        let newCharacterCollection = db.collection('characters');
+        await updateAllCharactersMessage(interaction.client, newCharacterCollection, settingsCollection);
     } catch (error) {
         console.error('Error updating character list message:', error);
     }

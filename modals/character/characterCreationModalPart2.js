@@ -1,15 +1,17 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { getDb } = require('../mongoClient');
+const { getDb } = require('../../mongoClient');
+const wait = require('node:timers/promises').setTimeout;
 
 module.exports = async (interaction, client) => {
-    const characterName = interaction.fields.getTextInputValue('character_name');
-    const characterTitle = interaction.fields.getTextInputValue('character_title')
-    const characterGender = interaction.fields.getTextInputValue('character_gender')
-    const characterAge = interaction.fields.getTextInputValue('character_age')
-    const characterBirthplace = interaction.fields.getTextInputValue('character_birthplace')
+    const [action, characterName] = interaction.customId.split('_')
+    const characterHeight = interaction.fields.getTextInputValue('character_height');
+    const characterSpecies = interaction.fields.getTextInputValue('character_species')
+    const characterEyeColor = interaction.fields.getTextInputValue('character_eyecolor')
+    const characterHairColor = interaction.fields.getTextInputValue('character_haircolor')
+    const characterAppearance = interaction.fields.getTextInputValue('character_appearance')
 
     const db = getDb();
-    const charactersCollection = db.collection('importantCharacter');
+    const charactersCollection = db.collection('character');
 
     try {
         await charactersCollection.updateOne(
@@ -19,21 +21,22 @@ module.exports = async (interaction, client) => {
             },
             {
                 $set: {
-                    title: characterTitle,
-                    gender: characterGender,
-                    age: characterAge,
-                    birthplace: characterBirthplace
+                    height: characterHeight,
+                    species: characterSpecies,
+                    eyecolor: characterEyeColor,
+                    haircolor: characterHairColor,
+                    appearance: characterAppearance
                 }
             },
             { upsert: true }
         );
 
-        await interaction.reply({
+        await interaction.update({
             content: 'Character updated successfully! Click "Next" to continue.',
             components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId(`importantCharacterCreationButtonPart2_${characterName}`)
+                        .setCustomId(`characterCreationButtonPart3_${characterName}`)
                         .setLabel('Next')
                         .setStyle(ButtonStyle.Primary),
                 )

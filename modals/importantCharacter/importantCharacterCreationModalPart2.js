@@ -1,5 +1,5 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { getDb } = require('../mongoClient');
+const { getDb } = require('../../mongoClient');
 const wait = require('node:timers/promises').setTimeout;
 
 module.exports = async (interaction, client) => {
@@ -11,7 +11,7 @@ module.exports = async (interaction, client) => {
     const characterAppearance = interaction.fields.getTextInputValue('character_appearance')
 
     const db = getDb();
-    const charactersCollection = db.collection('character');
+    const charactersCollection = db.collection('importantCharacter');
 
     try {
         await charactersCollection.updateOne(
@@ -36,7 +36,7 @@ module.exports = async (interaction, client) => {
             components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId(`characterCreationButtonPart3_${characterName}`)
+                        .setCustomId(`importantCharacterCreationButtonPart3_${characterName}`)
                         .setLabel('Next')
                         .setStyle(ButtonStyle.Primary),
                 )

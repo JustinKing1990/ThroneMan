@@ -34,7 +34,7 @@ module.exports = async (interaction, client) => {
             const imageEmbed = new EmbedBuilder()
                 .setColor('#0099ff')
                 .setTitle('Character Images')
-                .setDescription(`Images for character: ${characterDocument ? characterDocument.name : "Unknown Character"}`)
+                .setDescription(`Images for character: ${characterName ? characterName : "Unknown Character"}`)
                 .addFields(
                     { name: 'User ID', value: interaction.user.id.toString() },
                     { name: 'Character Name', value: characterName }

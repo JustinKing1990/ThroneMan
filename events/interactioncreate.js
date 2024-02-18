@@ -12,8 +12,9 @@ function loadHandlers(dirPath) {
                 traverseDirectories(fullPath);
             } else if (file.name.endsWith('.js')) {
                 const handler = require(fullPath);
-                const handlerName = path.relative(dirPath, fullPath).replace(/\\/g, '/').replace('.js', '');
-                handlers.set(handlerName, handler);
+                let handlerName = path.relative(dirPath, fullPath).replace(/\\/g, '/').replace('.js', '');
+                handlerName = handlerName.split('/');
+                handlers.set(handlerName[1], handler);
             }
         }
     };

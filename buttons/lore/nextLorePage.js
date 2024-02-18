@@ -7,7 +7,7 @@ const config = require('../../env/config.json');
 
 async function updateAllLoreMessage(client, loreCollection, settingsCollection) {
     const channelId = "1207322800424091668";
-    const configPath = path.join(__dirname, '../env/config.json');
+    const configPath = path.join(__dirname, '../../env/config.json');
     const messageConfigKey = 'loreMessageId';
     let { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { loreCurrentPage: 0 };
 

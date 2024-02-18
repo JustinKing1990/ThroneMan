@@ -1,27 +1,27 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { getDb } = require('../mongoClient');
-const wait = require('node:timers/promises').setTimeout;
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');''
+const { getDb } = require('../../mongoClient');
 
 module.exports = async (interaction, client) => {
-    const [action, loreName] = interaction.customId.split('_')
-    const loreData = interaction.fields.getTextInputValue('lore_additional')
+    const loreName = interaction.fields.getTextInputValue('lore_name');
+    const loreData = [interaction.fields.getTextInputValue('lore_data')];
 
     const db = getDb();
     const loreCollection = db.collection('lore');
 
     try {
-        const updateResult = await loreCollection.updateOne(
+        await loreCollection.updateOne(
             {
                 name: loreName
             },
             {
-                $push: {
+                $set: {
                     info: loreData
                 }
-            }
+            },
+            { upsert: true }
         );
 
-        await interaction.update({
+        await interaction.reply({
             content: 'Do you have more lore to add?',
             components: [
                 new ActionRowBuilder().addComponents(
@@ -37,7 +37,6 @@ module.exports = async (interaction, client) => {
             ],
             ephemeral: true
         });
-
 
     } catch (error) {
         console.error('Failed to save lore name to MongoDB:', error);

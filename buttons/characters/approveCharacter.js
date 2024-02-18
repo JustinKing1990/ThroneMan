@@ -5,11 +5,9 @@ const { getDb } = require('../../mongoClient');
 const ensureMessagePosted = require('../../helpercommands/postTrackedMessage')
 const config = require('../../env/config.json');
 
-
-
 async function updateAllCharactersMessage(client, charactersCollection, settingsCollection) {
     const channelId = "905554690966704159"; 
-    const configPath = path.join(__dirname, '../env/config.json');
+    const configPath = path.join(__dirname, '../../env/config.json');
     const messageConfigKey = 'allCharacterMessage'; 
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();

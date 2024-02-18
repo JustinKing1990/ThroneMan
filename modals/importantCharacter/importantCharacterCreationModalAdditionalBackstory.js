@@ -1,34 +1,25 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, IntegrationApplication } = require('discord.js');
-const { getDb } = require('../mongoClient');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { getDb } = require('../../mongoClient');
 const wait = require('node:timers/promises').setTimeout;
 
 module.exports = async (interaction, client) => {
     const [action, characterName] = interaction.customId.split('_')
-    const characterWeapons = interaction.fields.getTextInputValue('character_weapons');
-    const characterArmor = interaction.fields.getTextInputValue('character_armor')
-    const characterBeliefs = interaction.fields.getTextInputValue('character_beliefs')
-    const characterPowers = interaction.fields.getTextInputValue('character_powers')
-    const characterBackstory = [interaction.fields.getTextInputValue('character_backstory')]
+    const characterAdditionalBackstory = interaction.fields.getTextInputValue('character_additional_backstory')
 
     const db = getDb();
     const charactersCollection = db.collection('importantCharacter');
 
     try {
-        await charactersCollection.updateOne(
+        const updateResult = await charactersCollection.updateOne(
             {
                 userId: interaction.user.id,
                 name: characterName
             },
             {
-                $set: {
-                    weapons: characterWeapons,
-                    armor: characterArmor,
-                    beliefs: characterBeliefs,
-                    powers: characterPowers,
-                    backstory: characterBackstory
+                $push: {
+                    backstory: characterAdditionalBackstory
                 }
-            },
-            { upsert: true }
+            }
         );
 
         await interaction.update({

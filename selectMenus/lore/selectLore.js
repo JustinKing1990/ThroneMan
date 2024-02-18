@@ -113,8 +113,6 @@ module.exports = async (interaction, client) => {
     const db = getDb();
     const loreCollection = db.collection('lore');
     const [SelectedLoreId] = interaction.values[0].split("::");
-
-    console.log('Selected lore:', SelectedLoreId)
  
     try {
         const lore = await loreCollection.findOne({ name: SelectedLoreId });
@@ -130,13 +128,13 @@ module.exports = async (interaction, client) => {
 
         
         let components = [];
-        
-        
-        
-        
-        
-        
-        
+        if (userHasKickPermission) {
+            const deleteButton = new ButtonBuilder()
+                .setCustomId(`loreDelete_${SelectedLoreId}`) 
+                .setLabel('Delete Lore')
+                .setStyle(ButtonStyle.Danger);
+            components.push(new ActionRowBuilder().addComponents(deleteButton));
+        }
 
         await interaction.reply({ embeds: [embeds.shift()], components: [], ephemeral: true });
 

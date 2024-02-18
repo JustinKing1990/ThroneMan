@@ -1,5 +1,5 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, IntegrationApplication } = require('discord.js');
-const { getDb } = require('../mongoClient');
+const { getDb } = require('../../mongoClient');
 const wait = require('node:timers/promises').setTimeout;
 
 module.exports = async (interaction, client) => {

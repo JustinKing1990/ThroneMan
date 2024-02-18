@@ -1,5 +1,5 @@
 const { PermissionsBitField, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { getDb } = require('../mongoClient');
+const { getDb } = require('../../mongoClient');
 
 module.exports = async (interaction, client) => {
     const reason = interaction.fields.getTextInputValue('character_denial');

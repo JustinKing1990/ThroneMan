@@ -9,7 +9,7 @@ const config = require('../../env/config.json');
 
 async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
     const channelId = "1207179211845140521"; 
-    const configPath = path.join(__dirname, '../env/config.json');
+    const configPath = path.join(__dirname, '../../env/config.json');
     const messageConfigKey = 'allImportantCharacterMessage'; 
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { importantCurrentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();
