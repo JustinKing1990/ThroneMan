@@ -1,5 +1,5 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField } = require('discord.js');
-const { getDb } = require('../mongoClient');
+const { getDb } = require('../../mongoClient');
 const MAX_EMBED_CHAR_LIMIT = 6000;
 const MAX_FIELD_VALUE_LENGTH = 1024;
 

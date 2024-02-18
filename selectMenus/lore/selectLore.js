@@ -1,5 +1,5 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionsBitField } = require('discord.js');
-const { getDb } = require('../mongoClient');
+const { getDb } = require('../../mongoClient');
 const MAX_EMBED_CHAR_LIMIT = 6000;
 const MAX_FIELD_VALUE_LENGTH = 1024;
 
@@ -26,9 +26,7 @@ function calculateEmbedFieldsLength(fields) {
     return fields.reduce((acc, field) => acc + field.name.length + field.value.length, 0);
 }
 
-const createEmbeds = async (character, interaction, imageUrl) => {
-    const guildMember = await interaction.guild.members.fetch(character.userId);
-    let userName = guildMember.displayName;
+const createEmbeds = async (lore, interaction, imageUrl) => {
 
     const embeds = [];
     let currentEmbed = new EmbedBuilder().setColor('#0099ff');
@@ -42,7 +40,6 @@ const createEmbeds = async (character, interaction, imageUrl) => {
 
     if (imageUrl) {
         currentEmbed.setImage(imageUrl);
-        // Approximate the size added by the image URL
         currentEmbedSize += imageUrl.length;
     }
 
@@ -51,7 +48,6 @@ const createEmbeds = async (character, interaction, imageUrl) => {
             const fieldName = index === 0 ? name : `${name} (cont.)`;
             const fieldSize = fieldName.length + value.length;
 
-            // Check if adding this field would exceed the embed limit
             if (currentEmbedSize + fieldSize > MAX_EMBED_CHAR_LIMIT || currentEmbed.data.fields?.length >= 25) {
                 addEmbed(); // Push current embed to the list and start a new one
             }
@@ -62,26 +58,12 @@ const createEmbeds = async (character, interaction, imageUrl) => {
     };
 
 
-    const characterDetails = {
-        'Player': [userName || 'Unknown'],
-        'Name': [character.name || 'Unknown'],
-        'Age': [character.age || 'Unknown'],
-        'Birthplace': [character.birthplace || 'Unknown'],
-        'Gender': [character.gender || 'Unknown'],
-        'Title': [character.title || 'None'],
-        'Appearance': splitTextIntoFields(character.appearance || 'Not described', 1024),
-        'Eye Color': [character.eyecolor || 'Unknown'],
-        'Hair Color': [character.haircolor || 'Unknown'],
-        'Height': [character.height || 'Unknown'],
-        'Species': [character.species || 'Unknown'],
-        'Armor': splitTextIntoFields(character.armor || 'Not described', 1024),
-        'Beliefs': splitTextIntoFields(character.beliefs || 'None', 1024),
-        'Powers': splitTextIntoFields(character.powers || 'None', 1024),
-        'Weapons': splitTextIntoFields(character.weapons || 'None', 1024)
+    const loreDetails = {
+        'Lore': [lore.name || 'Unknown']
     };
 
     
-    Object.entries(characterDetails).forEach(([name, value]) => {
+    Object.entries(loreDetails).forEach(([name, value]) => {
         addFieldToEmbed(name, value);
     });
 
@@ -93,23 +75,21 @@ const createEmbeds = async (character, interaction, imageUrl) => {
     return embeds;
 };
 
-async function fetchRandomImage(characterName, userId, interaction) {
-    const targetChannelId = '1206381988559323166';
+async function fetchRandomImage(loreName, interaction) {
+    const targetChannelId = '1207398646035910726'; // Update this with your actual target channel ID
     const targetChannel = await interaction.client.channels.fetch(targetChannelId);
     const messages = await targetChannel.messages.fetch({ limit: 100 });
 
     const imageUrls = [];
 
     messages.forEach(message => {
-        // Check if the message was sent by the bot and contains embeds
         if (message.author.bot && message.embeds.length > 0) {
-            const embed = message.embeds[0]; // Assuming we're interested in the first embed
+            const embed = message.embeds[0];
 
-            // Check for character name and user ID in the embed fields
-            const hasCharacterName = embed.fields && embed.fields.some(field => field.value.includes(characterName));
-            const hasUserId = embed.fields && embed.fields.some(field => field.value.includes(userId));
+            // Check for lore name in the embed fields
+            const hasLoreName = embed.fields && embed.fields.some(field => field.name === "Lore Name" && field.value.includes(loreName));
 
-            if (hasCharacterName && hasUserId) {
+            if (hasLoreName) {
                 // Collect URLs from attachments if any
                 message.attachments.forEach(attachment => {
                     if (attachment.contentType && attachment.contentType.startsWith('image/')) {
@@ -125,40 +105,38 @@ async function fetchRandomImage(characterName, userId, interaction) {
         }
     });
 
-    // Now imageUrls contains all collected image URLs
     // Select a random one to return
     return imageUrls.length > 0 ? imageUrls[Math.floor(Math.random() * imageUrls.length)] : null;
 }
 
-
-
 module.exports = async (interaction, client) => {
     const db = getDb();
-    const charactersCollection = db.collection('characters');
-    const [selectedCharacterId, userId] = interaction.values[0].split("::");
+    const loreCollection = db.collection('lore');
+    const [SelectedLoreId] = interaction.values[0].split("::");
 
+    console.log('Selected lore:', SelectedLoreId)
  
     try {
-        const character = await charactersCollection.findOne({ name: selectedCharacterId, userId });
-        if (!character) {
-            await interaction.reply({ content: 'Character not found.', ephemeral: true });
+        const lore = await loreCollection.findOne({ name: SelectedLoreId });
+        if (!lore) {
+            await interaction.reply({ content: 'Lore not found.', ephemeral: true });
             return;
         }
 
-        const randomImageUrl = await fetchRandomImage(selectedCharacterId, userId, interaction);
-        const embeds = await createEmbeds(character, interaction, randomImageUrl);
+        const randomImageUrl = await fetchRandomImage(SelectedLoreId, interaction);
+        const embeds = await createEmbeds(lore, interaction, randomImageUrl);
 
         const userHasKickPermission = interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers);
 
         
         let components = [];
-        if (userHasKickPermission) {
-            const deleteButton = new ButtonBuilder()
-                .setCustomId(`deleteCharacter_${selectedCharacterId}_${userId}`) 
-                .setLabel('Delete Character')
-                .setStyle(ButtonStyle.Danger);
-            components.push(new ActionRowBuilder().addComponents(deleteButton));
-        }
+        // if (userHasKickPermission) {
+        //     const deleteButton = new ButtonBuilder()
+        //         .setCustomId(`deleteCharacter_${selectedCharacterId}_${userId}`) 
+        //         .setLabel('Delete Character')
+        //         .setStyle(ButtonStyle.Danger);
+        //     components.push(new ActionRowBuilder().addComponents(deleteButton));
+        // }
 
         await interaction.reply({ embeds: [embeds.shift()], components: [], ephemeral: true });
 
@@ -168,17 +146,17 @@ module.exports = async (interaction, client) => {
         }
 
         
-        if (character.backstory && character.backstory.length) {
+        if (lore.info && lore.info.length) {
             let partNumber = 0;
-            let totalParts = character.backstory.reduce((acc, story) => acc + splitTextIntoFields(story, 1024).length, 0);
+            let totalParts =lore.info.reduce((acc, story) => acc + splitTextIntoFields(story, 1024).length, 0);
 
-            for (let story of character.backstory) {
+            for (let story of lore.info) {
                 const splitStory = splitTextIntoFields(story, 1024);
                 for (let part of splitStory) {
                     partNumber++;
                     let isLastPart = partNumber === totalParts;
                     await interaction.followUp({
-                        content: `**Backstory Part ${partNumber}**\n${part}`,
+                        content: `**Details Part ${partNumber}**\n${part}`,
                         ephemeral: true,
                         components: isLastPart ? components : [] 
                     });
@@ -187,11 +165,11 @@ module.exports = async (interaction, client) => {
         } else {
             
             if (embeds.length === 0 && userHasKickPermission) {
-                await interaction.followUp({ content: '**Backstory:** Not available', ephemeral: true, components });
+                await interaction.followUp({ content: '**Lore:** Not available', ephemeral: true, components });
             }
         }
     } catch (error) {
-        console.error('Error fetching character from the database:', error);
-        await interaction.reply({ content: 'An error occurred while fetching character details.', ephemeral: true });
+        console.error('Error fetching lore from the database:', error);
+        await interaction.followUp({ content: 'An error occurred while fetching character details.', ephemeral: true });
     }
 };
