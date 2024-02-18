@@ -10,9 +10,9 @@ const changelogMessage = config.changelogMessage
 const inTheWorksMessage = config.inTheWorksMessage
 
 async function updateChangelogMessage(client) {
-    const channelId = '1031376354974912633'; // Changelog channel ID
+    const channelId = '1031376354974912633'; 
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'changelogMessage'; // Key in your config.json that stores the changelog message ID
+    const messageConfigKey = 'changelogMessage'; 
     const version = require('../package.json');
     const changelogData = require('../changelog.json');
     const footerMessage = JSON.stringify(changelogData.NewChanges.footer).replace(/\[/gmi, "").replace(/\]/gmi, "").replace(/"/gmi, "");
@@ -29,9 +29,9 @@ async function updateChangelogMessage(client) {
 }
 
 async function updateInTheWorksMessage(client) {
-    const channelId = '1031582807279030343'; // In The Works channel ID
+    const channelId = '1031582807279030343'; 
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'inTheWorksMessage'; // Key in your config.json that stores this message ID
+    const messageConfigKey = 'inTheWorksMessage'; 
     const inTheWorksData = require('../intheworks.json');
     const footerMessage = JSON.stringify(inTheWorksData.NewFeatures.footer).replace(/\[/gmi, "").replace(/\]/gmi, "").replace(/"/gmi, "");
     const inTheWorksEmbed = new EmbedBuilder()
@@ -45,9 +45,9 @@ async function updateInTheWorksMessage(client) {
 }
 
 async function updateCharacterSubmissionMessage(client) {
-    const channelId = "1207094079373049906"; // Character submission channel ID
+    const channelId = "1207094079373049906"; 
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'characterMakingMessage'; // Key in your config.json that stores this message ID
+    const messageConfigKey = 'characterMakingMessage'; 
     const embed = new EmbedBuilder()
         .setDescription('Click the button below to submit your character!');
     const row = new ActionRowBuilder()
@@ -77,9 +77,9 @@ async function updateLoreSubmissionMessage(client) {
 }
 
 async function updateImportantCharacterSubmissionMessage(client) {
-    const channelId = "1207157109632802886"; // Important character submission channel ID
+    const channelId = "1207157109632802886"; 
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'importantCharacterMakingMessage'; // Key in config.json
+    const messageConfigKey = 'importantCharacterMakingMessage'; 
     const embed = new EmbedBuilder()
         .setDescription('Click the button below to submit your important character!');
     const row = new ActionRowBuilder()
@@ -93,9 +93,9 @@ async function updateImportantCharacterSubmissionMessage(client) {
 }
 
 async function updateAllCharactersMessage(client, charactersCollection, settingsCollection) {
-    const channelId = "905554690966704159"; // All characters channel ID
+    const channelId = "905554690966704159"; 
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'allCharacterMessage'; // Key in config.json
+    const messageConfigKey = 'allCharacterMessage'; 
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();
     const totalPages = Math.ceil(totalCharacters / 25);
@@ -123,7 +123,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
             };
         });
 
-    // Generate selectMenu for characters
+    
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
@@ -132,7 +132,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
                 .addOptions(importantCharacterOptions),
         );
 
-    // Generate rowButtons for pagination
+    
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -151,9 +151,9 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
 }
 
 async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
-    const channelId = "1207179211845140521"; // All characters channel ID
+    const channelId = "1207179211845140521"; 
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'allImportantCharacterMessage'; // Key in config.json
+    const messageConfigKey = 'allImportantCharacterMessage'; 
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { importantCurrentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();
     const totalPages = Math.ceil(totalCharacters / 25);
@@ -181,7 +181,7 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
         });
 
 
-    // Generate selectMenu for characters
+    
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
@@ -190,7 +190,7 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
                 .addOptions(importantCharacterOptions),
         );
 
-    // Generate rowButtons for pagination
+    
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -240,7 +240,7 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
                 }))),
         );
 
-    // Generate rowButtons for pagination
+    
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -280,14 +280,14 @@ module.exports = {
         const importantCharactersCollection = db.collection('importantCharacters')
         const loreCollection = db.collection('lore');
         
-        // Use the functions to handle message updates
+        
         await updateChangelogMessage(client);
         await updateInTheWorksMessage(client);
         await updateCharacterSubmissionMessage(client);
         await updateImportantCharacterSubmissionMessage(client);
         await updateLoreSubmissionMessage(client);
         
-        // Pass the necessary collection references to these functions
+        
         await updateAllCharactersMessage(client, charactersCollection, settingsCollection);
         await updateAllImportantCharactersMessage(client, importantCharactersCollection, settingsCollection);
         await updateAllLoreMessage(client, loreCollection , settingsCollection);

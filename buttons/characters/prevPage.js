@@ -14,10 +14,10 @@ module.exports = async (interaction, client) => {
         let newPage = Math.max(0, currentPage - 1);
         currentPage = newPage
 
-        // Update the currentPage in the database
+        
         await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { currentPage: newPage } }, { upsert: true });
 
-        // Fetch characters for the new page
+        
         const totalCharacters = await charactersCollection.countDocuments();
         const totalPages = Math.ceil(totalCharacters / 25);
         const charactersData = await charactersCollection.find({})
@@ -54,7 +54,7 @@ module.exports = async (interaction, client) => {
                     .setDisabled(currentPage >= totalPages - 1),
             );
 
-        const allCharactersChannel = await interaction.client.channels.fetch("905554690966704159"); // Adjust channel ID accordingly
+        const allCharactersChannel = await interaction.client.channels.fetch("905554690966704159"); 
         const allCharactersMessageId = config.allCharacterMessage
         let allCharacterMessageExists = false;
 

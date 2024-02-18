@@ -7,9 +7,9 @@ const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, P
 
 
 async function updateAllCharactersMessage(client, charactersCollection, settingsCollection) {
-    const channelId = "905554690966704159"; // All characters channel ID
+    const channelId = "905554690966704159"; 
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'allCharacterMessage'; // Key in config.json
+    const messageConfigKey = 'allCharacterMessage'; 
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();
     const totalPages = Math.ceil(totalCharacters / 25);
@@ -37,7 +37,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
             };
         });
 
-    // Generate selectMenu for characters
+    
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
@@ -46,7 +46,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
                 .addOptions(importantCharacterOptions),
         );
 
-    // Generate rowButtons for pagination
+    
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -68,13 +68,13 @@ async function handleDeleteCharacterInteraction(interaction) {
     const db = getDb();
     const settingsCollection = db.collection('settings');
     const charactersCollection = db.collection('characters');
-    const characterArchiveCollection = db.collection('characterArchive'); // Reference to the characterArchive collection
+    const characterArchiveCollection = db.collection('characterArchive'); 
 
     const [action, characterId, userId] = interaction.customId.split('_');
 
     if (interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
         try {
-            // Fetch the character to be deleted and store it in the archive before deletion
+            
             const characterToArchive = await charactersCollection.findOne({ name: characterId, userId: userId });
             if (characterToArchive) {
                 await characterArchiveCollection.insertOne(characterToArchive);
@@ -85,23 +85,23 @@ async function handleDeleteCharacterInteraction(interaction) {
                     return;
                 } else {
                     await interaction.reply({ content: 'Character successfully deleted and archived.', ephemeral: true });
-                    // Continue with the rest of the logic since the deletion was successful
+                    
                 }
             } else {
                 await interaction.reply({ content: 'Character not found for archiving and deletion.', ephemeral: true });
-                return; // Return early if character not found
+                return; 
             }
         } catch (error) {
             console.error('Error archiving and deleting character:', error);
             await interaction.reply({ content: 'An error occurred while trying to archive and delete the character.', ephemeral: true });
-            return; // Return early to prevent further execution
+            return; 
         }
     } else {
         await interaction.reply({ content: 'You do not have permission to delete this character.', ephemeral: true });
-        return; // Return early to prevent further execution
+        return; 
     }
 
-    // Code to update the message with the list of characters after a deletion
+    
     try {
         await updateAllCharactersMessage(interaction.client, charactersCollection, settingsCollection);
     } catch (error) {

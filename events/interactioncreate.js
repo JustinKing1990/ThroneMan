@@ -22,7 +22,7 @@ function loadHandlers(dirPath) {
     return handlers;
 }
 
-// Load all handlers at startup
+
 const commandHandlers = loadHandlers(path.join(__dirname, '..', 'commands'));
 const buttonHandlers = loadHandlers(path.join(__dirname, '..', 'buttons'));
 const modalHandlers = loadHandlers(path.join(__dirname, '..', 'modals'));
@@ -31,14 +31,14 @@ const selectMenuHandlers = loadHandlers(path.join(__dirname, '..', 'selectMenus'
 module.exports = {
     name: "interactionCreate",
     async execute(interaction, client) {
-        // Handle command interactions
+        
         if (interaction.isCommand()) {
             const command = commandHandlers.get(interaction.commandName);
             if (command) {
                 await command.execute(interaction, client);
             }
         }
-        // Handle button interactions
+        
         else if (interaction.isButton()) {
             const parts = interaction.customId.split('_');
             const action = parts[0]; 
@@ -47,7 +47,7 @@ module.exports = {
                 await buttonHandler(interaction, client);
             }
         }
-        // Handle modal submit interactions
+        
         else if (interaction.isModalSubmit()) {
             const parts = interaction.customId.split('_');
             const action = parts[0]; 
@@ -56,7 +56,7 @@ module.exports = {
                 await modalHandler(interaction, client);
             }
         }
-        // Handle select menu interactions
+        
         if (interaction.isStringSelectMenu()) {
             const selectMenuHandler = selectMenuHandlers.get(interaction.customId);
             if (selectMenuHandler) {

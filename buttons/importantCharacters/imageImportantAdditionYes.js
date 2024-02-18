@@ -16,7 +16,7 @@ module.exports = async (interaction, client) => {
         const member = await interaction.guild.members.fetch(interaction.user.id);
         await member.roles.add(role);
 
-        // Inform the user they can upload images now
+        
         const reply = await interaction.update({
             content: "You've been assigned the 'Character Image Upload' role. Please upload your images now.",
             components: [],

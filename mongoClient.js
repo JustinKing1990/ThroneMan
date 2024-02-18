@@ -1,4 +1,4 @@
-// mongoClient.js
+
 const { MongoClient } = require('mongodb');
 const config = require('./env/config.json');
 

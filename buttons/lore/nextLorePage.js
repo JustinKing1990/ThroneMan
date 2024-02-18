@@ -14,7 +14,7 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
     let newPage = currentPage + 1;
     currentPage = newPage
 
-    // Update the currentPage in the database
+    
     await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { loreCurrentPage: newPage } }, { upsert: true });
 
     const totalLore = await loreCollection.countDocuments();
@@ -44,7 +44,7 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
                 }))),
         );
 
-    // Generate rowButtons for pagination
+    
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -73,7 +73,7 @@ module.exports = async (interaction, client) => {
         let newPage = currentPage + 1;
         currentPage = newPage
 
-        // Update the currentPage in the database
+        
         await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { loreCurrentPage: newPage } }, { upsert: true });
 
         await updateAllLoreMessage(interaction.client, charactersCollection, settingsCollection);
@@ -81,6 +81,6 @@ module.exports = async (interaction, client) => {
 
     } catch (error) {
         console.error('Error processing accept button interaction:', error);
-        // await interaction.update({ content: "There was an error processing the character approval. Yell at your local dev", ephemeral: true });
+        
     }
 }

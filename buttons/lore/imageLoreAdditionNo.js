@@ -37,7 +37,7 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
                 }))),
         );
 
-    // Generate rowButtons for pagination
+    
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -66,8 +66,8 @@ module.exports = async (interaction, client) => {
         const loreDocument = await sourceCollection.findOne({name: loreName });
         if (loreDocument) {
 
-            // const announcementChannel = await interaction.client.channels.fetch("905150985712861274"); 
-            // await announcementChannel.send(`<@${userId}>, your lore: ${loreDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your lore.`);
+            
+            
 
             await updateAllLoreMessage(interaction.client, sourceCollection , settingsCollection,);
 

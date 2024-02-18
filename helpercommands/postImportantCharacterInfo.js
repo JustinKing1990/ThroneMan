@@ -5,14 +5,14 @@ async function postCharacterInfo(interaction, client, characterName) {
     const db = getDb();
     const charactersCollection = db.collection('importantCharacter');
 
-    // Fetch the character data for the user
+    
     const characterData = await charactersCollection.findOne({ userId: interaction.user.id, name: characterName });
     if (!characterData) {
         console.log('No character data found for the user.');
         return;
     }
 
-    // Compile the message content from character data
+    
     let messageContent = `Character Information for ${interaction.user.username}:\n`;
     messageContent += `Name: ${characterData.name || 'N/A'}\n`;
     messageContent += `Title: ${characterData.title || 'N/A'}\n`;
@@ -33,7 +33,7 @@ async function postCharacterInfo(interaction, client, characterName) {
         messageContent += `${element}\n`;
     });
 
-    // Prepare action row with buttons
+    
     const row = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()

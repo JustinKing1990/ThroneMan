@@ -8,9 +8,9 @@ const config = require('../../env/config.json');
 
 
 async function updateAllCharactersMessage(client, charactersCollection, settingsCollection) {
-    const channelId = "905554690966704159"; // All characters channel ID
+    const channelId = "905554690966704159"; 
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'allCharacterMessage'; // Key in config.json
+    const messageConfigKey = 'allCharacterMessage'; 
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();
     const totalPages = Math.ceil(totalCharacters / 25);
@@ -38,7 +38,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
             };
         });
 
-    // Generate selectMenu for characters
+    
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
@@ -47,7 +47,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
                 .addOptions(importantCharacterOptions),
         );
 
-    // Generate rowButtons for pagination
+    
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -81,9 +81,9 @@ module.exports = async (interaction, client) => {
             await targetCollection.insertOne(characterDocument);
             await sourceCollection.deleteOne({ name: characterName, userId: userId });
 
-            // Delete associated messages if there are any messageIds
+            
             if (characterDocument.messageIds && characterDocument.messageIds.length > 0) {
-                const targetChannel = await interaction.client.channels.fetch("1206393672271134770"); // Channel ID where messages were posted
+                const targetChannel = await interaction.client.channels.fetch("1206393672271134770"); 
                 for (const messageId of characterDocument.messageIds) {
                     try {
                         await targetChannel.messages.delete(messageId);
@@ -93,8 +93,8 @@ module.exports = async (interaction, client) => {
                 }
             }
 
-            // Notify the user in the specified channel about their character's acceptance
-            const announcementChannel = await interaction.client.channels.fetch("904144926135164959"); // Update with your channel ID
+            
+            const announcementChannel = await interaction.client.channels.fetch("904144926135164959"); 
             await announcementChannel.send(`<@${userId}>, your character: ${characterDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your character.`);
 
 

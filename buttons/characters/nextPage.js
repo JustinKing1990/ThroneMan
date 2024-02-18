@@ -15,10 +15,10 @@ module.exports = async (interaction, client) => {
         let newPage = currentPage + 1;
         currentPage = newPage
 
-        // Update the currentPage in the database
+        
         await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { currentPage: newPage } }, { upsert: true });
 
-        // Fetch characters for the new page
+        
         const totalCharacters = await charactersCollection.countDocuments();
         const totalPages = Math.ceil(totalCharacters / 25);``
         const charactersData = await charactersCollection.find({})
@@ -81,6 +81,6 @@ module.exports = async (interaction, client) => {
 
     } catch (error) {
         console.error('Error processing accept button interaction:', error);
-        // await interaction.update({ content: "There was an error processing the character approval. Yell at your local dev", ephemeral: true });
+        
     }
 }

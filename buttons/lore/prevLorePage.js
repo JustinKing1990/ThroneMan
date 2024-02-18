@@ -14,7 +14,7 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
     let newPage = Math.max(0, currentPage - 1);
     currentPage = newPage
 
-    // Update the currentPage in the database
+    
     await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { currentPage: newPage } }, { upsert: true });
     const totalLore = await loreCollection.countDocuments();
     const totalPages = Math.ceil(totalLore / 25);
@@ -43,7 +43,7 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
                 }))),
         );
 
-    // Generate rowButtons for pagination
+    
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -72,7 +72,7 @@ module.exports = async (interaction, client) => {
         let newPage = Math.max(0, currentPage - 1);
         currentPage = newPage
 
-        // Update the currentPage in the database
+        
         await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { currentPage: newPage } }, { upsert: true });
         await updateAllLoreMessage(interaction.client, charactersCollection, settingsCollection)
 

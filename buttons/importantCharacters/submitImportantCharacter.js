@@ -1,7 +1,7 @@
 const { ModalBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } = require('discord.js');
 
 module.exports = async (interaction, client) => {
-    // First modal for character name
+    
     const modal = new ModalBuilder()
         .setCustomId('importantCharacterCreationModalPart1')
         .setTitle('Character Creation');

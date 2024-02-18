@@ -12,11 +12,11 @@ const splitTextIntoFields = (text, maxLength = 1024) => {
         }
 
         let lastSpaceIndex = text.substring(0, maxLength).lastIndexOf(' ');
-        // If there's no space, we have to split at maxLength to avoid an infinite loop
+        
         if (lastSpaceIndex === -1) lastSpaceIndex = maxLength;
 
         let part = text.substring(0, lastSpaceIndex);
-        text = text.substring(lastSpaceIndex + 1); // Start after the last space to avoid leading spaces
+        text = text.substring(lastSpaceIndex + 1); 
         parts.push(part);
     }
     return parts;
@@ -42,7 +42,7 @@ const createEmbeds = async (character, interaction, imageUrl) => {
 
     if (imageUrl) {
         currentEmbed.setImage(imageUrl);
-        // Approximate the size added by the image URL
+        
         currentEmbedSize += imageUrl.length;
     }
 
@@ -51,9 +51,9 @@ const createEmbeds = async (character, interaction, imageUrl) => {
             const fieldName = index === 0 ? name : `${name} (cont.)`;
             const fieldSize = fieldName.length + value.length;
 
-            // Check if adding this field would exceed the embed limit
+            
             if (currentEmbedSize + fieldSize > MAX_EMBED_CHAR_LIMIT || currentEmbed.data.fields?.length >= 25) {
-                addEmbed(); // Push current embed to the list and start a new one
+                addEmbed(); 
             }
 
             currentEmbed.addFields({ name: fieldName, value: value, inline: false });
@@ -84,7 +84,7 @@ const createEmbeds = async (character, interaction, imageUrl) => {
         addFieldToEmbed(name, value);
     });
 
-    // Don't forget to add the last embed if it has content
+    
     if (currentEmbed.data.fields.length > 0) {
         addEmbed();
     }
@@ -100,23 +100,23 @@ async function fetchRandomImage(characterName, userId, interaction) {
     const imageUrls = [];
 
     messages.forEach(message => {
-        // Check if the message was sent by the bot and contains embeds
+        
         if (message.author.bot && message.embeds.length > 0) {
-            const embed = message.embeds[0]; // Assuming we're interested in the first embed
+            const embed = message.embeds[0]; 
 
-            // Check for character name and user ID in the embed fields
+            
             const hasCharacterName = embed.fields && embed.fields.some(field => field.value.includes(characterName));
             const hasUserId = embed.fields && embed.fields.some(field => field.value.includes(userId));
 
             if (hasCharacterName && hasUserId) {
-                // Collect URLs from attachments if any
+                
                 message.attachments.forEach(attachment => {
                     if (attachment.contentType && attachment.contentType.startsWith('image/')) {
                         imageUrls.push(attachment.url);
                     }
                 });
 
-                // Collect the main image URL of the embed if present
+                
                 if (embed.image && embed.image.url) {
                     imageUrls.push(embed.image.url);
                 }
@@ -124,8 +124,8 @@ async function fetchRandomImage(characterName, userId, interaction) {
         }
     });
 
-    // Now imageUrls contains all collected image URLs
-    // Select a random one to return
+    
+    
     return imageUrls.length > 0 ? imageUrls[Math.floor(Math.random() * imageUrls.length)] : null;
 }
 

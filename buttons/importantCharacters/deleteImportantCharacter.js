@@ -7,9 +7,9 @@ const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, P
 
 
 async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
-    const channelId = "1207179211845140521"; // All characters channel ID
+    const channelId = "1207179211845140521"; 
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'allImportantCharacterMessage'; // Key in config.json
+    const messageConfigKey = 'allImportantCharacterMessage'; 
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { importantCurrentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();
     const totalPages = Math.ceil(totalCharacters / 25);
@@ -37,7 +37,7 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
         });
 
 
-    // Generate selectMenu for characters
+    
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
@@ -46,7 +46,7 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
                 .addOptions(importantCharacterOptions),
         );
 
-    // Generate rowButtons for pagination
+    
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()

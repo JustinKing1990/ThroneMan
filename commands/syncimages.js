@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { EmbedBuilder } = require('discord.js');
-const { getDb } = require('../mongoClient'); // Adjust the import path as necessary
+const { getDb } = require('../mongoClient'); 
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -8,7 +8,7 @@ module.exports = {
         .setDescription('Updates embeds with the correct user ID based on character names.'),
     async execute(interaction) {
         await interaction.deferReply({ ephemeral: true });
-        const channelId = '1206381988559323166'; // The channel to update embeds in
+        const channelId = '1206381988559323166'; 
         const channel = await interaction.client.channels.fetch(channelId);
         const db = getDb();
         const charactersCollection = db.collection('characters');

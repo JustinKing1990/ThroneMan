@@ -1,7 +1,7 @@
 const { ModalBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } = require('discord.js');
 
 module.exports = async (interaction, client) => {
-    // First modal for character name
+    
     const modal = new ModalBuilder()
         .setCustomId('characterCreationModalPart1')
         .setTitle('Character Creation');
@@ -36,16 +36,16 @@ module.exports = async (interaction, client) => {
         .setStyle(TextInputStyle.Short)
         .setRequired(false)
  
-     // Create an ActionRowBuilder for each input
+     
      const nameRow = new ActionRowBuilder().addComponents(characterNameInput);
      const titleRow = new ActionRowBuilder().addComponents(characterTitleInput);
      const genderRow = new ActionRowBuilder().addComponents(characterGenderInput);
      const ageRow = new ActionRowBuilder().addComponents(characterAgeInput);
      const birthplaceRow = new ActionRowBuilder().addComponents(characterBirthplaceInput);
  
-     // Add action rows to modal
+     
      modal.addComponents(nameRow, titleRow, genderRow, ageRow, birthplaceRow);
  
-    // Show the modal to the user
+    
     await interaction.showModal(modal);
 };
