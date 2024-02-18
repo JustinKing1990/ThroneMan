@@ -4,7 +4,7 @@ const { getDb } = require('../mongoClient');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('restore')
-        .setDescription('Allows the restoration from the various archives.')
+        .setDescription('Allows the restoration from the various archives. WIP! DON`T USE')
         .addStringOption(option =>
             option.setName('archive')
                 .setDescription('The archive to restore from.')
