@@ -4,17 +4,16 @@ const path = require('path');
 function loadHandlers(dirPath) {
     let handlers = new Map();
 
-    const traverseDirectories = (dir) => {
+    const traverseDirectories = (dir, base = '') => {
         const files = fs.readdirSync(dir, { withFileTypes: true });
         for (const file of files) {
             const fullPath = path.join(dir, file.name);
             if (file.isDirectory()) {
-                traverseDirectories(fullPath);
+                traverseDirectories(fullPath, `${base}${file.name}/`);
             } else if (file.name.endsWith('.js')) {
                 const handler = require(fullPath);
-                let handlerName = path.relative(dirPath, fullPath).replace(/\\/g, '/').replace('.js', '');
-                handlerName = handlerName.split('/');
-                handlers.set(handlerName[1], handler);
+                let handlerName = file.name.replace('.js', '');
+                handlers.set(handlerName, handler)
             }
         }
     };
@@ -32,7 +31,6 @@ const selectMenuHandlers = loadHandlers(path.join(__dirname, '..', 'selectMenus'
 module.exports = {
     name: "interactionCreate",
     async execute(interaction, client) {
-        
         if (interaction.isCommand()) {
             const command = commandHandlers.get(interaction.commandName);
             if (command) {

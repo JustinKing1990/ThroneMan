@@ -1,11 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { EmbedBuilder } = require('discord.js');
+const { PermissionsBitField, EmbedBuilder } = require('discord.js');
 const { getDb } = require('../mongoClient'); 
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('syncimages')
-        .setDescription('Updates embeds with the correct user ID based on character names.'),
+        .setDescription('Updates embeds with the correct user ID based on character names.')
+        .setDefaultMemberPermissions(PermissionsBitField.Flags.KickMembers),
     async execute(interaction) {
         await interaction.deferReply({ ephemeral: true });
         const channelId = '1206381988559323166'; 
