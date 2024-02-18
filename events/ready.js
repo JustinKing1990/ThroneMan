@@ -22,19 +22,46 @@ async function getLatestGitCommit() {
 
 async function updateChangelog(commitMessage) {
     const changelogPath = path.join(__dirname, '../changelog.json');
-    let changelog = require(changelogPath);
+    const changelog = JSON.parse(fs.readFileSync(changelogPath, 'utf8'));
+    const packageJsonPath = path.join(__dirname, '../package.json');
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
-    const commitMessages = commitMessage.split('\n').filter(line => line.trim() !== '');
+    let commitMessages = commitMessage.split('\n').filter(line => line.trim());
+    commitMessages = commitMessages.filter(commit => !commitMessages.includes("Automated update: version bump and changelog update"))
+    let updateMade = false;
 
-    commitMessages.reverse().forEach(message => {
-        const isDuplicate = changelog.NewChanges.Changes.some(change => change.text === message);
-
-        if (!isDuplicate) {
-            changelog.NewChanges.Changes.push({ title: 'New Update', text: message });
+    commitMessages.forEach(message => {
+        if (!changelog.NewChanges.Changes.some(change => change.text === message)) {
+            changelog.NewChanges.Changes.push({ title: "New Update", text: message });
+            updateMade = true;
         }
-    })
+    });
+
+    changelog.NewChanges.Changes = changelog.NewChanges.Changes.slice(-5);
+
+    if (updateMade) {
+        const versionParts = packageJson.version.split('.');
+        versionParts[2] = parseInt(versionParts[2], 10) + 1;
+        packageJson.version = versionParts.join('.');
+
+        fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+    }
 
     fs.writeFileSync(changelogPath, JSON.stringify(changelog, null, 4));
+}
+
+async function commitUpdates() {
+    try {
+        const projectRoot = path.join(__dirname, '..'); 
+
+        execSync('git add package.json changelog.json', { cwd: projectRoot });
+
+        execSync('git commit -m "Automated update: version bump and changelog update"', { cwd: projectRoot });
+
+        execSync('git push', { cwd: projectRoot });
+    } catch (error) {
+        console.error('Error committing updates:', error);
+    }
 }
 
 async function updateChangelogMessage(client) {
@@ -313,6 +340,7 @@ module.exports = {
             await updateChangelog(commitMessage);
         }
         await updateChangelogMessage(client);
+        await commitUpdates();
         await updateInTheWorksMessage(client);
         await updateCharacterSubmissionMessage(client);
         await updateImportantCharacterSubmissionMessage(client);
