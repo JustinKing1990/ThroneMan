@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Added a method to keep the repo up-to-date with the changes it automatically generates"
-            },
-            {
-                "title": "New Update",
                 "text": "Working towards getting restore functions in place"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "trying my best"
+            },
+            {
+                "title": "New Update",
+                "text": "Merge branch 'main' of https://github.com/JustinKing1990/ThroneMan"
             }
         ],
         "footer": [
