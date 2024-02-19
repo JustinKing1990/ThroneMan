@@ -1,7 +1,7 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { getDb } = require('../mongoClient');
 
-async function postCharacterInfo(interaction, client, characterName) {
+async function postImportantCharacterInfo(interaction, client, characterName) {
     const db = getDb();
     const charactersCollection = db.collection('importantCharacter');
 
