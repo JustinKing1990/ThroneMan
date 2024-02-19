@@ -64,18 +64,42 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
 }
 
 module.exports = async (interaction, client) => {
-
-    await interaction.deferUpdate({ ephemeral: true })
+    await interaction.deferUpdate({ ephemeral: true });
     const db = getDb();
-    const sourceCollection = db.collection('character');
-    const targetCollection = db.collection('characters');
+    const charactersCollection = db.collection('characters');
     const settingsCollection = db.collection('settings');
-    const [action, userId, characterName] = interaction.customId.split('_')
+    const [action, userId, characterName] = interaction.customId.split('_');
 
     try {
-        const characterDocument = await sourceCollection.findOne({ userId: userId, name: characterName });
+        // Check if the user interacting is the same as the character's userId to prevent self-approval
+        if (interaction.user.id === userId) {
+            await interaction.followUp({ content: "You cannot approve your own character submission.", ephemeral: true });
+            return;
+        }
+
+        const characterDocument = await charactersCollection.findOne({ userId: userId, name: characterName });
 
         if (characterDocument) {
+            // Assume characterDocument.imageUrls is an array of image URLs
+            const imageUrls = characterDocument.imageUrls || [];
+
+            const imageEmbed = new EmbedBuilder()
+                .setColor('#0099ff')
+                .setTitle(`Character Approval: ${characterName}`)
+                .setDescription(`Approved character: ${characterName}`)
+                .addFields(
+                    { name: 'Player', value: `<@${userId}>` },
+                    { name: 'Character Name', value: characterName },
+                );
+
+            // Add image URLs to the embed if available
+            if (imageUrls.length > 0) {
+                imageEmbed.setImage(imageUrls[0]); // Display the first image, or use .addFields to list all URLs
+            }
+
+            // The channel to post the embed with images
+            const targetChannel = await client.channels.fetch("1206393672271134770");
+            await targetChannel.send({ embeds: [imageEmbed] });
             await targetCollection.insertOne(characterDocument);
             await sourceCollection.deleteOne({ name: characterName, userId: userId });
 
