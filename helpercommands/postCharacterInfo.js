@@ -60,6 +60,7 @@ while (startIndex < messageContent.length) {
         components: isLastChunk ? [row] : [],
     };
 
+    console.log(imageUrls)
     // Attach images in the last chunk
     if (isLastChunk && imageUrls.length > 0) {
         messageOptions.files = imageUrls;
