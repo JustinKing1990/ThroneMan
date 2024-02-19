@@ -7,9 +7,9 @@ const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, P
 
 
 async function updateAllCharactersMessage(client, charactersCollection, settingsCollection) {
-    const channelId = "905554690966704159"; 
+    const channelId = "905554690966704159";
     const configPath = path.join(__dirname, '../../env/config.json');
-    const messageConfigKey = 'allCharacterMessage'; 
+    const messageConfigKey = 'allCharacterMessage';
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();
     const totalPages = Math.ceil(totalCharacters / 25);
@@ -19,24 +19,24 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
         .limit(25)
         .toArray();
 
-        const importantMemberFetchPromises = charactersData.map(character =>
-            client.guilds.cache.get('903864074134249483')
-                .members.fetch(character.userId)
-                .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
-        );
-        const importantMembers = await Promise.all(importantMemberFetchPromises);
+    const importantMemberFetchPromises = charactersData.map(character =>
+        client.guilds.cache.get('903864074134249483')
+            .members.fetch(character.userId)
+            .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
+    );
+    const importantMembers = await Promise.all(importantMemberFetchPromises);
 
-        const importantCharacterOptions = charactersData.map((character, index) => {
-            const member = importantMembers[index];
-            const displayName = member ? member.displayName : 'Unknown User';
+    const importantCharacterOptions = charactersData.map((character, index) => {
+        const member = importantMembers[index];
+        const displayName = member ? member.displayName : 'Unknown User';
 
-            return {
-                label: character.name,
-                value: `${character.name}::${character.userId}`,
-                description: `Player: ${displayName}`,
-            };
-        });
-    
+        return {
+            label: character.name,
+            value: `${character.name}::${character.userId}`,
+            description: `Player: ${displayName}`,
+        };
+    });
+
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
@@ -45,7 +45,7 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
                 .addOptions(importantCharacterOptions),
         );
 
-    
+
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -60,20 +60,22 @@ async function updateAllCharactersMessage(client, charactersCollection, settings
                 .setDisabled(currentPage >= totalPages - 1),
         );
 
-    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons]});
+    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
 }
 
 async function handleDeleteCharacterInteraction(interaction) {
     const db = getDb();
     const settingsCollection = db.collection('settings');
     const charactersCollection = db.collection('characters');
-    const characterArchiveCollection = db.collection('characterArchive'); 
+    const characterArchiveCollection = db.collection('characterArchive');
+    const targetChannelId = '1206381988559323166';
+    const targetChannel = await interaction.client.channels.fetch(targetChannelId).catch(console.error);
 
     const [action, characterId, userId] = interaction.customId.split('_');
 
     if (interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
         try {
-            
+
             const characterToArchive = await charactersCollection.findOne({ name: characterId, userId: userId });
             if (characterToArchive) {
                 await characterArchiveCollection.insertOne(characterToArchive);
@@ -83,24 +85,36 @@ async function handleDeleteCharacterInteraction(interaction) {
                     await interaction.reply({ content: 'No character found or you do not have permission to delete this character.', ephemeral: true });
                     return;
                 } else {
+                    // After archiving and deleting character, delete associated image post(s)
+                    const messages = await targetChannel.messages.fetch({ limit: 100 });
+                    messages.forEach(async message => {
+                        if (message.author.bot && message.embeds.length > 0) {
+                            const embed = message.embeds[0];
+                            const hasCharacterName = embed.fields && embed.fields.some(field => field.value.includes(characterId));
+                            const hasUserId = embed.fields && embed.fields.some(field => field.value.includes(userId));
+                            if (hasCharacterName && hasUserId) {
+                                await message.delete().catch(console.error);
+                            }
+                        }
+                    });
                     await interaction.reply({ content: 'Character successfully deleted and archived.', ephemeral: true });
-                    
+
                 }
             } else {
                 await interaction.reply({ content: 'Character not found for archiving and deletion.', ephemeral: true });
-                return; 
+                return;
             }
         } catch (error) {
             console.error('Error archiving and deleting character:', error);
             await interaction.reply({ content: 'An error occurred while trying to archive and delete the character.', ephemeral: true });
-            return; 
+            return;
         }
     } else {
         await interaction.reply({ content: 'You do not have permission to delete this character.', ephemeral: true });
-        return; 
+        return;
     }
 
-    
+
     try {
         let newCharacterCollection = db.collection('characters');
         await updateAllCharactersMessage(interaction.client, newCharacterCollection, settingsCollection);
