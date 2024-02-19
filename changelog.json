@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "bug testing"
-            },
-            {
-                "title": "New Update",
                 "text": "id10t"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "same thing as above"
+            },
+            {
+                "title": "New Update",
+                "text": "Bad function naming"
             }
         ],
         "footer": [
