@@ -26,7 +26,7 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
         );
         const importantMembers = await Promise.all(importantMemberFetchPromises);
 
-        const importantCharacterOptions = importantCharactersData.map((character, index) => {
+        const importantCharacterOptions = charactersData.map((character, index) => {
             const member = importantMembers[index];
             const displayName = member ? member.displayName : 'Unknown User';
             return {
@@ -115,8 +115,8 @@ async function handleDeleteCharacterInteraction(interaction) {
     }
 
     try {
-        let newCharacterCollection = db.collection('characters')
-        await updateAllImportantCharactersMessage(interaction.client, newCharactersCollection, settingsCollection, interaction);
+        let newCharacterCollection = db.collection('importantCharacters')
+        await updateAllImportantCharactersMessage(interaction.client, newCharacterCollection, settingsCollection, interaction);
     } catch (error) {
         console.error('Error updating character list message:', error);
     }

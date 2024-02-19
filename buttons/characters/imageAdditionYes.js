@@ -22,7 +22,7 @@ module.exports = async (interaction, client) => {
         });
 
         const filter = m => m.author.id === interaction.user.id;
-        const collector = interaction.channel.createMessageCollector({ filter, time: 60000, max: 1 });
+        const collector = interaction.channel.createMessageCollector({ filter, time: 60000, max: 10 });
 
         collector.on('collect', async m => {
             const imageUrls = m.attachments.map(attachment => attachment.url);

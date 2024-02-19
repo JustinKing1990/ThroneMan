@@ -1,11 +1,10 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { getDb } = require('../mongoClient');
 
-async function postImportantCharacterInfo(interaction, client, characterName) {
+async function postImportantCharacterInfo(interaction, client, characterName, imageUrls) {
     const db = getDb();
     const charactersCollection = db.collection('importantCharacter');
 
-    
     const characterData = await charactersCollection.findOne({ userId: interaction.user.id, name: characterName });
     if (!characterData) {
         console.error('No character data found for the user.');
@@ -35,16 +34,16 @@ async function postImportantCharacterInfo(interaction, client, characterName) {
     const row = new ActionRowBuilder()
     .addComponents(
         new ButtonBuilder()
-            .setCustomId(`approveCharacter_${characterData.userId}_${characterData.name}`)
+            .setCustomId(`approveImportantCharacter_${characterData.userId}_${characterData.name}`)
             .setLabel('Approve')
             .setStyle(ButtonStyle.Success),
         new ButtonBuilder()
-            .setCustomId(`denyCharacter_${characterData.userId}_${characterData.name}`)
+            .setCustomId(`denyImportantCharacter_${characterData.userId}_${characterData.name}`)
             .setLabel('Deny')
             .setStyle(ButtonStyle.Danger),
     );
 
-const targetChannel = await interaction.client.channels.fetch("1206393672271134770");
+const targetChannel = await interaction.client.channels.fetch("1207157063357177947");
 let startIndex = 0;
 const chunkSize = 1900; // Discord's character limit per message
 const sentMessagesIds = [];

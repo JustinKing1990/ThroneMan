@@ -86,5 +86,5 @@ if (imageUrls.length > 0) {
     );
 }
 }
-
+ 
 module.exports = postCharacterInfo;

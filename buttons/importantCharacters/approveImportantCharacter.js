@@ -1,4 +1,4 @@
-const { ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const { getDb } = require('../../mongoClient');
@@ -27,7 +27,7 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
     );
     const importantMembers = await Promise.all(importantMemberFetchPromises);
 
-    const importantCharacterOptions = importantCharactersData.map((character, index) => {
+    const importantCharacterOptions = charactersData.map((character, index) => {
         const member = importantMembers[index];
         const displayName = member ? member.displayName : 'Unknown User';
         return {
@@ -75,13 +75,12 @@ module.exports = async (interaction, client) => {
     const receivingChannel = await interaction.client.channels.fetch('1207157063357177947')
 
     try {
-        // Check if the user interacting is the same as the character's userId to prevent self-approval
-        // if (interaction.user.id === userId) {
-        //     await interaction.followUp({ content: "You cannot approve your own character submission.", ephemeral: true });
-        //     return;
-        // }
+        if (interaction.user.id === userId) {
+            await interaction.followUp({ content: "You cannot approve your own character submission.", ephemeral: true });
+            return;
+        }
 
-        const characterDocument = await charactersCollection.findOne({ userId: userId, name: characterName });
+        const characterDocument = await sourceCollection.findOne({ userId: userId, name: characterName });
 
         if (characterDocument) {
             // Assume characterDocument.imageUrls is an array of image URLs
@@ -123,8 +122,8 @@ module.exports = async (interaction, client) => {
                     }
                 }
             }
-
-            await updateAllImportantCharactersMessage(interaction.client, targetCollection, settingsCollection);
+            let newTargetCollectoin = db.collection('importantCharacters')
+            await updateAllImportantCharactersMessage(interaction.client, newTargetCollectoin, settingsCollection);
 
             await interaction.followUp({ content: "Character approved and moved successfully.", ephemeral: true });
         } else {
