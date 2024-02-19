@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "trying my best"
-            },
-            {
-                "title": "New Update",
                 "text": "Putting restore function on pause for now"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "bug testing"
+            },
+            {
+                "title": "New Update",
+                "text": "id10t"
             }
         ],
         "footer": [
