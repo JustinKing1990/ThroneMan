@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "trying to get things back online"
-            },
-            {
-                "title": "New Update",
                 "text": "trying my best"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Adjusting approval logic and shifting when images are stored"
+            },
+            {
+                "title": "New Update",
+                "text": "bug testing"
             }
         ],
         "footer": [
