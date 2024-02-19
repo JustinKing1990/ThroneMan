@@ -2,8 +2,10 @@ const { ModalBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle } = req
 
 module.exports = async (interaction, client) => {
     
+    const [action, userId, name] = interaction.customId.split('_')
+
     const modal = new ModalBuilder()
-        .setCustomId('characterDenialModal')
+        .setCustomId(`characterDenialModal_${userId}_${name}`)
         .setTitle('Character Denial - Additional Details');
 
     const characterDenialInput = new TextInputBuilder()

@@ -3,11 +3,12 @@ const { getDb } = require('../../mongoClient');
 
 module.exports = async (interaction, client) => {
     const reason = interaction.fields.getTextInputValue('character_denial');
+    const [action, userId, characterName] = interaction.customId.split("_")
     const db = getDb();
     const charactersCollection = db.collection('character');
 
     try {
-        const characterData = await charactersCollection.findOne({ userId: interaction.user.id });
+        const characterData = await charactersCollection.findOne({ userId: userId, name: characterName });
         if (characterData) {
             const categoryID = '905888571079139440';
             const guild = interaction.guild;
