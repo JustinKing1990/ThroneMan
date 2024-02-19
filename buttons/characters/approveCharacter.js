@@ -73,11 +73,10 @@ module.exports = async (interaction, client) => {
     const receivingChannel = await interaction.client.channels.fetch('1206393672271134770')
 
     try {
-        // Check if the user interacting is the same as the character's userId to prevent self-approval
-        // if (interaction.user.id === userId) {
-        //     await interaction.followUp({ content: "You cannot approve your own character submission.", ephemeral: true });
-        //     return;
-        // }
+        if (interaction.user.id === userId) {
+            await interaction.followUp({ content: "You cannot approve your own character submission.", ephemeral: true });
+            return;
+        }
 
         const characterDocument = await charactersCollection.findOne({ userId: userId, name: characterName });
 
