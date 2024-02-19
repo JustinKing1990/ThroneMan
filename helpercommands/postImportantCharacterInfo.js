@@ -8,11 +8,11 @@ async function postCharacterInfo(interaction, client, characterName) {
     
     const characterData = await charactersCollection.findOne({ userId: interaction.user.id, name: characterName });
     if (!characterData) {
-        console.log('No character data found for the user.');
+        console.error('No character data found for the user.');
+        await interaction.followUp({ content: 'No character data found. Please try again.', ephemeral: true });
         return;
     }
 
-    
     let messageContent = `Character Information for ${interaction.user.username}:\n`;
     messageContent += `Name: ${characterData.name || 'N/A'}\n`;
     messageContent += `Title: ${characterData.title || 'N/A'}\n`;
@@ -32,47 +32,59 @@ async function postCharacterInfo(interaction, client, characterName) {
     characterData.backstory.forEach((element, index) => {
         messageContent += `${element}\n`;
     });
-
-    
     const row = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId(`approveImportantCharacter_${characterData.userId}_${characterData.name}`)
-                .setLabel('Approve')
-                .setStyle(ButtonStyle.Success),
-            new ButtonBuilder()
-                .setCustomId(`denyImportantCharacter_${characterData.userId}_${characterData.name}`)
-                .setLabel('Deny')
-                .setStyle(ButtonStyle.Danger),
-        );
+    .addComponents(
+        new ButtonBuilder()
+            .setCustomId(`approveCharacter_${characterData.userId}_${characterData.name}`)
+            .setLabel('Approve')
+            .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
+            .setCustomId(`denyCharacter_${characterData.userId}_${characterData.name}`)
+            .setLabel('Deny')
+            .setStyle(ButtonStyle.Danger),
+    );
 
-    const targetChannel = await interaction.client.channels.fetch("1207157063357177947");
-    let startIndex = 0;
-    const chunkSize = 1900; 
-    const sentMessagesIds = [];
+const targetChannel = await interaction.client.channels.fetch("1206393672271134770");
+let startIndex = 0;
+const chunkSize = 1900; // Discord's character limit per message
+const sentMessagesIds = [];
 
-    const numChunks = Math.ceil(messageContent.length / chunkSize);
-    for (let i = 0; i < numChunks; i++) {
-        const endIndex = startIndex + chunkSize;
-        const chunk = messageContent.substring(startIndex, endIndex);
+// Process and send message in chunks if necessary
+while (startIndex < messageContent.length) {
+    const endIndex = Math.min(startIndex + chunkSize, messageContent.length);
+    const chunk = messageContent.substring(startIndex, endIndex);
+    const isLastChunk = endIndex >= messageContent.length;
 
-        const sentMessage = await targetChannel.send({
-            content: chunk,
-            components: i === numChunks - 1 ? [row] : []
-        });
+    const messageOptions = {
+        content: chunk,
+        components: isLastChunk ? [row] : [],
+    };
 
-        sentMessagesIds.push(sentMessage.id);
-
-        startIndex += chunkSize;
+    // Attach images in the last chunk
+    if (isLastChunk && imageUrls.length > 0) {
+        messageOptions.files = imageUrls;
     }
 
-    await charactersCollection.updateOne(
-        {
-            userId: interaction.user.id,
-            name: characterName
-        },
-        { $set: { messageIds: sentMessagesIds } }
-    );
+    const sentMessage = await targetChannel.send(messageOptions);
+    sentMessagesIds.push(sentMessage.id);
+
+    startIndex += chunkSize; // Prepare for the next chunk
 }
 
-module.exports = postCharacterInfo;
+// Update the database with the message IDs for future reference
+await charactersCollection.updateOne(
+    { userId: interaction.user.id, name: characterName },
+    { $set: { messageIds: sentMessagesIds } }
+);
+
+// Optionally handle the image URLs (e.g., storing them for approval process)
+if (imageUrls.length > 0) {
+    // Example: Update document with image URLs for approval usage
+    await charactersCollection.updateOne(
+        { userId: interaction.user.id, name: characterName },
+        { $addToSet: { imageUrls: { $each: imageUrls } } }
+    );
+}
+}
+
+module.exports = postImportantCharacterInfo;

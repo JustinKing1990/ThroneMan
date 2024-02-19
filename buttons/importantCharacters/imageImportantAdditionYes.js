@@ -17,7 +17,7 @@ module.exports = async (interaction, client) => {
         await member.roles.add(role);
 
         
-        const reply = await interaction.update({
+        await interaction.update({
             content: "You've been assigned the 'Character Image Upload' role. Please upload your images now.",
             components: [],
             ephemeral: true
@@ -27,28 +27,16 @@ module.exports = async (interaction, client) => {
         const collector = interaction.channel.createMessageCollector({ filter, time: 60000, max: 1 });
 
         collector.on('collect', async m => {
-            const db = getDb();
-            const charactersCollection = db.collection('importantCharacters');
-            const characterDocument = await charactersCollection.findOne({ userId: interaction.user.id, name: characterName });
+            const imageUrls = m.attachments.map(attachment => attachment.url);
 
-            const imageEmbed = new EmbedBuilder()
-                .setColor('#0099ff')
-                .setTitle('Character Images')
-                .setDescription(`Images for character: ${characterDocument ? characterDocument.name : "Unknown Character"}`)
-                .addFields(
-                    { name: 'User ID', value: interaction.user.id.toString() },
-                    { name: 'Character Name', value: characterName }
-                );
-
-            const imageUrls = m.attachments.map(attachment => attachment.url).join('\n');
-            if (imageUrls) {
-                imageEmbed.addFields({ name: 'Image URLs', value: imageUrls });
+            try {
+                await postImportantCharacterInfo(interaction, client, characterName, imageUrls); 
+                await interaction.deleteReply();
+                await interaction.followUp({ content: "Character information and images have been submitted for staff approval.", ephemeral: true });
+            } catch (error) {
+                console.error('Failed to post character information:', error);
+                await interaction.followUp({ content: "There was an error processing your character information request.", ephemeral: true });
             }
-
-            await targetChannel.send({
-                embeds: [imageEmbed],
-                files: m.attachments.map(attachment => attachment.url)
-            });
 
             await m.delete();
             await member.roles.remove(role);
