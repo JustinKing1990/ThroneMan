@@ -8,9 +8,9 @@ const config = require('../../env/config.json');
 
 
 async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
-    const channelId = "1207179211845140521"; 
+    const channelId = "1207179211845140521";
     const configPath = path.join(__dirname, '../../env/config.json');
-    const messageConfigKey = 'allImportantCharacterMessage'; 
+    const messageConfigKey = 'allImportantCharacterMessage';
     const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { importantCurrentPage: 0 };
     const totalCharacters = await charactersCollection.countDocuments();
     const totalPages = Math.ceil(totalCharacters / 25);
@@ -20,25 +20,25 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
         .limit(25)
         .toArray();
 
-        const importantMemberFetchPromises = charactersData.map(character =>
-            client.guilds.cache.get('903864074134249483')
-                .members.fetch(character.userId)
-                .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
-        );
-        const importantMembers = await Promise.all(importantMemberFetchPromises);
+    const importantMemberFetchPromises = charactersData.map(character =>
+        client.guilds.cache.get('903864074134249483')
+            .members.fetch(character.userId)
+            .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
+    );
+    const importantMembers = await Promise.all(importantMemberFetchPromises);
 
-        const importantCharacterOptions = importantCharactersData.map((character, index) => {
-            const member = importantMembers[index];
-            const displayName = member ? member.displayName : 'Unknown User';
-            return {
-                label: character.name,
-                value: `${character.name}::${character.userId}`,
-                description: `Player: ${displayName}`,
-            };
-        });
+    const importantCharacterOptions = importantCharactersData.map((character, index) => {
+        const member = importantMembers[index];
+        const displayName = member ? member.displayName : 'Unknown User';
+        return {
+            label: character.name,
+            value: `${character.name}::${character.userId}`,
+            description: `Player: ${displayName}`,
+        };
+    });
 
 
-    
+
     const selectMenu = new ActionRowBuilder()
         .addComponents(
             new StringSelectMenuBuilder()
@@ -47,7 +47,7 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
                 .addOptions(importantCharacterOptions),
         );
 
-    
+
     const rowButtons = new ActionRowBuilder()
         .addComponents(
             new ButtonBuilder()
@@ -62,7 +62,7 @@ async function updateAllImportantCharactersMessage(client, charactersCollection,
                 .setDisabled(currentPage >= totalPages - 1),
         );
 
-    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons]});
+    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
 }
 module.exports = async (interaction, client) => {
 
@@ -72,16 +72,49 @@ module.exports = async (interaction, client) => {
     const targetCollection = db.collection('importantCharacters');
     const settingsCollection = db.collection('settings');
     const [action, userId, characterName] = interaction.customId.split('_')
+    const receivingChannel = await interaction.client.channels.fetch('1207157063357177947')
 
     try {
-        const characterDocument = await sourceCollection.findOne({ userId: userId, name: characterName });
+        // Check if the user interacting is the same as the character's userId to prevent self-approval
+        // if (interaction.user.id === userId) {
+        //     await interaction.followUp({ content: "You cannot approve your own character submission.", ephemeral: true });
+        //     return;
+        // }
+
+        const characterDocument = await charactersCollection.findOne({ userId: userId, name: characterName });
 
         if (characterDocument) {
+            // Assume characterDocument.imageUrls is an array of image URLs
+            const messageIds = characterDocument.messageIds || [];
+            let attachments = [];
+
+            // Fetch each message by ID and extract image URLs
+            for (let messageId of messageIds) {
+                try {
+                    const message = await receivingChannel.messages.fetch(messageId);
+                    const messageAttachments = message.attachments.filter(attachment => attachment.contentType.startsWith('image/')).values();
+                    attachments = [...attachments, ...Array.from(messageAttachments)];
+                } catch (error) {
+                }
+            }
+            const imageEmbed = new EmbedBuilder()
+                .setColor('#0099ff')
+                .setTitle('Character Images')
+                .setDescription(`Images for character: ${characterName ? characterName : "Unknown Character"}`)
+                .addFields(
+                    { name: 'User ID', value: interaction.user.id.toString() },
+                    { name: 'Character Name', value: characterName }
+                );
+
+
+            // The channel to post the embed with images
+            const targetChannel = await interaction.client.channels.fetch("1206381988559323166");
+            await targetChannel.send({ embeds: [imageEmbed], files: attachments.map(attachment => attachment.url) });
             await targetCollection.insertOne(characterDocument);
             await sourceCollection.deleteOne({ name: characterName, userId: userId });
 
             if (characterDocument.messageIds && characterDocument.messageIds.length > 0) {
-                const targetChannel = await interaction.client.channels.fetch("1207157063357177947"); 
+                const targetChannel = await interaction.client.channels.fetch("1207157063357177947");
                 for (const messageId of characterDocument.messageIds) {
                     try {
                         await targetChannel.messages.delete(messageId);
