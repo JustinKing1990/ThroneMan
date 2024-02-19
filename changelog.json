@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "id10t"
-            },
-            {
-                "title": "New Update",
                 "text": "Changed image saving timing to save image completely after character acceptance"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Bad function naming"
+            },
+            {
+                "title": "New Update",
+                "text": "Attached to above"
             }
         ],
         "footer": [
