@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Working on restore function still. It's being rude"
-            },
-            {
-                "title": "New Update",
                 "text": "trying to get things back online"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Squashing character denial and approval related buggies"
+            },
+            {
+                "title": "New Update",
+                "text": "Adjusting approval logic and shifting when images are stored"
             }
         ],
         "footer": [
