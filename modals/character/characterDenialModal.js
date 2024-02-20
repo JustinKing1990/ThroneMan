@@ -71,7 +71,7 @@ module.exports = async (interaction, client) => {
             const confirmButton = new ActionRowBuilder()
                 .addComponents(
                     new ButtonBuilder()
-                        .setCustomId('confirmDeleteChannel')
+                        .setCustomId(`confirmDeleteChannel_${userId}_${characterName}`)
                         .setLabel('Confirm and Delete Channel')
                         .setStyle(ButtonStyle.Danger)
                         .setEmoji('🗑️'),
