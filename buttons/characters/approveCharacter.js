@@ -99,7 +99,7 @@ module.exports = async (interaction, client) => {
                 .setTitle('Character Images')
                 .setDescription(`Images for character: ${characterName ? characterName : "Unknown Character"}`)
                 .addFields(
-                    { name: 'User ID', value: interaction.user.id.toString() },
+                    { name: 'User ID', value: userId },
                     { name: 'Character Name', value: characterName }
                 );
 
