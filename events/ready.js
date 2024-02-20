@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { getDb } = require('../mongoClient');
 const ensureMessagePosted = require('../helpercommands/postTrackedMessage')
+const updateListMessage = require('../helpercommands/updateListMessage')
 const mongoClient = require('../mongoClient')
 const config = require('../env/config.json');
 const interactioncreate = require('./interactioncreate');
@@ -116,6 +117,22 @@ async function updateCharacterSubmissionMessage(client) {
             new ButtonBuilder()
                 .setCustomId('submitCharacter')
                 .setLabel('Submit Character')
+                .setStyle(ButtonStyle.Primary),
+        );
+    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { embeds: [embed], components: [row] });
+}
+
+async function updateBestiarySubmissionMessage(client) {
+    const channelId = "1209518924757209108";
+    const configPath = path.join(__dirname, '../env/config.json');
+    const messageConfigKey = 'createBestiaryMessageId';
+    const embed = new EmbedBuilder()
+        .setDescription('Click the button below to submit your beast!');
+    const row = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('submitBeast')
+                .setLabel('Submit Beast')
                 .setStyle(ButtonStyle.Primary),
         );
     await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { embeds: [embed], components: [row] });
@@ -318,6 +335,55 @@ async function updateAllLoreMessage(client, loreCollection, settingsCollection) 
 
     await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
 }
+async function updateAllBeastMessage(client, beastCollection, settingsCollection) {
+    const channelId = "1209518814295892089";
+    const configPath = path.join(__dirname, '../env/config.json');
+    const messageConfigKey = 'bestiaryMessageId';
+    const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { beastCurrentPage: 0 };
+    const totalBeasts = await beastCollection.countDocuments();
+    const totalPages = Math.ceil(totalLore / 25);
+    const loreData = await loreCollection.find({})
+        .sort({ name: 1 })
+        .skip(currentPage * 25)
+        .limit(25)
+        .toArray();
+
+    const loreOptions = loreData.map((lore, index) => {
+        return {
+            label: lore.name,
+            value: `${lore.name}`
+        };
+    });
+
+
+    const selectMenu = new ActionRowBuilder()
+        .addComponents(
+            new StringSelectMenuBuilder()
+                .setCustomId('selectLore')
+                .setPlaceholder('Select a lore')
+                .addOptions(loreData.map(lore => ({
+                    label: lore.name,
+                    value: lore.name,
+                }))),
+        );
+
+
+    const rowButtons = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('prevLorePage')
+                .setLabel('Previous')
+                .setStyle(ButtonStyle.Secondary)
+                .setDisabled(currentPage === 0),
+            new ButtonBuilder()
+                .setCustomId('nextLorePage')
+                .setLabel('Next')
+                .setStyle(ButtonStyle.Secondary)
+                .setDisabled(currentPage >= totalPages - 1),
+        );
+
+    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
+}
 
 module.exports = {
     name: "ready",
@@ -339,6 +405,7 @@ module.exports = {
         const charactersCollection = db.collection('characters');
         const importantCharactersCollection = db.collection('importantCharacters')
         const loreCollection = db.collection('lore');
+        const beastCollection = db.collection('bestiary')
 
         const commitMessage = await getLatestGitCommit();
         if (commitMessage) {
@@ -350,11 +417,11 @@ module.exports = {
         await updateCharacterSubmissionMessage(client);
         await updateImportantCharacterSubmissionMessage(client);
         await updateLoreSubmissionMessage(client);
+        await updateBestiarySubmissionMessage(client);
 
-
-        await updateAllCharactersMessage(client, charactersCollection, settingsCollection);
-        await updateAllImportantCharactersMessage(client, importantCharactersCollection, settingsCollection);
-        await updateAllLoreMessage(client, loreCollection, settingsCollection);
-
+        await updateListMessage(client,null, charactersCollection, settingsCollection, config.allCharacterChannelId, config.allCharactersMessageId, "Character")
+        await updateListMessage(client, null, importantCharactersCollection, settingsCollection, config.allImportantCharacterChannelId, config.allImportantCharacterMessage, "ImportantCharacter")
+        await updateListMessage(client, null, loreCollection, settingsCollection, config.loreChannelId, config.loreMessageId, "Lore")
+       
     }
 }
