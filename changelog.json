@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Added functionality to delete character function to also remove the image attached to it"
-            },
-            {
-                "title": "New Update",
                 "text": "same thing as above"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Working on restoring denied characters better"
+            },
+            {
+                "title": "New Update",
+                "text": "Successful deny and repost loop has been made. No more resubmitting if you don't need to edit after a denial"
             }
         ],
         "footer": [
