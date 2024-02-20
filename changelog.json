@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Changed image saving timing to save image completely after character acceptance"
-            },
-            {
-                "title": "New Update",
                 "text": "Added functionality to delete character function to also remove the image attached to it"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Attached to above"
+            },
+            {
+                "title": "New Update",
+                "text": "Working on restoring denied characters better"
             }
         ],
         "footer": [
