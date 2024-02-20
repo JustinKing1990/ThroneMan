@@ -422,6 +422,6 @@ module.exports = {
         await updateListMessage(client,null, charactersCollection, settingsCollection, config.allCharacterChannelId, config.allCharactersMessageId, "Character")
         await updateListMessage(client, null, importantCharactersCollection, settingsCollection, config.allImportantCharacterChannelId, config.allImportantCharacterMessage, "ImportantCharacter")
         await updateListMessage(client, null, loreCollection, settingsCollection, config.loreChannelId, config.loreMessageId, "Lore")
-        await updateListMessage(client, null, beastCollection, settingsCollection, config.beast) 
+        await updateListMessage(client, null, beastCollection, settingsCollection, config.bestiaryChannelId, config.bestiaryMessageId, "Beast") 
     }
 }
