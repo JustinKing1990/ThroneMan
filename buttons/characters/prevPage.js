@@ -14,10 +14,8 @@ module.exports = async (interaction, client) => {
         let newPage = Math.max(0, currentPage - 1);
         currentPage = newPage
 
-        
         await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { currentPage: newPage } }, { upsert: true });
 
-        
         const totalCharacters = await charactersCollection.countDocuments();
         const totalPages = Math.ceil(totalCharacters / 25);
         const charactersData = await charactersCollection.find({})
@@ -26,18 +24,30 @@ module.exports = async (interaction, client) => {
             .limit(25)
             .toArray();
 
+        const importantMemberFetchPromises = charactersData.map(character =>
+            interaction.client.guilds.cache.get('903864074134249483')
+                .members.fetch(character.userId)
+                .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
+        );
+        const importantMembers = await Promise.all(importantMemberFetchPromises);
 
-        const characterOptions = charactersData.map(character => ({
-            label: character.name,
-            value: `${character.name}::${character.userId}`
-        }));
+        const importantCharacterOptions = charactersData.map((character, index) => {
+            const member = importantMembers[index];
+            const displayName = member ? member.displayName : 'Unknown User';
+
+            return {
+                label: character.name,
+                value: `${character.name}::${character.userId}`,
+                description: `Player: ${displayName}`,
+            };
+        });
 
         const selectMenu = new ActionRowBuilder()
             .addComponents(
                 new StringSelectMenuBuilder()
                     .setCustomId('selectCharacter')
                     .setPlaceholder('Select a character')
-                    .addOptions(characterOptions),
+                    .addOptions(importantCharacterOptions),
             );
 
         const rowButtons = new ActionRowBuilder()
@@ -54,7 +64,7 @@ module.exports = async (interaction, client) => {
                     .setDisabled(currentPage >= totalPages - 1),
             );
 
-        const allCharactersChannel = await interaction.client.channels.fetch("905554690966704159"); 
+        const allCharactersChannel = await interaction.client.channels.fetch("905554690966704159");
         const allCharactersMessageId = config.allCharacterMessage
         let allCharacterMessageExists = false;
 

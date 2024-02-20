@@ -10,34 +10,48 @@ module.exports = async (interaction, client) => {
 
     try {
         let { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
-        
+
         let newPage = currentPage + 1;
         currentPage = newPage
 
-        
+
         await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { currentPage: newPage } }, { upsert: true });
 
-        
+
+
         const totalCharacters = await charactersCollection.countDocuments();
-        const totalPages = Math.ceil(totalCharacters / 25);``
+        const totalPages = Math.ceil(totalCharacters / 25);
         const charactersData = await charactersCollection.find({})
             .sort({ name: 1 })
             .skip(newPage * 25)
             .limit(25)
             .toArray();
 
+        const importantMemberFetchPromises = charactersData.map(character =>
+            interaction.client.guilds.cache.get('903864074134249483')
+                .members.fetch(character.userId)
+                .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
+        );
+        const importantMembers = await Promise.all(importantMemberFetchPromises);
 
-        const characterOptions = charactersData.map(character => ({
-            label: character.name,
-            value: `${character.name}::${character.userId}`
-        }));
+        const importantCharacterOptions = charactersData.map((character, index) => {
+            const member = importantMembers[index];
+            const displayName = member ? member.displayName : 'Unknown User';
+
+            return {
+                label: character.name,
+                value: `${character.name}::${character.userId}`,
+                description: `Player: ${displayName}`,
+            };
+        });
+
 
         const selectMenu = new ActionRowBuilder()
             .addComponents(
                 new StringSelectMenuBuilder()
                     .setCustomId('selectCharacter')
                     .setPlaceholder('Select a character')
-                    .addOptions(characterOptions),
+                    .addOptions(importantCharacterOptions),
             );
 
         const rowButtons = new ActionRowBuilder()
@@ -55,7 +69,7 @@ module.exports = async (interaction, client) => {
             );
 
 
-        const allCharactersChannel = await interaction.client.channels.fetch("905554690966704159"); 
+        const allCharactersChannel = await interaction.client.channels.fetch("905554690966704159");
         const allCharactersMessageId = config.allCharacterMessage
         let allCharacterMessageExists = false;
 
@@ -66,7 +80,7 @@ module.exports = async (interaction, client) => {
             console.log("Message edited successfully.");
         } catch (error) {
         }
-        
+
         if (allCharacterMessageExists) {
             allCharactersMessage = await allCharactersChannel.messages.fetch(allCharactersMessageId);
             await allCharactersMessage.edit({ content: "Select a character to view more information:", components: [selectMenu, rowButtons] });
@@ -76,10 +90,10 @@ module.exports = async (interaction, client) => {
             fs.writeFileSync(path.join(__dirname, '../env/config.json'), JSON.stringify(config, null, 2));
         }
 
-        await interaction.deleteReply({ephemeral: true})
+        await interaction.deleteReply({ ephemeral: true })
 
     } catch (error) {
         console.error('Error processing accept button interaction:', error);
-        
+
     }
 }

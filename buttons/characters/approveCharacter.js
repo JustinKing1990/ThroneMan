@@ -107,6 +107,7 @@ module.exports = async (interaction, client) => {
             // The channel to post the embed with images
             const targetChannel = await interaction.client.channels.fetch("1206381988559323166");
             await targetChannel.send({ embeds: [imageEmbed], files: attachments.map(attachment => attachment.url) });
+            characterDocument.approvedBy = interaction.member.displayName
             await targetCollection.insertOne(characterDocument);
             await charactersCollection.deleteOne({ name: characterName, userId: userId });
 
