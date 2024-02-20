@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Bad function naming"
-            },
-            {
-                "title": "New Update",
                 "text": "Attached to above"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Fixed a little fucky wucky whoopsie doosie"
+            },
+            {
+                "title": "New Update",
+                "text": "Somehow next and previous buttons were wrong"
             }
         ],
         "footer": [
