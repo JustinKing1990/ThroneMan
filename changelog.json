@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "same thing as above"
-            },
-            {
-                "title": "New Update",
                 "text": "Bad function naming"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Successful deny and repost loop has been made. No more resubmitting if you don't need to edit after a denial"
+            },
+            {
+                "title": "New Update",
+                "text": "Fixed a little fucky wucky whoopsie doosie"
             }
         ],
         "footer": [
