@@ -3,14 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Attached to above"
-            },
-            {
-                "title": "New Update",
-                "text": "Working on restoring denied characters better"
-            },
-            {
-                "title": "New Update",
                 "text": "Successful deny and repost loop has been made. No more resubmitting if you don't need to edit after a denial"
             },
             {
@@ -20,6 +12,14 @@
             {
                 "title": "New Update",
                 "text": "Somehow next and previous buttons were wrong"
+            },
+            {
+                "title": "New Update",
+                "text": "Working to create dynamic function to maintain and update dropdown lists"
+            },
+            {
+                "title": "New Update",
+                "text": "Successful on function, now need to completely implement"
             }
         ],
         "footer": [
