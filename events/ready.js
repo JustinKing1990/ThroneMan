@@ -4,6 +4,7 @@ const path = require('path');
 const { getDb } = require('../mongoClient');
 const ensureMessagePosted = require('../helpercommands/postTrackedMessage')
 const updateListMessage = require('../helpercommands/updateListMessage')
+const updateSubmissionMessage = require('../helpercommands/updateSubmissionMessage')
 const mongoClient = require('../mongoClient')
 const config = require('../env/config.json');
 const interactioncreate = require('./interactioncreate');
@@ -106,70 +107,6 @@ async function updateInTheWorksMessage(client) {
     await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { embeds: [inTheWorksEmbed] });
 }
 
-async function updateCharacterSubmissionMessage(client) {
-    const channelId = "1207094079373049906";
-    const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'characterMakingMessage';
-    const embed = new EmbedBuilder()
-        .setDescription('Click the button below to submit your character!');
-    const row = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('submitCharacter')
-                .setLabel('Submit Character')
-                .setStyle(ButtonStyle.Primary),
-        );
-    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { embeds: [embed], components: [row] });
-}
-
-async function updateBestiarySubmissionMessage(client) {
-    const channelId = "1209518924757209108";
-    const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'createBestiaryMessageId';
-    const embed = new EmbedBuilder()
-        .setDescription('Click the button below to submit your beast!');
-    const row = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('submitBeast')
-                .setLabel('Submit Beast')
-                .setStyle(ButtonStyle.Primary),
-        );
-    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { embeds: [embed], components: [row] });
-}
-
-async function updateLoreSubmissionMessage(client) {
-    const channelId = "1207323739163983906";
-    const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'createLoreMessageId';
-    const embed = new EmbedBuilder()
-        .setDescription('Click the button below to create some lore!');
-    const row = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('submitLore')
-                .setLabel('Submit Lore')
-                .setStyle(ButtonStyle.Primary),
-        );
-    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { embeds: [embed], components: [row] });
-}
-
-async function updateImportantCharacterSubmissionMessage(client) {
-    const channelId = "1207157109632802886";
-    const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'importantCharacterMakingMessage';
-    const embed = new EmbedBuilder()
-        .setDescription('Click the button below to submit your important character!');
-    const row = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('submitImportantCharacter')
-                .setLabel('Submit Important Character')
-                .setStyle(ButtonStyle.Primary),
-        );
-    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { embeds: [embed], components: [row] });
-}
-
 module.exports = {
     name: "ready",
     once: true,
@@ -199,10 +136,10 @@ module.exports = {
         await updateChangelogMessage(client);
         await commitUpdates();
         await updateInTheWorksMessage(client);
-        await updateCharacterSubmissionMessage(client);
-        await updateImportantCharacterSubmissionMessage(client);
-        await updateLoreSubmissionMessage(client);
-        await updateBestiarySubmissionMessage(client);
+        await updateSubmissionMessage(client, null, config.characterMakingChannelId, config.characterMakingMessage, "Character")
+        await updateSubmissionMessage(client, null, config.importantCharacterMakingChannelId, config.importantCharacterMakingMessage, "ImportantCharacter")
+        await updateSubmissionMessage(client, null, config.createLoreChannelId, config.createLoreMessageId, "Lore")
+        await updateSubmissionMessage(client, null, config.createBeastChannelId, config. createBestiaryMessageId, "Beast")
 
         await updateListMessage(client,null, charactersCollection, settingsCollection, config.allCharacterChannelId, config.allCharactersMessageId, "Character")
         await updateListMessage(client, null, importantCharactersCollection, settingsCollection, config.allImportantCharacterChannelId, config.allImportantCharacterMessage, "ImportantCharacter")

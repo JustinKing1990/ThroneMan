@@ -106,10 +106,19 @@ async function updateListMessage(
 
   const options = await generateOptions(discordObject, actionType, collectionData);
 
+  const Description = {
+    Character: "character",
+    ImportantCharacter: "important character",
+    Lore: "lore",
+    Beast: "beast",
+  };
+
+  const descriptionKey = Description[actionType];
+
   const selectMenu = new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId(`select${actionType}`)
-      .setPlaceholder("Select an option")
+      .setPlaceholder(`Select the ${descriptionKey}`)
       .addOptions(options)
   );
 
