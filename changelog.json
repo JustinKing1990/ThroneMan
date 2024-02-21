@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Fixed a little fucky wucky whoopsie doosie"
-            },
-            {
-                "title": "New Update",
                 "text": "Somehow next and previous buttons were wrong"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Why though"
+            },
+            {
+                "title": "New Update",
+                "text": "Updated all relevant functions to now call singular function for maintaining lists"
             }
         ],
         "footer": [
