@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Why though"
-            },
-            {
-                "title": "New Update",
                 "text": "Updated all relevant functions to now call singular function for maintaining lists"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Fully implemented bestiary"
+            },
+            {
+                "title": "New Update",
+                "text": "Added logic to archive characters when the player leaves the server, upon next run to update relevant listings"
             }
         ],
         "footer": [
