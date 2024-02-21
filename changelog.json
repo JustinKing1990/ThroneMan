@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Somehow next and previous buttons were wrong"
-            },
-            {
-                "title": "New Update",
                 "text": "Working to create dynamic function to maintain and update dropdown lists"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Updated all relevant functions to now call singular function for maintaining lists"
+            },
+            {
+                "title": "New Update",
+                "text": "Created funciton to handle keeping the buttons up to date. Much like the list function"
             }
         ],
         "footer": [
