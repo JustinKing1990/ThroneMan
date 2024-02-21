@@ -12,8 +12,20 @@ const ensureMessagePosted = require("../helpercommands/postTrackedMessage");
 const mongoClient = require("../mongoClient");
 const config = require("../env/config.json");
 
-async function generateOptions(discordObject, actionType, data) {
+async function generateOptions(discordObject, actionType, data, collection) {
   let options = [];
+  const characterNameConversion = {
+    characters: "character",
+    importantCharacters: "importantCharacter",
+    lore: "lore",
+    bestiary: "bestiary",
+  };
+  const collectionKey = characterNameConversion[collection.collectionName];
+  const archiveCollectionName = `${collectionKey}Archive`;
+  const collectionName = `${collection.collectionName}`;
+  const db = getDb();
+  const archiveCollection = db.collection(archiveCollectionName);
+  const sourceCollection = db.collection(collectionName);
 
   async function fetchGuildMember(guildId, userId) {
     let guild;
@@ -26,8 +38,17 @@ async function generateOptions(discordObject, actionType, data) {
     try {
       return await guild.members.fetch(userId);
     } catch (err) {
-      console.log(`Failed to fetch member for userId: ${userId}`, err);
+      console.log(`Failed to fetch member for userId: ${userId}`);
       return null;
+    }
+  }
+
+  async function moveToArchive(character) {
+    try {
+      await archiveCollection.insertOne(character);
+      await sourceCollection.deleteOne({ userId: character.userId });
+    } catch (err) {
+      console.log(`Failed to move ${character.name} to archive`, err);
     }
   }
 
@@ -37,15 +58,19 @@ async function generateOptions(discordObject, actionType, data) {
     );
     const members = await Promise.all(memberFetchPromises);
 
-    options = data.map((character, index) => {
+    for (let index = 0; index < data.length; index++) {
+      const character = data[index];
       const member = members[index];
-      const displayName = member ? member.displayName : "Unknown User";
-      return {
-        label: character.name,
-        value: `${character.name}::${character.userId}`,
-        description: `Player: ${displayName}`,
-      };
-    });
+      if (member) {
+        options.push({
+          label: character.name,
+          value: `${character.name}::${character.userId}`,
+          description: `Player: ${member.displayName}`,
+        });
+      } else {
+        await moveToArchive(character);
+      }
+    }
   } else if (actionType === "Lore" || actionType === "Beast") {
     options = data.map((item) => ({
       label: item.name,
@@ -66,12 +91,13 @@ async function updateListMessage(
   actionType
 ) {
   const discordObject = interaction ? interaction.client : client;
-  let customIdParts 
-  let [action, userId, characterId] = [null, null, null]
-  try{
-    customIdParts = interaction.customId.split("_")
-    [action, userId, characterId] = customIdParts
-  } catch{}
+  let customIdParts;
+  let [action, userId, characterId] = [null, null, null];
+  try {
+    customIdParts = interaction.customId.split("_")[
+      (action, userId, characterId)
+    ] = customIdParts;
+  } catch {}
   let configPath;
 
   try {
@@ -104,7 +130,12 @@ async function updateListMessage(
     .limit(25)
     .toArray();
 
-  const options = await generateOptions(discordObject, actionType, collectionData);
+  const options = await generateOptions(
+    discordObject,
+    actionType,
+    collectionData,
+    collection
+  );
 
   const Description = {
     Character: "character",
@@ -126,8 +157,8 @@ async function updateListMessage(
     Character: "",
     ImportantCharacter: "Important",
     Lore: "Lore",
-    Beast: "Beast"
-  }
+    Beast: "Beast",
+  };
 
   const buttonType = paginationType[actionType] || "";
 
@@ -148,4 +179,4 @@ async function updateListMessage(
     components: [selectMenu, rowButtons],
   });
 }
-module.exports = updateListMessage
+module.exports = updateListMessage;
