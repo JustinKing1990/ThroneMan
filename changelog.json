@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Successful on function, now need to completely implement"
-            },
-            {
-                "title": "New Update",
                 "text": "Why though"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Attempting to get bestiary system in line"
+            },
+            {
+                "title": "New Update",
+                "text": "Fully implemented bestiary"
             }
         ],
         "footer": [
