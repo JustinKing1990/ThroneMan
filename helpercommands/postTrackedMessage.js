@@ -2,16 +2,6 @@ const fs = require("fs");
 const path = require("path");
 const { EmbedBuilder, ActionRowBuilder } = require("discord.js");
 
-/**
- * Ensures a message is posted in a specified channel. If the message does not exist, it posts a new one.
- * If it exists, it updates the existing message.
- *
- * @param {Object} client - The Discord client instance.
- * @param {String} channelId - The ID of the channel where the message should be.
- * @param {String} messageIdConfigPath - The path to the config JSON file storing the message ID.
- * @param {String} messageIdConfigKey - The key in the config file where the message ID is stored.
- * @param {Array} content - An array containing the message's content (embeds, components, etc.).
- */
 async function ensureMessagePosted(
   client,
   channelId,
@@ -20,27 +10,28 @@ async function ensureMessagePosted(
   content
 ) {
   const channel = await client.channels.fetch(channelId);
-  let config = require(messageIdConfigPath);
+  let config = JSON.parse(fs.readFileSync(messageIdConfigPath, "utf8"));
   let messageExists = false;
   let message;
 
-  let isKeyInConfig = messageIdConfigKey in config;
+  let isKeyInConfig = config.hasOwnProperty(messageIdConfigKey);
 
   try {
     message = await channel.messages.fetch(
-      isKeyInConfig ? messageId : messageIdConfigKey
+      isKeyInConfig ? config[messageIdConfigKey] : messageIdConfigKey
     );
     messageExists = true;
-  } catch (error) {}
+  } catch (error) {
+    messageExists = false;
+  }
 
   if (messageExists) {
     await message.edit(content);
   } else {
     message = await channel.send(content);
-    if (isKeyInConfig) {
       config[messageIdConfigKey] = message.id;
       fs.writeFileSync(messageIdConfigPath, JSON.stringify(config, null, 2));
-    }
   }
 }
+
 module.exports = ensureMessagePosted;

@@ -1,68 +1,11 @@
 const { getDb } = require('../../mongoClient');
 const ensureMessagePosted = require('../../helpercommands/postTrackedMessage');
+const updateListMessage = require('../../helpercommands/updateListMessage')
 const config = require('../../env/config.json');
 const fs = require('fs');
 const path = require('path');
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, PermissionsBitField } = require('discord.js');
 
-
-async function updateAllImportantCharactersMessage(client, charactersCollection, settingsCollection) {
-    const channelId = "1207179211845140521"; 
-    const configPath = path.join(__dirname, '../../env/config.json');
-    const messageConfigKey = 'allImportantCharacterMessage'; 
-    const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { importantCurrentPage: 0 };
-    const totalCharacters = await charactersCollection.countDocuments();
-    const totalPages = Math.ceil(totalCharacters / 25);
-    const charactersData = await charactersCollection.find({})
-        .sort({ name: 1 })
-        .skip(currentPage * 25)
-        .limit(25)
-        .toArray();
-
-        const importantMemberFetchPromises = charactersData.map(character =>
-            client.guilds.cache.get('903864074134249483')
-                .members.fetch(character.userId)
-                .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
-        );
-        const importantMembers = await Promise.all(importantMemberFetchPromises);
-
-        const importantCharacterOptions = charactersData.map((character, index) => {
-            const member = importantMembers[index];
-            const displayName = member ? member.displayName : 'Unknown User';
-            return {
-                label: character.name,
-                value: `${character.name}::${character.userId}`,
-                description: `Player: ${displayName}`,
-            };
-        });
-
-
-    
-    const selectMenu = new ActionRowBuilder()
-        .addComponents(
-            new StringSelectMenuBuilder()
-                .setCustomId('selectImportantCharacter')
-                .setPlaceholder('Select a character')
-                .addOptions(importantCharacterOptions),
-        );
-
-    
-    const rowButtons = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('prevImportantPage')
-                .setLabel('Previous')
-                .setStyle(ButtonStyle.Secondary)
-                .setDisabled(currentPage === 0),
-            new ButtonBuilder()
-                .setCustomId('nextImportantPage')
-                .setLabel('Next')
-                .setStyle(ButtonStyle.Secondary)
-                .setDisabled(currentPage >= totalPages - 1),
-        );
-
-    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons]});
-}
 async function handleDeleteCharacterInteraction(interaction) {
     const db = getDb();
     const settingsCollection = db.collection('settings');
@@ -116,7 +59,7 @@ async function handleDeleteCharacterInteraction(interaction) {
 
     try {
         let newCharacterCollection = db.collection('importantCharacters')
-        await updateAllImportantCharactersMessage(interaction.client, newCharacterCollection, settingsCollection, interaction);
+        await updateListMessage(null, interaction, newCharacterCollection, settingsCollection, config.allImportantCharacterChannelId, config.allImportantCharacterMessage, "ImportantCharacter");
     } catch (error) {
         console.error('Error updating character list message:', error);
     }

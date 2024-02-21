@@ -3,65 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const { getDb } = require('../../mongoClient');
 const ensureMessagePosted = require('../../helpercommands/postTrackedMessage')
+const updateListMessage = require('../../helpercommands/updateListMessage')
 const config = require('../../env/config.json');
-
-async function updateAllCharactersMessage(client, charactersCollection, settingsCollection) {
-    const channelId = "905554690966704159";
-    const configPath = path.join(__dirname, '../../env/config.json');
-    const messageConfigKey = 'allCharacterMessage';
-    const { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
-    const totalCharacters = await charactersCollection.countDocuments();
-    const totalPages = Math.ceil(totalCharacters / 25);
-    const charactersData = await charactersCollection.find({})
-        .sort({ name: 1 })
-        .skip(currentPage * 25)
-        .limit(25)
-        .toArray();
-
-    const importantMemberFetchPromises = charactersData.map(character =>
-        client.guilds.cache.get('903864074134249483')
-            .members.fetch(character.userId)
-            .catch(err => console.log(`Failed to fetch member for userId: ${character.userId}`, err))
-    );
-    const importantMembers = await Promise.all(importantMemberFetchPromises);
-
-    const importantCharacterOptions = charactersData.map((character, index) => {
-        const member = importantMembers[index];
-        const displayName = member ? member.displayName : 'Unknown User';
-
-        return {
-            label: character.name,
-            value: `${character.name}::${character.userId}`,
-            description: `Player: ${displayName}`,
-        };
-    });
-
-
-    const selectMenu = new ActionRowBuilder()
-        .addComponents(
-            new StringSelectMenuBuilder()
-                .setCustomId('selectCharacter')
-                .setPlaceholder('Select a character')
-                .addOptions(importantCharacterOptions),
-        );
-
-
-    const rowButtons = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('prevPage')
-                .setLabel('Previous')
-                .setStyle(ButtonStyle.Secondary)
-                .setDisabled(currentPage === 0),
-            new ButtonBuilder()
-                .setCustomId('nextPage')
-                .setLabel('Next')
-                .setStyle(ButtonStyle.Secondary)
-                .setDisabled(currentPage >= totalPages - 1),
-        );
-
-    await ensureMessagePosted(client, channelId, configPath, messageConfigKey, { components: [selectMenu, rowButtons] });
-}
 
 module.exports = async (interaction, client) => {
     await interaction.deferUpdate({ ephemeral: true });
@@ -128,8 +71,8 @@ module.exports = async (interaction, client) => {
             await announcementChannel.send(`<@${userId}>, your character: ${characterDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your character.`);
 
 
-            await updateAllCharactersMessage(interaction.client, targetCollection, settingsCollection);
-            ;
+            await updateListMessage(null, interaction, targetCollection, settingsCollection, config.allCharacterChannelId, config.allCharactersMessageId, "Character");
+            
 
             const guild = await interaction.client.guilds.cache.get('903864074134249483');
             const member = await guild.members.fetch(userId);
