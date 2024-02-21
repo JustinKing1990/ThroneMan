@@ -20,7 +20,7 @@ module.exports = async (interaction, client) => {
         
         await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { loreCurrentPage: newPage } }, { upsert: true });
 
-        await updateListMessage(null, interaction, charactersCollection, settingsCollection, config.loreChannelId, config.loreMessageId, "Lore");
+        await updateListMessage(interaction.client, interaction, charactersCollection, settingsCollection, config.loreChannelId, config.loreMessageId, "Lore");
         await interaction.deleteReply({ ephemeral: true })
 
     } catch (error) {

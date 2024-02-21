@@ -84,9 +84,9 @@ async function handleDeleteLoreInteraction(interaction) {
   }
 
   try {
-    let newBeastCollection = db.collection("beast");
+    let newBeastCollection = db.collection("bestiary");
     await updateListMessage(
-      null,
+      interaction.client,
       interaction,
       newBeastCollection,
       settingsCollection,

@@ -45,7 +45,7 @@ module.exports = async (interaction, client) => {
           .setColor("#0099ff")
           .setTitle("Beast Images")
           .setDescription(
-            `Images for beast: ${besatDocument ? beastName : "Unknown Beast"}`
+            `Images for beast: ${beastDocument ? beastName : "Unknown Beast"}`
           )
           .addFields({ name: "Beast Name", value: beastName });
 
@@ -82,7 +82,7 @@ module.exports = async (interaction, client) => {
         }
       });
       await updateListMessage(
-        null,
+        interaction.client,
         interaction,
         sourceCollection,
         settingsCollection,

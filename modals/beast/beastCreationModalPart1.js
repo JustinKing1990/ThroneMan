@@ -32,11 +32,11 @@ module.exports = async (interaction, client) => {
             components: [
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
-                        .setCustomId(`beastCreationAdditionalAbilities_${beastName}`)
+                        .setCustomId(`beastCreationAdditionAbilities_${beastName}`)
                         .setLabel('Yes')
                         .setStyle(ButtonStyle.Success),
                     new ButtonBuilder()
-                        .setCustomId(`beastCreationAdditionalAbilitiesNo_${beastName}`)
+                        .setCustomId(`beastCreationAdditionAbilitiesNo_${beastName}`)
                         .setLabel('No')
                         .setStyle(ButtonStyle.Danger),
                 )

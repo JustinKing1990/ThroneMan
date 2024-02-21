@@ -64,7 +64,7 @@ module.exports = async (interaction, client) => {
                 }
             }
             let newTargetcollection = db.collection('importantCharacters')
-           await updateListMessage(null, interaction, newTargetcollection, settingsCollection, config.allImportantCharacterChannelId, config.allImportantCharacterMessage, "ImportantCharacter" )
+           await updateListMessage(interaction.client, interaction, newTargetcollection, settingsCollection, config.allImportantCharacterChannelId, config.allImportantCharacterMessage, "ImportantCharacter" )
 
             await interaction.followUp({ content: "Character approved and moved successfully.", ephemeral: true });
         } else {

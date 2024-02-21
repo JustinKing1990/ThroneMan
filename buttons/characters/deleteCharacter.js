@@ -59,7 +59,7 @@ async function handleDeleteCharacterInteraction(interaction) {
 
     try {
         let newCharacterCollection = db.collection('characters');
-        await updateListMessage(null, interaction, newCharacterCollection, settingsCollection, config.allCharacterChannelId, config.allCharactersMessageId, "Character");
+        await updateListMessage(interaction.client, interaction, newCharacterCollection, settingsCollection, config.allCharacterChannelId, config.allCharactersMessageId, "Character");
     } catch (error) {
         console.error('Error updating character list message:', error);
     }

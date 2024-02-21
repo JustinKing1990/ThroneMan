@@ -20,7 +20,7 @@ module.exports = async (interaction, client) => {
         
         await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { beastCurrentPage: newPage } }, { upsert: true });
 
-        await updateListMessage(null, interaction, beastCollection, settingsCollection, config.bestiaryChannelId, config.bestiaryMessageId, "Beast");
+        await updateListMessage(interaction.client, interaction, beastCollection, settingsCollection, config.bestiaryChannelId, config.bestiaryMessageId, "Beast");
         await interaction.deleteReply({ ephemeral: true })
 
     } catch (error) {

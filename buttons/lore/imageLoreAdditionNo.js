@@ -16,7 +16,7 @@ module.exports = async (interaction, client) => {
         const loreDocument = await sourceCollection.findOne({name: loreName });
         if (loreDocument) {
 
-            await updateListMessage(null, interaction, sourceCollection , settingsCollection, config.loreChannelId, config.loreMessageId, "Lore");
+            await updateListMessage(interaction.client, interaction, sourceCollection , settingsCollection, config.loreChannelId, config.loreMessageId, "Lore");
 
             await interaction.update({ content: "lore approved and moved successfully.", components: [], ephemeral: true });
         } else {

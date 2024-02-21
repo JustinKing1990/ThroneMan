@@ -16,7 +16,7 @@ module.exports = async (interaction, client) => {
         const beastDocument = await sourceCollection.findOne({name: beastName });
         if (beastDocument) {
 
-            await updateListMessage(null, interaction, sourceCollection , settingsCollection, config.bestiaryChannelId, config.bestiaryMessageId, "Beast");
+            await updateListMessage(interaction.client, interaction, sourceCollection , settingsCollection, config.bestiaryChannelId, config.bestiaryMessageId, "Beast");
 
             await interaction.update({ content: "Beast moved successfully.", components: [], ephemeral: true });
         } else {

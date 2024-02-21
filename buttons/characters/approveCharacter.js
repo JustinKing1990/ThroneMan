@@ -70,7 +70,7 @@ module.exports = async (interaction, client) => {
             await announcementChannel.send(`<@${userId}>, your character: ${characterDocument.name} has been accepted! 🎉 Please check <#${"905554690966704159"}> for your character.`);
 
 
-            await updateListMessage(null, interaction, targetCollection, settingsCollection, config.allCharacterChannelId, config.allCharactersMessageId, "Character");
+            await updateListMessage(interaction.client, interaction, targetCollection, settingsCollection, config.allCharacterChannelId, config.allCharactersMessageId, "Character");
             
 
             const guild = await interaction.client.guilds.cache.get('903864074134249483');

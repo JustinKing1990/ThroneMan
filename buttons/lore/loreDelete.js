@@ -57,7 +57,7 @@ async function handleDeleteLoreInteraction(interaction) {
     
     try {
         let newLoreCollection = db.collection('lore');
-        await updateListMessage(null, interaction, newLoreCollection, settingsCollection, config.loreChannelId, config.loreMessageId, "Lore");
+        await updateListMessage(interaction.client, interaction, newLoreCollection, settingsCollection, config.loreChannelId, config.loreMessageId, "Lore");
     } catch (error) {
         console.error('Error updating lore list message:', error);
     }

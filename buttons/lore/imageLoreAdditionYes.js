@@ -73,7 +73,7 @@ module.exports = async (interaction, client) => {
                     });
                 } 
             });
-            await updateListMessage(null, interaction, sourceCollection , settingsCollection, config.loreChannelId, config.loreMessageId, "Lore");
+            await updateListMessage(interaction.client, interaction, sourceCollection , settingsCollection, config.loreChannelId, config.loreMessageId, "Lore");
  
             
         } else {

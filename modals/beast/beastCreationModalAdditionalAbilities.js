@@ -30,7 +30,7 @@ module.exports = async (interaction, client) => {
                         .setLabel('Yes')
                         .setStyle(ButtonStyle.Success),
                     new ButtonBuilder()
-                        .setCustomId(`beastCreationAdditionalAbilitiesNo_${beastName}`)
+                        .setCustomId(`beastCreationAdditionAbilitiesNo_${beastName}`)
                         .setLabel('No')
                         .setStyle(ButtonStyle.Danger),
                 )
