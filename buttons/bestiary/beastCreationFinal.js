@@ -2,14 +2,14 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('
 const { getDb } = require('../../mongoClient');
 
 module.exports = async (interaction, client) => {
-    const [action, loreName] = interaction.customId.split('_')
+    const [action, beastName] = interaction.customId.split('_')
     const yesButton = new ButtonBuilder()
-            .setCustomId(`imageLoreAdditionYes_${loreName}`)
+            .setCustomId(`imageBeastAdditionYes_${beastName}`)
             .setLabel('Yes')
             .setStyle(ButtonStyle.Success);
 
         const noButton = new ButtonBuilder()
-            .setCustomId(`imageLoreAdditionNo_${loreName}`)
+            .setCustomId(`imageBeastAdditionNo_${beastName}`)
             .setLabel('No')
             .setStyle(ButtonStyle.Danger);
 

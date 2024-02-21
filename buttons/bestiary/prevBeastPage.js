@@ -2,7 +2,6 @@ const { ActionRowBuilder, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } 
 const fs = require('fs');
 const path = require('path');
 const { getDb } = require('../../mongoClient');
-const ensureMessagePosted = require('../../helpercommands/postTrackedMessage')
 const updateListMessage = require('../../helpercommands/updateListMessage')
 const config = require('../../env/config.json');
 
@@ -10,17 +9,17 @@ module.exports = async (interaction, client) => {
     await interaction.deferReply({ ephemeral: true })
     const db = getDb();
     const settingsCollection = db.collection('settings');
-    const charactersCollection = db.collection('lore');
+    const beastCollection = db.collection('bestiary');
 
     try {
-        let { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { currentPage: 0 };
+        let { currentPage } = await settingsCollection.findOne({ name: 'paginationSettings' }) || { beastCurrentPage: 0 };
 
         let newPage = Math.max(0, currentPage - 1);
         currentPage = newPage
 
         
-        await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { currentPage: newPage } }, { upsert: true });
-        await updateListMessage(client, interaction, charactersCollection, settingsCollection, config.bestiaryChannelId, config.bestiaryMessageId, "Beast")
+        await settingsCollection.updateOne({ name: 'paginationSettings' }, { $set: { beastCurrentPage: newPage } }, { upsert: true });
+        await updateListMessage(client, interaction, beastCollection, settingsCollection, config.bestiaryChannelId, config.bestiaryMessageId, "Beast")
 
         await interaction.deleteReply({ ephemeral: true })
 
