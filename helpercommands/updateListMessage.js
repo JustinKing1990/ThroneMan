@@ -174,7 +174,7 @@ async function updateListMessage(
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(currentPage >= totalPages - 1)
   );
-
+  
   await ensureMessagePosted(client, channelId, configPath, messageId, {
     components: [selectMenu, rowButtons],
   });

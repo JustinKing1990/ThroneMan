@@ -7,9 +7,6 @@ const updateListMessage = require('../helpercommands/updateListMessage')
 const updateSubmissionMessage = require('../helpercommands/updateSubmissionMessage')
 const mongoClient = require('../mongoClient')
 const config = require('../env/config.json');
-const interactioncreate = require('./interactioncreate');
-const changelogMessage = config.changelogMessage
-const inTheWorksMessage = config.inTheWorksMessage
 const { execSync } = require('child_process');
 
 async function getLatestGitCommit() {
@@ -75,7 +72,7 @@ async function commitUpdates() {
 async function updateChangelogMessage(client) {
     const channelId = '1031376354974912633';
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'changelogMessage';
+    const messageConfigKey = config.changelogMessage;
     const version = require('../package.json');
     const changelogData = require('../changelog.json');
     const footerMessage = JSON.stringify(changelogData.NewChanges.footer).replace(/\[/gmi, "").replace(/\]/gmi, "").replace(/"/gmi, "");
@@ -94,7 +91,7 @@ async function updateChangelogMessage(client) {
 async function updateInTheWorksMessage(client) {
     const channelId = '1031582807279030343';
     const configPath = path.join(__dirname, '../env/config.json');
-    const messageConfigKey = 'inTheWorksMessage';
+    const messageConfigKey = config.inTheWorksMessage;
     const inTheWorksData = require('../intheworks.json');
     const footerMessage = JSON.stringify(inTheWorksData.NewFeatures.footer).replace(/\[/gmi, "").replace(/\]/gmi, "").replace(/"/gmi, "");
     const inTheWorksEmbed = new EmbedBuilder()
@@ -141,7 +138,7 @@ module.exports = {
         await updateSubmissionMessage(client, null, config.createLoreChannelId, config.createLoreMessageId, "Lore")
         await updateSubmissionMessage(client, null, config.createBeastChannelId, config. createBestiaryMessageId, "Beast")
 
-        await updateListMessage(client,null, charactersCollection, settingsCollection, config.allCharacterChannelId, config.allCharactersMessageId, "Character")
+        await updateListMessage(client, null, charactersCollection, settingsCollection, config.allCharacterChannelId, config.allCharactersMessageId, "Character")
         await updateListMessage(client, null, importantCharactersCollection, settingsCollection, config.allImportantCharacterChannelId, config.allImportantCharacterMessage, "ImportantCharacter")
         await updateListMessage(client, null, loreCollection, settingsCollection, config.loreChannelId, config.loreMessageId, "Lore")
         await updateListMessage(client, null, beastCollection, settingsCollection, config.bestiaryChannelId, config.bestiaryMessageId, "Beast") 

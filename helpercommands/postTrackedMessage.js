@@ -14,12 +14,10 @@ async function ensureMessagePosted(
   let messageExists = false;
   let message;
 
-  let isKeyInConfig = config.hasOwnProperty(messageIdConfigKey);
+  const keyToUpdate = Object.keys(config).find((key) => config[key] === messageIdConfigKey);
 
   try {
-    message = await channel.messages.fetch(
-      isKeyInConfig ? config[messageIdConfigKey] : messageIdConfigKey
-    );
+    message = await channel.messages.fetch(messageIdConfigKey);
     messageExists = true;
   } catch (error) {
     messageExists = false;
@@ -29,7 +27,7 @@ async function ensureMessagePosted(
     await message.edit(content);
   } else {
     message = await channel.send(content);
-      config[messageIdConfigKey] = message.id;
+      config[keyToUpdate] = message.id;
       fs.writeFileSync(messageIdConfigPath, JSON.stringify(config, null, 2));
   }
 }
