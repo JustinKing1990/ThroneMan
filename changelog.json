@@ -3,10 +3,6 @@
         "Changes": [
             {
                 "title": "New Update",
-                "text": "Updated all relevant functions to now call singular function for maintaining lists"
-            },
-            {
-                "title": "New Update",
                 "text": "Created funciton to handle keeping the buttons up to date. Much like the list function"
             },
             {
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "Added logic to archive characters when the player leaves the server, upon next run to update relevant listings"
+            },
+            {
+                "title": "New Update",
+                "text": "Various fixes I forgot to push"
             }
         ],
         "footer": [
