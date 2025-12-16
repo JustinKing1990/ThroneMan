@@ -2,14 +2,6 @@
     "NewChanges": {
         "Changes": [
             {
-                "title": "Archive System Overhaul",
-                "text": "Characters and important characters now automatically archive when users leave the server and restore when they rejoin, keeping your lists clean and organized."
-            },
-            {
-                "title": "Smart Startup Audit",
-                "text": "Bot now audits all entries on startup, archiving any that belong to users no longer in the server to maintain accurate character lists."
-            },
-            {
                 "title": "/restore Command",
                 "text": "Admins can now manually restore archived entries through an intuitive select menu interface. Supports characters, important characters, and lore archives."
             },
@@ -20,6 +12,14 @@
             {
                 "title": "Enhanced File Submissions",
                 "text": "Submissions now support native Discord file uploads (JSON, TXT, PDF, DOCX) with automatic image extraction from DOCX files. Images are intelligently processed and uploaded to dedicated channels, with AI-powered appearance descriptions generated when needed. For submissions with images, DOCX format is recommended."
+            },
+            {
+                "title": "New Update",
+                "text": "Revitalized for modern setup. Added file uploads with smart image capturing. If no appearance text is provided, will parse found image through local AI to generate a description."
+            },
+            {
+                "title": "New Update",
+                "text": "General code cleanup"
             }
         ],
         "footer": [
