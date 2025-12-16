@@ -1,13 +1,17 @@
 {
-    "NewFeatures":{
-        "intheworks":[
-            {
-                "title": "Time to revive",
-                "text": "I am frankensteining this back to life"
-            }
-        ],
-        "footer":[
-            "I'll try to post one of these every time I start on a new feature, or when one is requested. As always, you can type $help to get a list of commands, and $help <commandname> to get more specific information on a command"
-        ]
-    }
+  "NewFeatures": {
+    "intheworks": [
+      {
+        "title": "Archive System - Complete",
+        "text": "Automatic member-based archiving and restoration system is now live. Characters follow users as they come and go from the server."
+      },
+      {
+        "title": "Future Enhancements",
+        "text": "Exploring additional quality-of-life improvements and new features based on community feedback."
+      }
+    ],
+    "footer": [
+      "I'll try to post one of these every time I start on a new feature, or when one is requested. As always, you can type $help to get a list of commands, and $help <commandname> to get more specific information on a command"
+    ]
+  }
 }

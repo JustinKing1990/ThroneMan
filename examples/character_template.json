@@ -1,0 +1,17 @@
+{
+    "name": "Character Name",
+    "age": "25",
+    "title": "Character Title or Role",
+    "gender": "Male/Female/Other",
+    "birthplace": "Where your character is from",
+    "appearance": "Detailed physical appearance description",
+    "eyecolor": "Eye color",
+    "haircolor": "Hair color",
+    "height": "Height measurement",
+    "species": "Race or species",
+    "armor": "What armor they wear",
+    "beliefs": "What your character believes in",
+    "powers": "Any special powers or abilities",
+    "weapons": "What weapons they use",
+    "backstory": "Your character's backstory and history"
+}

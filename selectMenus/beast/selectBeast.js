@@ -4,8 +4,8 @@ const {
   ButtonBuilder,
   ButtonStyle,
   PermissionsBitField,
-} = require("discord.js");
-const { getDb } = require("../../mongoClient");
+} = require('discord.js');
+const { getDb } = require('../../mongoClient');
 const MAX_EMBED_CHAR_LIMIT = 6000;
 
 const splitTextIntoFields = (text, maxLength = 1024) => {
@@ -16,7 +16,7 @@ const splitTextIntoFields = (text, maxLength = 1024) => {
       break;
     }
 
-    let lastSpaceIndex = text.substring(0, maxLength).lastIndexOf(" ");
+    let lastSpaceIndex = text.substring(0, maxLength).lastIndexOf(' ');
 
     if (lastSpaceIndex === -1) lastSpaceIndex = maxLength;
 
@@ -29,12 +29,12 @@ const splitTextIntoFields = (text, maxLength = 1024) => {
 
 const createEmbeds = async (beast, interaction, imageUrl) => {
   const embeds = [];
-  let currentEmbed = new EmbedBuilder().setColor("#0099ff");
+  let currentEmbed = new EmbedBuilder().setColor('#0099ff');
   let currentEmbedSize = 0;
 
   const addEmbed = () => {
     embeds.push(currentEmbed);
-    currentEmbed = new EmbedBuilder().setColor("#0099ff");
+    currentEmbed = new EmbedBuilder().setColor('#0099ff');
     currentEmbedSize = 0;
   };
 
@@ -61,9 +61,9 @@ const createEmbeds = async (beast, interaction, imageUrl) => {
   };
 
   const beastDetails = {
-    Beast: [beast.name || "Unknown"],
-    Habitat: [beast.habitat || "Unknown"],
-    Appearance: [beast.appearance || "Unknown"],    
+    Beast: [beast.name || 'Unknown'],
+    Habitat: [beast.habitat || 'Unknown'],
+    Appearance: [beast.appearance || 'Unknown'],
   };
 
   Object.entries(beastDetails).forEach(([name, value]) => {
@@ -78,10 +78,8 @@ const createEmbeds = async (beast, interaction, imageUrl) => {
 };
 
 async function fetchRandomImage(beastName, interaction) {
-  const targetChannelId = "1209676283794034728";
-  const targetChannel = await interaction.client.channels.fetch(
-    targetChannelId
-  );
+  const targetChannelId = '1209676283794034728';
+  const targetChannel = await interaction.client.channels.fetch(targetChannelId);
   const messages = await targetChannel.messages.fetch({ limit: 100 });
 
   const imageUrls = [];
@@ -93,16 +91,12 @@ async function fetchRandomImage(beastName, interaction) {
       const hasBeastName =
         embed.fields &&
         embed.fields.some(
-          (field) =>
-            field.name === "Beast Name" && field.value.includes(beastName)
+          (field) => field.name === 'Beast Name' && field.value.includes(beastName),
         );
 
       if (hasBeastName) {
         message.attachments.forEach((attachment) => {
-          if (
-            attachment.contentType &&
-            attachment.contentType.startsWith("image/")
-          ) {
+          if (attachment.contentType && attachment.contentType.startsWith('image/')) {
             imageUrls.push(attachment.url);
           }
         });
@@ -114,20 +108,18 @@ async function fetchRandomImage(beastName, interaction) {
     }
   });
 
-  return imageUrls.length > 0
-    ? imageUrls[Math.floor(Math.random() * imageUrls.length)]
-    : null;
+  return imageUrls.length > 0 ? imageUrls[Math.floor(Math.random() * imageUrls.length)] : null;
 }
 
-module.exports = async (interaction, client) => {
+module.exports = async (interaction, _client) => {
   const db = getDb();
-  const beastCollection = db.collection("bestiary");
-  const [SelectedBeastId] = interaction.values[0].split("::");
+  const beastCollection = db.collection('bestiary');
+  const [SelectedBeastId] = interaction.values[0].split('::');
 
   try {
     const beast = await beastCollection.findOne({ name: SelectedBeastId });
     if (!beast) {
-      await interaction.reply({ content: "Beast not found.", ephemeral: true });
+      await interaction.reply({ content: 'Beast not found.', flags: [64] });
       return;
     }
 
@@ -135,33 +127,29 @@ module.exports = async (interaction, client) => {
     const embeds = await createEmbeds(beast, interaction, randomImageUrl);
 
     const userHasKickPermission = interaction.member.permissions.has(
-      PermissionsBitField.Flags.KickMembers
+      PermissionsBitField.Flags.KickMembers,
     );
 
     let components = [];
     if (userHasKickPermission) {
       const deleteButton = new ButtonBuilder()
         .setCustomId(`beastDelete_${SelectedBeastId}`)
-        .setLabel("Delete Beast")
+        .setLabel('Delete Beast')
         .setStyle(ButtonStyle.Danger);
       components.push(new ActionRowBuilder().addComponents(deleteButton));
     }
 
-    await interaction.reply({
-      embeds: [embeds.shift()],
-      components: [],
-      ephemeral: true,
-    });
+    await interaction.reply({ embeds: [embeds.shift()], components: [], flags: [64] });
 
     for (let embed of embeds) {
-      await interaction.followUp({ embeds: [embed], ephemeral: true });
+      await interaction.followUp({ embeds: [embed], flags: [64] });
     }
 
     if (beast.abilities && beast.abilities.length) {
       let partNumber = 0;
       let totalParts = beast.abilities.reduce(
         (acc, story) => acc + splitTextIntoFields(story, 1024).length,
-        0
+        0,
       );
 
       for (let story of beast.abilities) {
@@ -171,15 +159,16 @@ module.exports = async (interaction, client) => {
           let isLastPart = partNumber === totalParts;
           await interaction.followUp({
             content: `**Abilities Part ${partNumber}**\n${part}`,
-            ephemeral: true
+            flags: [64],
           });
         }
       }
-    } if (beast.significance && beast.significance.length) {
+    }
+    if (beast.significance && beast.significance.length) {
       let partNumber = 0;
       let totalParts = beast.significance.reduce(
         (acc, story) => acc + splitTextIntoFields(story, 1024).length,
-        0
+        0,
       );
 
       for (let story of beast.significance) {
@@ -189,7 +178,7 @@ module.exports = async (interaction, client) => {
           let isLastPart = partNumber === totalParts;
           await interaction.followUp({
             content: `**Significance Part ${partNumber}**\n${part}`,
-            ephemeral: true,
+            flags: [64],
             components: isLastPart ? components : [],
           });
         }
@@ -197,17 +186,17 @@ module.exports = async (interaction, client) => {
     } else {
       if (embeds.length === 0 && userHasKickPermission) {
         await interaction.followUp({
-          content: "**Beast:** Not available",
-          ephemeral: true,
+          content: '**Beast:** Not available',
+          flags: [64],
           components,
         });
       }
     }
   } catch (error) {
-    console.error("Error fetching beast from the database:", error);
+    console.error('Error fetching beast from the database:', error);
     await interaction.followUp({
-      content: "An error occurred while fetching beast details.",
-      ephemeral: true,
+      content: 'An error occurred while fetching beast details.',
+      flags: [64],
     });
   }
 };

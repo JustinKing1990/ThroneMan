@@ -19,7 +19,7 @@
             },
             {
                 "title": "Enhanced File Submissions",
-                "text": "Submissions now support native Discord file uploads with automatic image extraction from DOCX files. Images are intelligently processed and uploaded to dedicated channels, with AI-powered appearance descriptions generated when needed."
+                "text": "Submissions now support native Discord file uploads (JSON, TXT, PDF, DOCX) with automatic image extraction from DOCX files. Images are intelligently processed and uploaded to dedicated channels, with AI-powered appearance descriptions generated when needed. For submissions with images, DOCX format is recommended."
             }
         ],
         "footer": [

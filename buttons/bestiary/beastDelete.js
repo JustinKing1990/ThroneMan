@@ -1,31 +1,29 @@
-const { getDb } = require("../../mongoClient");
-const ensureMessagePosted = require("../../helpercommands/postTrackedMessage");
-const updateListMessage = require("../../helpercommands/updateListMessage");
-const config = require("../../env/config.json");
-const fs = require("fs");
-const path = require("path");
+const { getDb } = require('../../mongoClient');
+const ensureMessagePosted = require('../../helpercommands/postTrackedMessage');
+const updateListMessage = require('../../helpercommands/updateListMessage');
+const config = require('../../env/config.json');
+const fs = require('fs');
+const path = require('path');
 const {
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   PermissionsBitField,
-} = require("discord.js");
+} = require('discord.js');
 
 async function handleDeleteLoreInteraction(interaction) {
   const db = getDb();
-  const settingsCollection = db.collection("settings");
-  const beastCollection = db.collection("bestiary");
-  const beastArchiveCollection = db.collection("bestiaryArchive");
+  const settingsCollection = db.collection('settings');
+  const beastCollection = db.collection('bestiary');
+  const beastArchiveCollection = db.collection('bestiaryArchive');
   const targetChannel = await interaction.client.channels
-    .fetch("1209676283794034728")
+    .fetch('1209676283794034728')
     .catch(console.error);
 
-  const [action, beastId] = interaction.customId.split("_");
+  const [_action, beastId] = interaction.customId.split('_');
 
-  if (
-    interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)
-  ) {
+  if (interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
     try {
       const beastToArchive = await beastCollection.findOne({ name: beastId });
       if (beastToArchive) {
@@ -36,9 +34,8 @@ async function handleDeleteLoreInteraction(interaction) {
 
         if (deletionResult.deletedCount === 0) {
           await interaction.reply({
-            content:
-              "No beast found or you do not have permission to delete this beast.",
-            ephemeral: true,
+            content: 'No beast found or you do not have permission to delete this beast.',
+            flags: [64],
           });
           return;
         } else {
@@ -47,44 +44,42 @@ async function handleDeleteLoreInteraction(interaction) {
             if (message.author.bot && message.embeds.length > 0) {
               const embed = message.embeds[0];
               const hasBeastName =
-                embed.fields &&
-                embed.fields.some((field) => field.value.includes(beastId));
+                embed.fields && embed.fields.some((field) => field.value.includes(beastId));
               if (hasBeastName) {
                 await message.delete().catch(console.error);
               }
             }
           });
           await interaction.reply({
-            content: "Beast successfully deleted and archived.",
-            ephemeral: true,
+            content: 'Beast successfully deleted and archived.',
+            flags: [64],
           });
         }
       } else {
         await interaction.reply({
-          content: "Beast not found for archiving and deletion.",
-          ephemeral: true,
+          content: 'Beast not found for archiving and deletion.',
+          flags: [64],
         });
         return;
       }
     } catch (error) {
-      console.error("Error archiving and deleting best:", error);
+      console.error('Error archiving and deleting best:', error);
       await interaction.reply({
-        content:
-          "An error occurred while trying to archive and delete the beast.",
-        ephemeral: true,
+        content: 'An error occurred while trying to archive and delete the beast.',
+        flags: [64],
       });
       return;
     }
   } else {
     await interaction.reply({
-      content: "You do not have permission to delete this beast.",
-      ephemeral: true,
+      content: 'You do not have permission to delete this beast.',
+      flags: [64],
     });
     return;
   }
 
   try {
-    let newBeastCollection = db.collection("bestiary");
+    let newBeastCollection = db.collection('bestiary');
     await updateListMessage(
       interaction.client,
       interaction,
@@ -92,10 +87,10 @@ async function handleDeleteLoreInteraction(interaction) {
       settingsCollection,
       config.bestiaryChannelId,
       config.bestiaryMessageId,
-      "Beast"
+      'Beast',
     );
   } catch (error) {
-    console.error("Error updating beast list message:", error);
+    console.error('Error updating beast list message:', error);
   }
 }
 

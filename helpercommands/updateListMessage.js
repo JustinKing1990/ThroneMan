@@ -4,21 +4,19 @@ const {
   ButtonBuilder,
   ButtonStyle,
   StringSelectMenuBuilder,
-} = require("discord.js");
-const fs = require("fs");
-const path = require("path");
-const { getDb } = require("../mongoClient");
-const ensureMessagePosted = require("../helpercommands/postTrackedMessage");
-const mongoClient = require("../mongoClient");
-const config = require("../env/config.json");
+} = require('discord.js');
+const { getDb } = require('../mongoClient');
+const ensureMessagePosted = require('../helpercommands/postTrackedMessage');
+const mongoClient = require('../mongoClient');
+const { appConfigPath } = require('../config');
 
 async function generateOptions(discordObject, actionType, data, collection) {
   let options = [];
   const characterNameConversion = {
-    characters: "character",
-    importantCharacters: "importantCharacter",
-    lore: "lore",
-    bestiary: "bestiary",
+    characters: 'character',
+    importantCharacters: 'importantCharacter',
+    lore: 'lore',
+    bestiary: 'bestiary',
   };
   const collectionKey = characterNameConversion[collection.collectionName];
   const archiveCollectionName = `${collectionKey}Archive`;
@@ -34,11 +32,10 @@ async function generateOptions(discordObject, actionType, data, collection) {
     } else {
       guild = discordObject.guilds.cache.get(guildId);
     }
-    if (!guild) throw new Error("Guild not found");
+    if (!guild) throw new Error('Guild not found');
     try {
       return await guild.members.fetch(userId);
     } catch (err) {
-      console.log(`Failed to fetch member for userId: ${userId}`);
       return null;
     }
   }
@@ -48,34 +45,52 @@ async function generateOptions(discordObject, actionType, data, collection) {
       await archiveCollection.insertOne(character);
       await sourceCollection.deleteOne({ userId: character.userId });
     } catch (err) {
-      console.log(`Failed to move ${character.name} to archive`, err);
+      console.error(`Failed to move ${character.name} to archive:`, err);
     }
   }
 
-  if (actionType === "Character" || actionType === "ImportantCharacter") {
-    const memberFetchPromises = data.map((character) =>
-      fetchGuildMember("903864074134249483", character.userId)
-    );
-    const members = await Promise.all(memberFetchPromises);
+  if (actionType === 'Character' || actionType === 'ImportantCharacter') {
+    // Try to fetch member display names, but do not filter or archive if fetch fails.
+    async function safeFetchMember(userId) {
+      try {
+        const guild = discordObject.client
+          ? discordObject.client.guilds.cache.get(process.env.DISCORD_GUILD_ID)
+          : discordObject.guilds.cache.get(process.env.DISCORD_GUILD_ID);
+        if (!guild) return null;
+        return await guild.members.fetch(userId);
+      } catch {
+        return null;
+      }
+    }
+
+    const members = await Promise.all(data.map((character) => safeFetchMember(character.userId)));
 
     for (let index = 0; index < data.length; index++) {
       const character = data[index];
       const member = members[index];
-      if (member) {
-        options.push({
-          label: character.name,
-          value: `${character.name}::${character.userId}`,
-          description: `Player: ${member.displayName}`,
-        });
-      } else {
-        await moveToArchive(character);
-      }
+      // Truncate name to 25 chars max for Discord label limit
+      const truncatedName =
+        character.name.length > 25 ? character.name.substring(0, 22) + '...' : character.name;
+      // Include player display name when available, else show userId
+      const description = member ? `Player: ${member.displayName}` : `User ID: ${character.userId}`;
+      const truncatedDesc =
+        description.length > 50 ? description.substring(0, 47) + '...' : description;
+
+      options.push({
+        label: truncatedName,
+        value: `${character.name}::${character.userId}`,
+        description: truncatedDesc,
+      });
     }
-  } else if (actionType === "Lore" || actionType === "Beast") {
-    options = data.map((item) => ({
-      label: item.name,
-      value: `${item.name}`,
-    }));
+  } else if (actionType === 'Lore' || actionType === 'Beast') {
+    options = data.map((item) => {
+      // Truncate name to 25 chars max for Discord label limit
+      const truncatedName = item.name.length > 25 ? item.name.substring(0, 22) + '...' : item.name;
+      return {
+        label: truncatedName,
+        value: `${item.name}`,
+      };
+    });
   }
 
   return options;
@@ -88,33 +103,24 @@ async function updateListMessage(
   settingsCollection,
   channelId,
   messageId,
-  actionType
+  actionType,
 ) {
   const discordObject = interaction ? interaction.client : client;
   let customIdParts;
   let [action, userId, characterId] = [null, null, null];
   try {
-    customIdParts = interaction.customId.split("_")[
-      (action, userId, characterId)
-    ] = customIdParts;
+    customIdParts = interaction.customId.split('_')[(action, userId, characterId)] = customIdParts;
   } catch {}
-  let configPath;
-
-  try {
-    configPath = path.join(__dirname, "../env/config.json");
-  } catch {
-    configPath = path.join(__dirname, "../../env/config.json");
-  }
   const pageSettingMap = {
-    Character: "currentPage",
-    ImportantCharacter: "importantCurrentPage",
-    Lore: "loreCurrentPage",
-    Beast: "beastCurrentPage",
+    Character: 'currentPage',
+    ImportantCharacter: 'importantCurrentPage',
+    Lore: 'loreCurrentPage',
+    Beast: 'beastCurrentPage',
   };
 
   const settingKey = pageSettingMap[actionType];
   const settings = await settingsCollection.findOne({
-    name: "paginationSettings",
+    name: 'paginationSettings',
   });
   if (!settings || !(settingKey in settings)) {
     throw new Error(`Settings for ${settingKey} not found`);
@@ -130,53 +136,89 @@ async function updateListMessage(
     .limit(25)
     .toArray();
 
-  const options = await generateOptions(
-    discordObject,
-    actionType,
-    collectionData,
-    collection
-  );
+  const options = await generateOptions(discordObject, actionType, collectionData, collection);
 
   const Description = {
-    Character: "character",
-    ImportantCharacter: "important character",
-    Lore: "lore",
-    Beast: "beast",
+    Character: 'character',
+    ImportantCharacter: 'important character',
+    Lore: 'lore',
+    Beast: 'beast',
   };
 
   const descriptionKey = Description[actionType];
 
-  const selectMenu = new ActionRowBuilder().addComponents(
-    new StringSelectMenuBuilder()
-      .setCustomId(`select${actionType}`)
-      .setPlaceholder(`Select the ${descriptionKey}`)
-      .addOptions(options)
-  );
+  // If no options, just show navigation buttons
+  let messageComponents = [];
+  if (options.length === 0) {
+    console.log(`No ${actionType} entries to display`);
+    const paginationType = {
+      Character: '',
+      ImportantCharacter: 'Important',
+      Lore: 'Lore',
+      Beast: 'Beast',
+    };
+    const buttonType = paginationType[actionType] || '';
 
-  const paginationType = {
-    Character: "",
-    ImportantCharacter: "Important",
-    Lore: "Lore",
-    Beast: "Beast",
-  };
+    messageComponents = [
+      new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId(`prev${buttonType}Page`)
+          .setLabel('Previous')
+          .setStyle(ButtonStyle.Secondary)
+          .setDisabled(true),
+        new ButtonBuilder()
+          .setCustomId(`next${buttonType}Page`)
+          .setLabel('Next')
+          .setStyle(ButtonStyle.Secondary)
+          .setDisabled(true),
+      ),
+    ];
+  } else {
+    // Validate options before creating menu
+    const validatedOptions = options.filter((opt) => {
+      if (!opt.label || opt.label.length < 1 || opt.label.length > 25) {
+        return false;
+      }
+      if (opt.description && (opt.description.length < 1 || opt.description.length > 50)) {
+        return false;
+      }
+      return true;
+    });
 
-  const buttonType = paginationType[actionType] || "";
+    const selectMenu = new ActionRowBuilder().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId(`select${actionType}`)
+        .setPlaceholder(`Select the ${descriptionKey}`)
+        .addOptions(validatedOptions),
+    );
 
-  const rowButtons = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setCustomId(`prev${buttonType}Page`)
-      .setLabel("Previous")
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(currentPage === 0),
-    new ButtonBuilder()
-      .setCustomId(`next${buttonType}Page`)
-      .setLabel("Next")
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(currentPage >= totalPages - 1)
-  );
-  
-  await ensureMessagePosted(client, channelId, configPath, messageId, {
-    components: [selectMenu, rowButtons],
+    const paginationType = {
+      Character: '',
+      ImportantCharacter: 'Important',
+      Lore: 'Lore',
+      Beast: 'Beast',
+    };
+
+    const buttonType = paginationType[actionType] || '';
+
+    const rowButtons = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`prev${buttonType}Page`)
+        .setLabel('Previous')
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(currentPage === 0),
+      new ButtonBuilder()
+        .setCustomId(`next${buttonType}Page`)
+        .setLabel('Next')
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(currentPage >= totalPages - 1),
+    );
+
+    messageComponents = [selectMenu, rowButtons];
+  }
+
+  await ensureMessagePosted(client, channelId, appConfigPath, messageId, {
+    components: messageComponents,
   });
 }
 module.exports = updateListMessage;

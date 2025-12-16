@@ -4,8 +4,8 @@ const {
   ButtonBuilder,
   ButtonStyle,
   PermissionsBitField,
-} = require("discord.js");
-const { getDb } = require("../../mongoClient");
+} = require('discord.js');
+const { getDb } = require('../../mongoClient');
 const MAX_EMBED_CHAR_LIMIT = 6000;
 
 const splitTextIntoFields = (text, maxLength = 1024) => {
@@ -16,7 +16,7 @@ const splitTextIntoFields = (text, maxLength = 1024) => {
       break;
     }
 
-    let lastSpaceIndex = text.substring(0, maxLength).lastIndexOf(" ");
+    let lastSpaceIndex = text.substring(0, maxLength).lastIndexOf(' ');
 
     if (lastSpaceIndex === -1) lastSpaceIndex = maxLength;
 
@@ -32,12 +32,12 @@ const createEmbeds = async (character, interaction, imageUrl) => {
   let userName = guildMember.displayName;
 
   const embeds = [];
-  let currentEmbed = new EmbedBuilder().setColor("#0099ff");
+  let currentEmbed = new EmbedBuilder().setColor('#0099ff');
   let currentEmbedSize = 0;
 
   const addEmbed = () => {
     embeds.push(currentEmbed);
-    currentEmbed = new EmbedBuilder().setColor("#0099ff");
+    currentEmbed = new EmbedBuilder().setColor('#0099ff');
     currentEmbedSize = 0;
   };
 
@@ -64,24 +64,21 @@ const createEmbeds = async (character, interaction, imageUrl) => {
   };
 
   const characterDetails = {
-    Player: [userName || "Unknown"],
-    Name: [character.name || "Unknown"],
-    Age: [character.age || "Unknown"],
-    Birthplace: [character.birthplace || "Unknown"],
-    Gender: [character.gender || "Unknown"],
-    Title: [character.title || "None"],
-    Appearance: splitTextIntoFields(
-      character.appearance || "Not described",
-      1024
-    ),
-    "Eye Color": [character.eyecolor || "Unknown"],
-    "Hair Color": [character.haircolor || "Unknown"],
-    Height: [character.height || "Unknown"],
-    Species: [character.species || "Unknown"],
-    Armor: splitTextIntoFields(character.armor || "Not described", 1024),
-    Beliefs: splitTextIntoFields(character.beliefs || "None", 1024),
-    Powers: splitTextIntoFields(character.powers || "None", 1024),
-    Weapons: splitTextIntoFields(character.weapons || "None", 1024),
+    Player: [userName || 'Unknown'],
+    Name: [character.name || 'Unknown'],
+    Age: [character.age || 'Unknown'],
+    Birthplace: [character.birthplace || 'Unknown'],
+    Gender: [character.gender || 'Unknown'],
+    Title: [character.title || 'None'],
+    Appearance: splitTextIntoFields(character.appearance || 'Not described', 1024),
+    'Eye Color': [character.eyecolor || 'Unknown'],
+    'Hair Color': [character.haircolor || 'Unknown'],
+    Height: [character.height || 'Unknown'],
+    Species: [character.species || 'Unknown'],
+    Armor: splitTextIntoFields(character.armor || 'Not described', 1024),
+    Beliefs: splitTextIntoFields(character.beliefs || 'None', 1024),
+    Powers: splitTextIntoFields(character.powers || 'None', 1024),
+    Weapons: splitTextIntoFields(character.weapons || 'None', 1024),
   };
 
   Object.entries(characterDetails).forEach(([name, value]) => {
@@ -96,10 +93,8 @@ const createEmbeds = async (character, interaction, imageUrl) => {
 };
 
 async function fetchRandomImage(characterName, userId, interaction) {
-  const targetChannelId = "1206381988559323166";
-  const targetChannel = await interaction.client.channels.fetch(
-    targetChannelId
-  );
+  const targetChannelId = '1206381988559323166';
+  const targetChannel = await interaction.client.channels.fetch(targetChannelId);
   const messages = await targetChannel.messages.fetch({ limit: 100 });
 
   const imageUrls = [];
@@ -109,18 +104,12 @@ async function fetchRandomImage(characterName, userId, interaction) {
       const embed = message.embeds[0];
 
       const hasCharacterName =
-        embed.fields &&
-        embed.fields.some((field) => field.value.includes(characterName));
-      const hasUserId =
-        embed.fields &&
-        embed.fields.some((field) => field.value.includes(userId));
+        embed.fields && embed.fields.some((field) => field.value.includes(characterName));
+      const hasUserId = embed.fields && embed.fields.some((field) => field.value.includes(userId));
 
       if (hasCharacterName && hasUserId) {
         message.attachments.forEach((attachment) => {
-          if (
-            attachment.contentType &&
-            attachment.contentType.startsWith("image/")
-          ) {
+          if (attachment.contentType && attachment.contentType.startsWith('image/')) {
             imageUrls.push(attachment.url);
           }
         });
@@ -132,15 +121,13 @@ async function fetchRandomImage(characterName, userId, interaction) {
     }
   });
 
-  return imageUrls.length > 0
-    ? imageUrls[Math.floor(Math.random() * imageUrls.length)]
-    : null;
+  return imageUrls.length > 0 ? imageUrls[Math.floor(Math.random() * imageUrls.length)] : null;
 }
 
-module.exports = async (interaction, client) => {
+module.exports = async (interaction, _client) => {
   const db = getDb();
-  const charactersCollection = db.collection("characters");
-  const [selectedCharacterId, userId] = interaction.values[0].split("::");
+  const charactersCollection = db.collection('characters');
+  const [selectedCharacterId, userId] = interaction.values[0].split('::');
 
   try {
     const character = await charactersCollection.findOne({
@@ -148,48 +135,37 @@ module.exports = async (interaction, client) => {
       userId,
     });
     if (!character) {
-      await interaction.reply({
-        content: "Character not found.",
-        ephemeral: true,
-      });
+      await interaction.reply({ content: 'Character not found.', flags: [64] });
       return;
     }
 
-    const randomImageUrl = await fetchRandomImage(
-      selectedCharacterId,
-      userId,
-      interaction
-    );
+    const randomImageUrl = await fetchRandomImage(selectedCharacterId, userId, interaction);
     const embeds = await createEmbeds(character, interaction, randomImageUrl);
 
     const userHasKickPermission = interaction.member.permissions.has(
-      PermissionsBitField.Flags.KickMembers
+      PermissionsBitField.Flags.KickMembers,
     );
 
     let components = [];
     if (userHasKickPermission) {
       const deleteButton = new ButtonBuilder()
         .setCustomId(`deleteCharacter_${selectedCharacterId}_${userId}`)
-        .setLabel("Delete Character")
+        .setLabel('Delete Character')
         .setStyle(ButtonStyle.Danger);
       components.push(new ActionRowBuilder().addComponents(deleteButton));
     }
 
-    await interaction.reply({
-      embeds: [embeds.shift()],
-      components: [],
-      ephemeral: true,
-    });
+    await interaction.reply({ embeds: [embeds.shift()], components: [], flags: [64] });
 
     for (let embed of embeds) {
-      await interaction.followUp({ embeds: [embed], ephemeral: true });
+      await interaction.followUp({ embeds: [embed], flags: [64] });
     }
 
     if (character.backstory && character.backstory.length) {
       let partNumber = 0;
       let totalParts = character.backstory.reduce(
         (acc, story) => acc + splitTextIntoFields(story, 1024).length,
-        0
+        0,
       );
 
       for (let story of character.backstory) {
@@ -199,7 +175,7 @@ module.exports = async (interaction, client) => {
           let isLastPart = partNumber === totalParts;
           await interaction.followUp({
             content: `**Backstory Part ${partNumber}**\n${part}`,
-            ephemeral: true,
+            flags: [64],
             components: isLastPart ? components : [],
           });
         }
@@ -207,17 +183,17 @@ module.exports = async (interaction, client) => {
     } else {
       if (embeds.length === 0 && userHasKickPermission) {
         await interaction.followUp({
-          content: "**Backstory:** Not available",
-          ephemeral: true,
+          content: '**Backstory:** Not available',
+          flags: [64],
           components,
         });
       }
     }
   } catch (error) {
-    console.error("Error fetching character from the database:", error);
+    console.error('Error fetching character from the database:', error);
     await interaction.reply({
-      content: "An error occurred while fetching character details.",
-      ephemeral: true,
+      content: 'An error occurred while fetching character details.',
+      flags: [64],
     });
   }
 };
