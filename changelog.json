@@ -2,10 +2,6 @@
     "NewChanges": {
         "Changes": [
             {
-                "title": "/restore Command",
-                "text": "Admins can now manually restore archived entries through an intuitive select menu interface. Supports characters, important characters, and lore archives."
-            },
-            {
                 "title": "Dynamic List Updates",
                 "text": "Character lists automatically refresh when entries are archived, restored, or when members join/leave - no manual updates needed."
             },
@@ -20,6 +16,10 @@
             {
                 "title": "New Update",
                 "text": "General code cleanup"
+            },
+            {
+                "title": "New Update",
+                "text": "Improved upload processes to handle formatting of files, image intellegent descriptions, and general upload processes"
             }
         ],
         "footer": [
