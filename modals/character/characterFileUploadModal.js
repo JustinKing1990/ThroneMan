@@ -77,24 +77,8 @@ module.exports = async (interaction, _client) => {
   // Normalize data
   const normalizedData = normalizeData('character', data);
 
-  // Upload images to Discord if present
-  let discordImageUrls = [];
-  if (normalizedData.imageUrls && normalizedData.imageUrls.length > 0) {
-    console.log(`Uploading ${normalizedData.imageUrls.length} images to Discord...`);
-    discordImageUrls = await uploadImagesToDiscord(normalizedData.imageUrls, {
-      channelId: '1206381988559323166', // Character images channel
-      userId: interaction.user.id,
-      contentName: normalizedData.name,
-      contentType: 'character',
-      client: interaction.client,
-    });
-
-    if (discordImageUrls.length > 0) {
-      // Replace base64 URLs with Discord URLs
-      normalizedData.imageUrls = discordImageUrls;
-      console.log(`Successfully uploaded ${discordImageUrls.length} images to Discord`);
-    }
-  }
+  // Keep images as base64 for now - will upload to Discord after approval
+  // This prevents orphaned images if submission is cancelled
 
   // Store in database
   const db = getDb();

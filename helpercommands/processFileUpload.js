@@ -206,8 +206,14 @@ async function parseDocxFile(attachment) {
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Extract text
-    const textResult = await mammoth.extractRawText({ buffer });
+    // Extract text with formatting converted to markdown
+    const textResult = await mammoth.convertToMarkdown({ buffer }, {
+      styleMap: [
+        "b => **",  // Bold to Discord bold
+        "i => *",   // Italic to Discord italic
+        "u => __",  // Underline to Discord underline
+      ]
+    });
     const fullText = textResult.value;
 
     // Extract images
@@ -371,7 +377,7 @@ module.exports.createMissingFieldsEmbed = (missingFields, contentType) => {
 };
 
 /**
- * Creates an embed showing uploaded data summary
+ * Creates an embed showing uploaded data summary with size awareness
  * @param {object} data - Normalized data
  * @param {string} contentType - Type of content
  * @returns {EmbedBuilder} Discord embed
@@ -382,14 +388,40 @@ module.exports.createDataSummaryEmbed = (data, contentType) => {
     .setTitle(`${contentType} Data Loaded`)
     .setDescription('Your file has been successfully parsed and validated.');
 
+  let totalEmbedSize = 0;
+  const MAX_EMBED_SIZE = 5500; // Leave 500 char buffer for Discord's 6000 limit
   const fieldsToShow = Object.entries(data)
     .filter(([_, value]) => value && value !== '')
     .slice(0, 25);
 
+  let fieldCount = 0;
+  let truncatedFieldCount = 0;
+
   fieldsToShow.forEach(([key, value]) => {
+    // Skip if we've already hit the embed size limit
+    if (totalEmbedSize > MAX_EMBED_SIZE) {
+      return;
+    }
+
     const displayValue = Array.isArray(value) ? value.join('\n') : String(value);
-    const truncated =
-      displayValue.length > 1024 ? displayValue.substring(0, 1021) + '...' : displayValue;
+    const fieldNameSize = key.length;
+    const fieldValueSize = displayValue.length;
+    const fieldTotalSize = fieldNameSize + fieldValueSize + 50; // +50 for formatting
+
+    // Truncate individual fields to 1024 (Discord limit)
+    let truncated = displayValue;
+    if (displayValue.length > 1024) {
+      truncated = displayValue.substring(0, 1021) + '...';
+      truncatedFieldCount++;
+    }
+
+    // Don't add field if it would push us over the embed size limit
+    if (totalEmbedSize + fieldTotalSize > MAX_EMBED_SIZE) {
+      return;
+    }
+
+    totalEmbedSize += fieldTotalSize;
+    fieldCount++;
 
     embed.addFields({
       name: key.charAt(0).toUpperCase() + key.slice(1),
@@ -397,6 +429,21 @@ module.exports.createDataSummaryEmbed = (data, contentType) => {
       inline: false,
     });
   });
+
+  // Add info about truncation if applicable
+  if (truncatedFieldCount > 0) {
+    embed.setFooter({
+      text: `📦 ${truncatedFieldCount} field(s) truncated for preview (full data saved to database)`,
+    });
+  }
+
+  if (fieldCount < fieldsToShow.length) {
+    embed.addFields({
+      name: 'Additional Data',
+      value: `... and ${fieldsToShow.length - fieldCount} more field(s) (stored in database)`,
+      inline: false,
+    });
+  }
 
   return embed;
 };

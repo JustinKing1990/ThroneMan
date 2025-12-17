@@ -1,6 +1,18 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { getDb } = require('../mongoClient');
 
+// Helper function to truncate text with warning
+function truncateWithWarning(text, maxLength = 1500) {
+  if (!text || text.length <= maxLength) {
+    return { text: text || '', isTruncated: false, originalLength: text ? text.length : 0 };
+  }
+  return {
+    text: text.substring(0, maxLength) + '\n[...truncated for display]',
+    isTruncated: true,
+    originalLength: text.length,
+  };
+}
+
 // Modified to accept imageUrls parameter
 async function postCharacterInfo(interaction, client, characterName, imageUrls = []) {
   const db = getDb();
@@ -29,16 +41,26 @@ async function postCharacterInfo(interaction, client, characterName, imageUrls =
   messageContent += `Species: ${characterData.species || 'N/A'}\n`;
   messageContent += `Eye Color: ${characterData.eyecolor || 'N/A'}\n`;
   messageContent += `Hair Color: ${characterData.haircolor || 'N/A'}\n`;
-  messageContent += `Appearance: ${characterData.appearance || 'N/A'}\n`;
+  
+  const appearanceResult = truncateWithWarning(characterData.appearance, 1000);
+  messageContent += `Appearance: ${appearanceResult.text}\n`;
+  if (appearanceResult.isTruncated) {
+    messageContent += `  (Full: ${appearanceResult.originalLength} chars)\n`;
+  }
+  
   messageContent += `Weapons: ${characterData.weapons || 'N/A'}\n`;
   messageContent += `Armor: ${characterData.armor || 'N/A'}\n`;
   messageContent += `Beliefs: ${characterData.beliefs || 'N/A'}\n`;
   messageContent += `Powers: ${characterData.powers || 'N/A'}\n`;
   messageContent += `Backstory:\n`;
+  
   if (characterData.backstory && Array.isArray(characterData.backstory)) {
-    characterData.backstory.forEach((element, index) => {
-      messageContent += `${element}\n`;
-    });
+    const backstoryText = characterData.backstory.join('\n');
+    const backstoryResult = truncateWithWarning(backstoryText, 1500);
+    messageContent += backstoryResult.text + '\n';
+    if (backstoryResult.isTruncated) {
+      messageContent += `  (Full: ${backstoryResult.originalLength} chars - Contact user or check database for complete version)\n`;
+    }
   } else {
     messageContent += 'N/A\n';
   }

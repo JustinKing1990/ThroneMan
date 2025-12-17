@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const { getDb } = require('../../mongoClient');
 const updateListMessage = require('../../helpercommands/updateListMessage');
+const { uploadImagesToDiscord } = require('../../helpercommands/uploadImagesToDiscord');
 const config = require('../../env/config.json');
 
 module.exports = async (interaction, _client) => {
@@ -39,6 +40,30 @@ module.exports = async (interaction, _client) => {
   try {
     const beastDocument = await sourceCollection.findOne({ name: beastName });
     if (beastDocument) {
+      // Upload base64 images to Discord before finalizing
+      if (beastDocument.imageUrls && beastDocument.imageUrls.length > 0) {
+        const hasBase64Images = beastDocument.imageUrls.some(url => url.startsWith('data:'));
+        
+        if (hasBase64Images) {
+          console.log(`Uploading ${beastDocument.imageUrls.length} images to Discord for beast...`);
+          const discordImageUrls = await uploadImagesToDiscord(beastDocument.imageUrls, {
+            channelId: '1209676283794034728', // Beast images channel
+            userId: interaction.user.id,
+            contentName: beastName,
+            contentType: 'beast',
+            client: interaction.client,
+          });
+          
+          if (discordImageUrls.length > 0) {
+            await sourceCollection.updateOne(
+              { name: beastName },
+              { $set: { imageUrls: discordImageUrls } }
+            );
+            console.log(`Successfully uploaded ${discordImageUrls.length} images to Discord`);
+          }
+        }
+      }
+      
       await updateListMessage(
         interaction.client,
         interaction,

@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 const { getDb } = require('../../mongoClient');
 const updateListMessage = require('../../helpercommands/updateListMessage');
+const { uploadImagesToDiscord } = require('../../helpercommands/uploadImagesToDiscord');
 const config = require('../../env/config.json');
 
 module.exports = async (interaction, _client) => {
@@ -35,6 +36,27 @@ module.exports = async (interaction, _client) => {
     });
 
     if (characterDocument) {
+      // Upload base64 images to Discord now that character is approved
+      if (characterDocument.imageUrls && characterDocument.imageUrls.length > 0) {
+        const hasBase64Images = characterDocument.imageUrls.some(url => url.startsWith('data:'));
+        
+        if (hasBase64Images) {
+          console.log(`Uploading ${characterDocument.imageUrls.length} images to Discord for approved important character...`);
+          const discordImageUrls = await uploadImagesToDiscord(characterDocument.imageUrls, {
+            channelId: '1206381988559323166', // Character images channel
+            userId: userId,
+            contentName: characterName,
+            contentType: 'importantCharacter',
+            client: interaction.client,
+          });
+          
+          if (discordImageUrls.length > 0) {
+            characterDocument.imageUrls = discordImageUrls;
+            console.log(`Successfully uploaded ${discordImageUrls.length} images to Discord`);
+          }
+        }
+      }
+      
       // Assume characterDocument.imageUrls is an array of image URLs
       const messageIds = characterDocument.messageIds || [];
       let attachments = [];
