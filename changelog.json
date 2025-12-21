@@ -2,24 +2,24 @@
     "NewChanges": {
         "Changes": [
             {
-                "title": "Dynamic List Updates",
-                "text": "Character lists automatically refresh when entries are archived, restored, or when members join/leave - no manual updates needed."
-            },
-            {
-                "title": "Enhanced File Submissions",
-                "text": "Submissions now support native Discord file uploads (JSON, TXT, PDF, DOCX) with automatic image extraction from DOCX files. Images are intelligently processed and uploaded to dedicated channels, with AI-powered appearance descriptions generated when needed. For submissions with images, DOCX format is recommended."
-            },
-            {
-                "title": "New Update",
-                "text": "Revitalized for modern setup. Added file uploads with smart image capturing. If no appearance text is provided, will parse found image through local AI to generate a description."
-            },
-            {
-                "title": "New Update",
-                "text": "General code cleanup"
-            },
-            {
                 "title": "New Update",
                 "text": "Improved upload processes to handle formatting of files, image intellegent descriptions, and general upload processes"
+            },
+            {
+                "title": "New Update",
+                "text": "upgrades to various image handling"
+            },
+            {
+                "title": "New Update",
+                "text": "addition of location handling"
+            },
+            {
+                "title": "New Update",
+                "text": "better handling of deleting characters"
+            },
+            {
+                "title": "New Update",
+                "text": "added the ability to edit a character that has been approved"
             }
         ],
         "footer": [
