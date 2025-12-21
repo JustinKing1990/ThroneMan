@@ -9,7 +9,7 @@ module.exports = async (interaction, _client) => {
   );
 
   const db = getDb();
-  const charactersCollection = db.collection('character');
+  const charactersCollection = db.collection('characterPending');
 
   try {
     await charactersCollection.updateOne(

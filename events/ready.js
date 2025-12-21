@@ -221,5 +221,19 @@ module.exports = {
       config.bestiaryMessageId,
       'Beast',
     );
+
+    // Update location list if configured
+    if (config.locationChannelId && config.locationMessageId) {
+      const locationsCollection = db.collection('locations');
+      await updateListMessage(
+        client,
+        null,
+        locationsCollection,
+        settingsCollection,
+        config.locationChannelId,
+        config.locationMessageId,
+        'Location',
+      );
+    }
   },
 };

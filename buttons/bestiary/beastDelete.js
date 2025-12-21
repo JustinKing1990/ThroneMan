@@ -12,7 +12,38 @@ const {
   PermissionsBitField,
 } = require('discord.js');
 
-async function handleDeleteLoreInteraction(interaction) {
+async function handleDeleteBeastInteraction(interaction) {
+  const [_action, beastId] = interaction.customId.split('_');
+
+  if (!interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
+    await interaction.reply({
+      content: 'You do not have permission to delete this beast.',
+      flags: [64],
+    });
+    return;
+  }
+
+  // Show confirmation prompt
+  const confirmButton = new ButtonBuilder()
+    .setCustomId(`confirmDeleteBeast_${beastId}`)
+    .setLabel('Yes, Delete')
+    .setStyle(ButtonStyle.Danger);
+
+  const cancelButton = new ButtonBuilder()
+    .setCustomId(`cancelDelete`)
+    .setLabel('Cancel')
+    .setStyle(ButtonStyle.Secondary);
+
+  const row = new ActionRowBuilder().addComponents(confirmButton, cancelButton);
+
+  await interaction.reply({
+    content: `⚠️ **Are you sure you want to delete the beast "${beastId}"?**\n\nThis will archive the beast and remove it from the list. This action cannot be easily undone.`,
+    components: [row],
+    flags: [64],
+  });
+}
+
+async function handleConfirmDeleteBeast(interaction) {
   const db = getDb();
   const settingsCollection = db.collection('settings');
   const beastCollection = db.collection('bestiary');
@@ -23,54 +54,7 @@ async function handleDeleteLoreInteraction(interaction) {
 
   const [_action, beastId] = interaction.customId.split('_');
 
-  if (interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
-    try {
-      const beastToArchive = await beastCollection.findOne({ name: beastId });
-      if (beastToArchive) {
-        await beastArchiveCollection.insertOne(beastToArchive);
-        const deletionResult = await beastCollection.deleteOne({
-          name: beastId,
-        });
-
-        if (deletionResult.deletedCount === 0) {
-          await interaction.reply({
-            content: 'No beast found or you do not have permission to delete this beast.',
-            flags: [64],
-          });
-          return;
-        } else {
-          const messages = await targetChannel.messages.fetch({ limit: 100 });
-          messages.forEach(async (message) => {
-            if (message.author.bot && message.embeds.length > 0) {
-              const embed = message.embeds[0];
-              const hasBeastName =
-                embed.fields && embed.fields.some((field) => field.value.includes(beastId));
-              if (hasBeastName) {
-                await message.delete().catch(console.error);
-              }
-            }
-          });
-          await interaction.reply({
-            content: 'Beast successfully deleted and archived.',
-            flags: [64],
-          });
-        }
-      } else {
-        await interaction.reply({
-          content: 'Beast not found for archiving and deletion.',
-          flags: [64],
-        });
-        return;
-      }
-    } catch (error) {
-      console.error('Error archiving and deleting best:', error);
-      await interaction.reply({
-        content: 'An error occurred while trying to archive and delete the beast.',
-        flags: [64],
-      });
-      return;
-    }
-  } else {
+  if (!interaction.member.permissions.has(PermissionsBitField.Flags.KickMembers)) {
     await interaction.reply({
       content: 'You do not have permission to delete this beast.',
       flags: [64],
@@ -79,6 +63,54 @@ async function handleDeleteLoreInteraction(interaction) {
   }
 
   try {
+    const beastToArchive = await beastCollection.findOne({ name: beastId });
+    if (beastToArchive) {
+      await beastArchiveCollection.insertOne(beastToArchive);
+      const deletionResult = await beastCollection.deleteOne({
+        name: beastId,
+      });
+
+      if (deletionResult.deletedCount === 0) {
+        await interaction.update({
+          content: 'No beast found or you do not have permission to delete this beast.',
+          components: [],
+        });
+        return;
+      } else {
+        const messages = await targetChannel.messages.fetch({ limit: 100 });
+        for (const [, message] of messages) {
+          if (message.author.bot && message.embeds.length > 0) {
+            const embed = message.embeds[0];
+            const hasBeastName =
+              embed.fields && embed.fields.some((field) => field.value.includes(beastId));
+            if (hasBeastName) {
+              await message.delete().catch(console.error);
+            }
+          }
+        }
+        await interaction.update({
+          content: '✅ Beast successfully deleted and archived.',
+          components: [],
+        });
+      }
+    } else {
+      await interaction.update({
+        content: 'Beast not found for archiving and deletion.',
+        components: [],
+      });
+      return;
+    }
+  } catch (error) {
+    console.error('Error archiving and deleting beast:', error);
+    await interaction.update({
+      content: 'An error occurred while trying to archive and delete the beast.',
+      components: [],
+    });
+    return;
+  }
+
+  try {
+    const settingsCollection = db.collection('settings');
     let newBeastCollection = db.collection('bestiary');
     await updateListMessage(
       interaction.client,
@@ -94,4 +126,4 @@ async function handleDeleteLoreInteraction(interaction) {
   }
 }
 
-module.exports = handleDeleteLoreInteraction;
+module.exports = { handleDeleteBeastInteraction, handleConfirmDeleteBeast };

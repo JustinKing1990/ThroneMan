@@ -1,12 +1,9 @@
-/**
- * Validates data against required fields for each content type
- */
-
 const schemas = {
   character: {
-    required: ['name', 'age', 'appearance', 'powers', 'backstory'],
+    required: ['name', 'appearance', 'backstory'],
     optional: [
       'title',
+      'age',
       'gender',
       'birthplace',
       'eyecolor',
@@ -15,17 +12,23 @@ const schemas = {
       'species',
       'armor',
       'beliefs',
-      'weapons',
+      'powers',
+      'abilities',
       'talents',
       'hobbies',
       'likes',
       'dislikes',
+      'weapons',
+      'habitat',
+      'significance',
+      'info',
     ],
   },
   importantCharacter: {
-    required: ['name', 'age', 'appearance', 'powers', 'backstory'],
+    required: ['name', 'appearance', 'backstory'],
     optional: [
       'title',
+      'age',
       'gender',
       'birthplace',
       'eyecolor',
@@ -34,131 +37,124 @@ const schemas = {
       'species',
       'armor',
       'beliefs',
-      'weapons',
+      'powers',
+      'abilities',
       'talents',
       'hobbies',
       'likes',
       'dislikes',
+      'weapons',
+      'habitat',
+      'significance',
+      'info',
     ],
   },
   beast: {
-    required: ['name', 'habitat', 'appearance', 'abilities', 'significance'],
-    optional: [],
+    required: ['name'],
+    optional: [
+      'appearance',
+      'abilities',
+      'powers',
+      'habitat',
+      'significance',
+      'info',
+    ],
   },
   lore: {
-    required: ['name', 'info'],
-    optional: [],
+    required: ['name'],
+    optional: [
+      'info',
+      'content',
+    ],
+  },
+  location: {
+    required: ['name'],
+    optional: [
+      'continent',
+      'region',
+      'province',
+      'territory',
+      'population',
+      'government',
+      'defense',
+      'commerce',
+      'organizations',
+      'description',
+      'crime',
+      'geography',
+      'laws',
+      'climate',
+      'history',
+      'culture',
+      'notable',
+      'factions',
+    ],
   },
 };
 
-/**
- * Validates data against a schema and checks field sizes
- * @param {string} contentType - Type of content (character, importantCharacter, beast, lore)
- * @param {object} data - Data to validate
- * @returns {object} { isValid: boolean, missingFields: string[], warnings: string[] }
- */
-module.exports.validateData = (contentType, data) => {
-  const schema = schemas[contentType];
+module.exports.schemas = schemas;
 
+module.exports.validateSchema = (contentType, data) => {
+  const schema = schemas[contentType];
   if (!schema) {
-    return {
-      isValid: false,
-      missingFields: [`Unknown content type: ${contentType}`],
-      warnings: [],
-    };
+    return { valid: false, errors: [`Unknown content type: ${contentType}`] };
   }
 
-  const missingFields = schema.required.filter((field) => !data[field] || data[field] === '');
+  const errors = [];
 
-  // Check for oversized fields
-  const warnings = [];
-  const fieldSizeLimits = {
-    character: {
-      backstory: 5000,
-      appearance: 1000,
-      powers: 1000,
-      beliefs: 1000,
-      weapons: 1000,
-      armor: 1000,
-      talents: 1000,
-      hobbies: 1000,
-      likes: 1000,
-      dislikes: 1000,
-    },
-    importantCharacter: {
-      backstory: 5000,
-      appearance: 1000,
-      powers: 1000,
-      beliefs: 1000,
-      weapons: 1000,
-      armor: 1000,
-      talents: 1000,
-      hobbies: 1000,
-      likes: 1000,
-      dislikes: 1000,
-    },
-    beast: {
-      abilities: 3000,
-      appearance: 1500,
-      habitat: 1500,
-      significance: 3000,
-    },
-    lore: {
-      info: 10000,
-    },
-  };
-
-  const limits = fieldSizeLimits[contentType] || {};
-
-  for (const [field, limit] of Object.entries(limits)) {
-    if (data[field]) {
-      const fieldValue = Array.isArray(data[field])
-        ? data[field].join('\n')
-        : String(data[field]);
-
-      if (fieldValue.length > limit) {
-        warnings.push(
-          `⚠️ ${field}: ${fieldValue.length} chars (soft limit: ${limit} chars - will be truncated for display)`
-        );
-      }
+  for (const field of schema.required) {
+    const value = data[field];
+    if (value === undefined || value === null || String(value).trim() === '') {
+      errors.push(`Missing required field: ${field}`);
     }
   }
 
-  return {
-    isValid: missingFields.length === 0,
-    missingFields,
-    warnings,
-  };
+  return { valid: errors.length === 0, errors };
 };
 
-/**
- * Normalizes file data to database format
- * @param {string} contentType - Type of content
- * @param {object} fileData - Parsed file data
- * @returns {object} Normalized data
- */
+// Strip markdown formatting from text (especially for names/headers from docx)
+function stripMarkdown(text) {
+  if (!text || typeof text !== 'string') return text;
+  return text
+    .replace(/\*\*([^*]+)\*\*/g, '$1')  // **bold**
+    .replace(/\*([^*]+)\*/g, '$1')       // *italic*
+    .replace(/__([^_]+)__/g, '$1')       // __underline__
+    .replace(/_([^_]+)_/g, '$1')         // _italic_
+    .replace(/~~([^~]+)~~/g, '$1')       // ~~strikethrough~~
+    .replace(/`([^`]+)`/g, '$1')         // `code`
+    .replace(/\|\|([^|]+)\|\|/g, '$1')   // ||spoiler||
+    .replace(/^[_*~`|]+|[_*~`|]+$/g, '') // Strip leading/trailing markdown chars
+    .trim();
+}
+
+module.exports.stripMarkdown = stripMarkdown;
+
 module.exports.normalizeData = (contentType, fileData) => {
-  const normalized = { ...fileData };
+  const schema = schemas[contentType];
+  const allowedFields = new Set([
+    ...(schema?.required || []),
+    ...(schema?.optional || []),
+    'imageUrls',
+    'content',
+  ]);
+
+  const normalized = {};
+  for (const [k, v] of Object.entries(fileData || {})) {
+    if (allowedFields.has(k)) normalized[k] = v;
+  }
+
+  // Strip markdown from name field (especially from docx imports)
+  if (normalized.name) {
+    normalized.name = stripMarkdown(normalized.name);
+  }
 
   // Convert string arrays to actual arrays where needed
   if (contentType === 'character' || contentType === 'importantCharacter') {
-    if (normalized.backstory && typeof normalized.backstory === 'string') {
-      normalized.backstory = [normalized.backstory];
-    }
-  }
-
-  if (contentType === 'beast') {
-    if (normalized.abilities && typeof normalized.abilities === 'string') {
-      normalized.abilities = [normalized.abilities];
-    }
-    if (normalized.significance && typeof normalized.significance === 'string') {
-      normalized.significance = [normalized.significance];
-    }
-  }
-
-  if (contentType === 'lore') {
-    if (normalized.info && typeof normalized.info === 'string') {
-      normalized.info = [normalized.info];
+    if (typeof normalized.imageUrls === 'string') {
+      normalized.imageUrls = normalized.imageUrls
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
   }
 
@@ -166,21 +162,13 @@ module.exports.normalizeData = (contentType, fileData) => {
 };
 
 /**
- * Gets the list of required fields for a content type
- * @param {string} contentType - Type of content
- * @returns {string[]} Array of required field names
+ * Compatibility wrapper for validateData (used by buttons/modals)
  */
-module.exports.getRequiredFields = (contentType) => {
-  const schema = schemas[contentType];
-  return schema ? schema.required : [];
-};
-
-/**
- * Gets the list of optional fields for a content type
- * @param {string} contentType - Type of content
- * @returns {string[]} Array of optional field names
- */
-module.exports.getOptionalFields = (contentType) => {
-  const schema = schemas[contentType];
-  return schema ? schema.optional : [];
+module.exports.validateData = (contentType, data) => {
+  const result = module.exports.validateSchema(contentType, data);
+  return {
+    isValid: result.valid,
+    missingFields: result.errors.map(e => e.replace('Missing required field: ', '')),
+    warnings: [],
+  };
 };

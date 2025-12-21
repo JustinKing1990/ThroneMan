@@ -7,12 +7,14 @@ const archiveMapping = {
     target: 'characters',
     label: 'Character',
     actionType: 'Character',
+    idField: 'userId',
     configKeys: { channelId: 'allCharacterChannelId', messageId: 'allCharactersMessageId' },
   },
   importantCharacterArchive: {
     target: 'importantCharacters',
     label: 'Important Character',
     actionType: 'ImportantCharacter',
+    idField: 'userId',
     configKeys: {
       channelId: 'allImportantCharacterChannelId',
       messageId: 'allImportantCharacterMessage',
@@ -22,7 +24,15 @@ const archiveMapping = {
     target: 'lore',
     label: 'Lore',
     actionType: 'Lore',
+    idField: 'name',
     configKeys: { channelId: 'loreChannelId', messageId: 'loreMessageId' },
+  },
+  locationArchive: {
+    target: 'locations',
+    label: 'Location',
+    actionType: 'Location',
+    idField: 'name',
+    configKeys: { channelId: 'locationChannelId', messageId: 'locationMessageId' },
   },
 };
 
@@ -43,13 +53,14 @@ module.exports = {
     try {
       let restored = 0;
       for (const id of selectedIds) {
-        // Find by userId or name depending on archive type
-        const query = archiveName === 'loreArchive' ? { name: id } : { userId: id };
+        // Find by userId or name depending on archive type's idField
+        const query = mapping.idField === 'name' ? { name: id } : { userId: id };
         const doc = await archiveCol.findOne(query);
 
         if (doc) {
-          const { _id, ...rest } = doc;
-          await targetCol.updateOne(query, { $set: rest }, { upsert: true });
+          // Remove archive-specific fields before restoring
+          const { _id, archivedAt, archivedBy, ...rest } = doc;
+          await targetCol.updateOne({ name: doc.name }, { $set: rest }, { upsert: true });
           await archiveCol.deleteOne({ _id });
           restored++;
         }

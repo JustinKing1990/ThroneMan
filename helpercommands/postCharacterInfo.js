@@ -1,22 +1,36 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const { getDb } = require('../mongoClient');
+const https = require('https');
+const http = require('http');
 
-// Helper function to truncate text with warning
-function truncateWithWarning(text, maxLength = 1500) {
-  if (!text || text.length <= maxLength) {
-    return { text: text || '', isTruncated: false, originalLength: text ? text.length : 0 };
-  }
-  return {
-    text: text.substring(0, maxLength) + '\n[...truncated for display]',
-    isTruncated: true,
-    originalLength: text.length,
-  };
+// Helper to download an image from URL and return as buffer
+async function downloadImage(url) {
+  return new Promise((resolve, reject) => {
+    const protocol = url.startsWith('https') ? https : http;
+    protocol.get(url, (response) => {
+      // Handle redirects
+      if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+        downloadImage(response.headers.location).then(resolve).catch(reject);
+        return;
+      }
+      
+      if (response.statusCode !== 200) {
+        reject(new Error(`Failed to download: ${response.statusCode}`));
+        return;
+      }
+      
+      const chunks = [];
+      response.on('data', (chunk) => chunks.push(chunk));
+      response.on('end', () => resolve(Buffer.concat(chunks)));
+      response.on('error', reject);
+    }).on('error', reject);
+  });
 }
 
 // Modified to accept imageUrls parameter
 async function postCharacterInfo(interaction, client, characterName, imageUrls = []) {
   const db = getDb();
-  const charactersCollection = db.collection('character');
+  const charactersCollection = db.collection('characterPending');
 
   const characterData = await charactersCollection.findOne({
     userId: interaction.user.id,
@@ -24,46 +38,102 @@ async function postCharacterInfo(interaction, client, characterName, imageUrls =
   });
   if (!characterData) {
     console.error('No character data found for the user.');
-    await interaction.followUp({
-      content: 'No character data found. Please try again.',
-      flags: [64],
-    });
-    return;
+    throw new Error('No character data found. Please try again.');
   }
 
-  let messageContent = `Character Information for ${interaction.user.username}:\n`;
-  messageContent += `Name: ${characterData.name || 'N/A'}\n`;
-  messageContent += `Title: ${characterData.title || 'N/A'}\n`;
-  messageContent += `Gender: ${characterData.gender || 'N/A'}\n`;
-  messageContent += `Age: ${characterData.age || 'N/A'}\n`;
-  messageContent += `Birthplace: ${characterData.birthplace || 'N/A'}\n`;
-  messageContent += `Height: ${characterData.height || 'N/A'}\n`;
-  messageContent += `Species: ${characterData.species || 'N/A'}\n`;
-  messageContent += `Eye Color: ${characterData.eyecolor || 'N/A'}\n`;
-  messageContent += `Hair Color: ${characterData.haircolor || 'N/A'}\n`;
+  // Build embeds similar to important character
+  const embeds = [];
+  const skipKeys = new Set(['userId', 'updatedAt', 'createdAt', 'messageIds', 'imageUrls', '_id']);
   
-  const appearanceResult = truncateWithWarning(characterData.appearance, 1000);
-  messageContent += `Appearance: ${appearanceResult.text}\n`;
-  if (appearanceResult.isTruncated) {
-    messageContent += `  (Full: ${appearanceResult.originalLength} chars)\n`;
-  }
+  const fieldOrder = [
+    'name', 'title', 'gender', 'age', 'birthplace', 'height', 'species',
+    'eyecolor', 'haircolor', 'appearance', 'weapons', 'armor', 'beliefs',
+    'powers', 'backstory'
+  ];
   
-  messageContent += `Weapons: ${characterData.weapons || 'N/A'}\n`;
-  messageContent += `Armor: ${characterData.armor || 'N/A'}\n`;
-  messageContent += `Beliefs: ${characterData.beliefs || 'N/A'}\n`;
-  messageContent += `Powers: ${characterData.powers || 'N/A'}\n`;
-  messageContent += `Backstory:\n`;
+  const niceNames = {
+    name: 'Name',
+    title: 'Title',
+    gender: 'Gender',
+    age: 'Age',
+    birthplace: 'Birthplace',
+    height: 'Height',
+    species: 'Species',
+    eyecolor: 'Eye Color',
+    haircolor: 'Hair Color',
+    appearance: 'Appearance',
+    weapons: 'Weapons',
+    armor: 'Armor',
+    beliefs: 'Beliefs',
+    powers: 'Powers',
+    backstory: 'Backstory'
+  };
+
+  let currentEmbed = new EmbedBuilder()
+    .setColor('#5865F2')
+    .setTitle(`Character Submission`)
+    .setDescription(`**Submitted by:** ${interaction.user.username}`);
   
-  if (characterData.backstory && Array.isArray(characterData.backstory)) {
-    const backstoryText = characterData.backstory.join('\n');
-    const backstoryResult = truncateWithWarning(backstoryText, 1500);
-    messageContent += backstoryResult.text + '\n';
-    if (backstoryResult.isTruncated) {
-      messageContent += `  (Full: ${backstoryResult.originalLength} chars - Contact user or check database for complete version)\n`;
+  let currentEmbedSize = 100;
+  let fieldCount = 0;
+
+  const addFieldToEmbed = (name, value, inline = false) => {
+    const fieldSize = name.length + value.length + 50;
+    
+    if (currentEmbedSize + fieldSize > 4000 || fieldCount >= 20) {
+      embeds.push(currentEmbed);
+      currentEmbed = new EmbedBuilder()
+        .setColor('#5865F2')
+        .setTitle(`Character (continued)`);
+      currentEmbedSize = 60;
+      fieldCount = 0;
     }
-  } else {
-    messageContent += 'N/A\n';
+    
+    currentEmbed.addFields({ name, value, inline });
+    currentEmbedSize += fieldSize;
+    fieldCount++;
+  };
+
+  // Process fields in order
+  for (const key of fieldOrder) {
+    if (!characterData[key] || characterData[key] === '' || skipKeys.has(key)) continue;
+    
+    const displayName = niceNames[key] || key;
+    const rawValue = Array.isArray(characterData[key]) ? characterData[key].join('\n') : String(characterData[key]);
+    
+    const isShortField = ['name', 'title', 'gender', 'age', 'birthplace', 'height', 'species', 'eyecolor', 'haircolor'].includes(key);
+    
+    if (rawValue.length <= 1024) {
+      addFieldToEmbed(displayName, rawValue, isShortField && rawValue.length < 100);
+    } else {
+      // Split long content into multiple fields
+      let remaining = rawValue;
+      let partNum = 1;
+      
+      while (remaining.length > 0) {
+        let splitPoint = 1020;
+        if (remaining.length > 1020) {
+          const paragraphBreak = remaining.lastIndexOf('\n\n', 1020);
+          const lineBreak = remaining.lastIndexOf('\n', 1020);
+          const sentenceBreak = remaining.lastIndexOf('. ', 1020);
+          
+          if (paragraphBreak > 500) splitPoint = paragraphBreak;
+          else if (lineBreak > 500) splitPoint = lineBreak;
+          else if (sentenceBreak > 500) splitPoint = sentenceBreak + 1;
+        } else {
+          splitPoint = remaining.length;
+        }
+        
+        const chunkName = partNum === 1 ? displayName : `${displayName} (Part ${partNum})`;
+        addFieldToEmbed(chunkName, remaining.substring(0, splitPoint).trim(), false);
+        remaining = remaining.substring(splitPoint).trim();
+        partNum++;
+      }
+    }
   }
+
+  // Push the final embed
+  embeds.push(currentEmbed);
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId(`approveCharacter_${characterData.userId}_${characterData.name}`)
@@ -76,46 +146,116 @@ async function postCharacterInfo(interaction, client, characterName, imageUrls =
   );
 
   const targetChannel = await interaction.client.channels.fetch('1206393672271134770');
-  let startIndex = 0;
-  const chunkSize = 1900; // Discord's character limit per message
+  if (!targetChannel) {
+    throw new Error('Approval channel not found. Please contact an administrator.');
+  }
+  
   const sentMessagesIds = [];
 
-  // Process and send message in chunks if necessary
-  while (startIndex < messageContent.length) {
-    const endIndex = Math.min(startIndex + chunkSize, messageContent.length);
-    const chunk = messageContent.substring(startIndex, endIndex);
-    const isLastChunk = endIndex >= messageContent.length;
-
-    const messageOptions = {
-      content: chunk,
-      components: isLastChunk ? [row] : [],
-    };
-
-    // Attach images in the last chunk
-    if (isLastChunk && imageUrls.length > 0) {
-      messageOptions.files = imageUrls;
+  // Convert base64 images to attachments if present
+  const imageAttachments = [];
+  const storedImages = characterData.imageUrls || [];
+  
+  // First, handle any base64 images stored in the database
+  if (storedImages.length > 0) {
+    for (let i = 0; i < storedImages.length; i++) {
+      const dataUrl = storedImages[i];
+      if (dataUrl.startsWith('data:')) {
+        const matches = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+        if (matches) {
+          const mimeType = matches[1];
+          const base64Data = matches[2];
+          const buffer = Buffer.from(base64Data, 'base64');
+          const extension = mimeType.split('/')[1] || 'png';
+          const attachment = new AttachmentBuilder(buffer, { name: `image_${i + 1}.${extension}` });
+          imageAttachments.push(attachment);
+        }
+      }
     }
-
-    const sentMessage = await targetChannel.send(messageOptions);
-    sentMessagesIds.push(sentMessage.id);
-
-    startIndex += chunkSize; // Prepare for the next chunk
   }
 
-  // Update the database with the message IDs for future reference
+  // Also handle Discord attachment URLs passed from the collector
+  // Download and re-upload them to preserve them (original message gets deleted)
+  const discordImageUrls = imageUrls.filter(url => url && !url.startsWith('data:'));
+  const downloadedAttachments = [];
+  
+  for (let i = 0; i < discordImageUrls.length; i++) {
+    try {
+      const url = discordImageUrls[i];
+      const buffer = await downloadImage(url);
+      // Extract filename from URL or use default
+      const urlPath = url.split('?')[0];
+      const filename = urlPath.split('/').pop() || `image_${i + 1}.png`;
+      const attachment = new AttachmentBuilder(buffer, { name: filename });
+      downloadedAttachments.push(attachment);
+    } catch (e) {
+      // Failed to download, skip this image
+    }
+  }
+
+  // Send all embeds first (without buttons or images)
+  for (let i = 0; i < embeds.length; i++) {
+    const sentMessage = await targetChannel.send({
+      embeds: [embeds[i]],
+    });
+    sentMessagesIds.push(sentMessage.id);
+  }
+
+  // Send downloaded images as actual attachments in batches of 4
+  const reuploadedUrls = [];
+  const IMAGES_PER_MESSAGE = 4;
+  if (downloadedAttachments.length > 0) {
+    const totalBatches = Math.ceil(downloadedAttachments.length / IMAGES_PER_MESSAGE);
+    for (let batch = 0; batch < totalBatches; batch++) {
+      const batchStart = batch * IMAGES_PER_MESSAGE;
+      const batchAttachments = downloadedAttachments.slice(batchStart, batchStart + IMAGES_PER_MESSAGE);
+      
+      const imageRange = batchAttachments.length === 1 
+        ? `Image ${batchStart + 1}`
+        : `Images ${batchStart + 1}-${batchStart + batchAttachments.length}`;
+      
+      const imgMsg = await targetChannel.send({
+        content: `**${imageRange}** for character submission:`,
+        files: batchAttachments,
+      });
+      sentMessagesIds.push(imgMsg.id);
+      // Get the new permanent URLs from the uploaded attachments
+      imgMsg.attachments.forEach((att) => {
+        reuploadedUrls.push(att.url);
+      });
+    }
+  }
+
+  // Send base64 images (if any) and buttons as the final message
+  const finalMessageOptions = {
+    components: [row],
+  };
+
+  let contentParts = [];
+  // Ping everyone who can see the channel
+  contentParts.push('@here - New character submission for review!');
+  if (imageAttachments.length > 0) {
+    contentParts.push(`**Attached Images (${imageAttachments.length}):**`);
+    finalMessageOptions.files = imageAttachments;
+  }
+  if (downloadedAttachments.length > 0 && imageAttachments.length === 0) {
+    contentParts.push(`**Images (${downloadedAttachments.length}) uploaded above**`);
+  }
+  if (contentParts.length > 0) {
+    finalMessageOptions.content = contentParts.join('\n');
+  }
+
+  const finalMessage = await targetChannel.send(finalMessageOptions);
+  sentMessagesIds.push(finalMessage.id);
+
+  // Store the re-uploaded image URLs (permanent) in the pending document
+  const allImageUrls = [...storedImages, ...reuploadedUrls];
+
+  // Update the pending document with the message IDs for future reference
   await charactersCollection.updateOne(
     { userId: interaction.user.id, name: characterName },
-    { $set: { messageIds: sentMessagesIds } },
+    { $set: { messageIds: sentMessagesIds, imageUrls: allImageUrls } },
   );
-
-  // Optionally handle the image URLs (e.g., storing them for approval process)
-  if (imageUrls.length > 0) {
-    // Example: Update document with image URLs for approval usage
-    await charactersCollection.updateOne(
-      { userId: interaction.user.id, name: characterName },
-      { $addToSet: { imageUrls: { $each: imageUrls } } },
-    );
-  }
 }
 
 module.exports = postCharacterInfo;

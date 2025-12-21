@@ -17,6 +17,7 @@ const archiveMapping = {
     idField: 'userId',
   },
   loreArchive: { target: 'lore', label: 'Lore', idField: 'name' },
+  locationArchive: { target: 'locations', label: 'Location', idField: 'name' },
 };
 
 module.exports = {
@@ -32,6 +33,7 @@ module.exports = {
           { name: 'Characters', value: 'characterArchive' },
           { name: 'Important Characters', value: 'importantCharacterArchive' },
           { name: 'Lore', value: 'loreArchive' },
+          { name: 'Locations', value: 'locationArchive' },
         ),
     )
     .setDefaultMemberPermissions(PermissionsBitField.Flags.KickMembers),

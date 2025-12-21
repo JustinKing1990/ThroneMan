@@ -9,7 +9,7 @@ module.exports = async (interaction, _client) => {
   const characterBirthplace = interaction.fields.getTextInputValue('character_birthplace');
 
   const db = getDb();
-  const charactersCollection = db.collection('character');
+  const charactersCollection = db.collection('characterPending');
 
   try {
     await charactersCollection.updateOne(
@@ -23,6 +23,7 @@ module.exports = async (interaction, _client) => {
           gender: characterGender,
           age: characterAge,
           birthplace: characterBirthplace,
+          createdAt: new Date(),
         },
       },
       { upsert: true },

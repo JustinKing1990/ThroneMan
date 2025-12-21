@@ -17,6 +17,7 @@ async function generateOptions(discordObject, actionType, data, collection) {
     importantCharacters: 'importantCharacter',
     lore: 'lore',
     bestiary: 'bestiary',
+    locations: 'location',
   };
   const collectionKey = characterNameConversion[collection.collectionName];
   const archiveCollectionName = `${collectionKey}Archive`;
@@ -24,6 +25,21 @@ async function generateOptions(discordObject, actionType, data, collection) {
   const db = getDb();
   const archiveCollection = db.collection(archiveCollectionName);
   const sourceCollection = db.collection(collectionName);
+
+  // Strip markdown formatting for display labels
+  function stripMarkdown(text) {
+    if (!text) return text;
+    return text
+      .replace(/\*\*([^*]+)\*\*/g, '$1')  // **bold**
+      .replace(/\*([^*]+)\*/g, '$1')       // *italic*
+      .replace(/__([^_]+)__/g, '$1')       // __underline__
+      .replace(/_([^_]+)_/g, '$1')         // _italic_
+      .replace(/~~([^~]+)~~/g, '$1')       // ~~strikethrough~~
+      .replace(/`([^`]+)`/g, '$1')         // `code`
+      .replace(/\|\|([^|]+)\|\|/g, '$1')   // ||spoiler||
+      .replace(/^[_*~`|]+|[_*~`|]+$/g, '') // Strip leading/trailing markdown chars
+      .trim();
+  }
 
   async function fetchGuildMember(guildId, userId) {
     let guild;
@@ -68,9 +84,10 @@ async function generateOptions(discordObject, actionType, data, collection) {
     for (let index = 0; index < data.length; index++) {
       const character = data[index];
       const member = members[index];
-      // Truncate name to 25 chars max for Discord label limit
+      // Strip markdown and truncate name to 25 chars max for Discord label limit
+      const cleanName = stripMarkdown(character.name);
       const truncatedName =
-        character.name.length > 25 ? character.name.substring(0, 22) + '...' : character.name;
+        cleanName.length > 25 ? cleanName.substring(0, 22) + '...' : cleanName;
       // Include player display name when available, else show userId
       const description = member ? `Player: ${member.displayName}` : `User ID: ${character.userId}`;
       const truncatedDesc =
@@ -82,13 +99,23 @@ async function generateOptions(discordObject, actionType, data, collection) {
         description: truncatedDesc,
       });
     }
-  } else if (actionType === 'Lore' || actionType === 'Beast') {
+  } else if (actionType === 'Lore' || actionType === 'Beast' || actionType === 'Location') {
     options = data.map((item) => {
-      // Truncate name to 25 chars max for Discord label limit
-      const truncatedName = item.name.length > 25 ? item.name.substring(0, 22) + '...' : item.name;
+      // Strip markdown and truncate name to 25 chars max for Discord label limit
+      const cleanName = stripMarkdown(item.name);
+      const truncatedName = cleanName.length > 25 ? cleanName.substring(0, 22) + '...' : cleanName;
+      // Truncate value to 100 chars max for Discord value limit (keep original for lookup)
+      const truncatedValue = item.name.length > 100 ? item.name.substring(0, 97) + '...' : item.name;
+      // Add population as description for locations (strip markdown too)
+      let description = '';
+      if (actionType === 'Location' && item.population) {
+        const cleanPop = stripMarkdown(item.population);
+        description = cleanPop.length > 50 ? cleanPop.substring(0, 47) + '...' : cleanPop;
+      }
       return {
         label: truncatedName,
-        value: `${item.name}`,
+        value: truncatedValue,
+        ...(description && { description }),
       };
     });
   }
@@ -116,16 +143,22 @@ async function updateListMessage(
     ImportantCharacter: 'importantCurrentPage',
     Lore: 'loreCurrentPage',
     Beast: 'beastCurrentPage',
+    Location: 'locationCurrentPage',
   };
 
   const settingKey = pageSettingMap[actionType];
   const settings = await settingsCollection.findOne({
     name: 'paginationSettings',
   });
+  // Initialize settings if they don't exist for this type
   if (!settings || !(settingKey in settings)) {
-    throw new Error(`Settings for ${settingKey} not found`);
+    await settingsCollection.updateOne(
+      { name: 'paginationSettings' },
+      { $set: { [settingKey]: 0 } },
+      { upsert: true }
+    );
   }
-  const currentPage = settings[settingKey] || 0;
+  const currentPage = settings?.[settingKey] || 0;
 
   const totalEntries = await collection.countDocuments();
   const totalPages = Math.ceil(totalEntries / 25);
@@ -143,6 +176,7 @@ async function updateListMessage(
     ImportantCharacter: 'important character',
     Lore: 'lore',
     Beast: 'beast',
+    Location: 'location',
   };
 
   const descriptionKey = Description[actionType];
@@ -156,6 +190,7 @@ async function updateListMessage(
       ImportantCharacter: 'Important',
       Lore: 'Lore',
       Beast: 'Beast',
+      Location: 'Location',
     };
     const buttonType = paginationType[actionType] || '';
 
@@ -197,6 +232,7 @@ async function updateListMessage(
       ImportantCharacter: 'Important',
       Lore: 'Lore',
       Beast: 'Beast',
+      Location: 'Location',
     };
 
     const buttonType = paginationType[actionType] || '';

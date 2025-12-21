@@ -27,7 +27,7 @@ const splitTextIntoFields = (text, maxLength = 1024) => {
   return parts;
 };
 
-const createEmbeds = async (lore, interaction, imageUrl) => {
+const createEmbeds = async (lore, interaction) => {
   const embeds = [];
   let currentEmbed = new EmbedBuilder().setColor('#0099ff');
   let currentEmbedSize = 0;
@@ -37,11 +37,6 @@ const createEmbeds = async (lore, interaction, imageUrl) => {
     currentEmbed = new EmbedBuilder().setColor('#0099ff');
     currentEmbedSize = 0;
   };
-
-  if (imageUrl) {
-    currentEmbed.setImage(imageUrl);
-    currentEmbedSize += imageUrl.length;
-  }
 
   const addFieldToEmbed = (name, values) => {
     values.forEach((value, index) => {
@@ -75,10 +70,72 @@ const createEmbeds = async (lore, interaction, imageUrl) => {
   return embeds;
 };
 
-async function fetchRandomImage(loreName, interaction) {
-  const targetChannelId = '1207398646035910726';
-  const targetChannel = await interaction.client.channels.fetch(targetChannelId);
-  const messages = await targetChannel.messages.fetch({ limit: 100 });
+async function fetchRandomImage(loreName, interaction, loreDoc = null) {
+  // Helper to check if a Discord CDN URL is expired
+  const isUrlExpired = (url) => {
+    if (!url) return true;
+    const match = url.match(/ex=([0-9a-f]+)/i);
+    if (match) {
+      const expiryTimestamp = parseInt(match[1], 16);
+      return Date.now() / 1000 > expiryTimestamp;
+    }
+    return false;
+  };
+  
+  // Helper to convert a Date to a Discord snowflake ID
+  const dateToSnowflake = (date) => {
+    const discordEpoch = 1420070400000n;
+    const timestamp = BigInt(date.getTime());
+    return String((timestamp - discordEpoch) << 22n);
+  };
+  
+  // First check if lore document has imageUrls stored
+  if (loreDoc && loreDoc.imageUrls && loreDoc.imageUrls.length > 0) {
+    const validUrls = loreDoc.imageUrls.filter(url => !isUrlExpired(url));
+    if (validUrls.length > 0) {
+      return validUrls[Math.floor(Math.random() * validUrls.length)];
+    }
+  }
+  
+  try {
+    const targetChannelId = '1207398646035910726';
+    const targetChannel = await Promise.race([
+      interaction.client.channels.fetch(targetChannelId).catch(() => null),
+      new Promise((resolve) => setTimeout(() => resolve(null), 5000))
+    ]);
+    if (!targetChannel) return null;
+    
+    // Try to get lore creation date for smarter searching
+    let creationDate = null;
+    if (loreDoc) {
+      if (loreDoc.createdAt) {
+        creationDate = new Date(loreDoc.createdAt);
+      } else if (loreDoc._id && loreDoc._id.getTimestamp) {
+        creationDate = loreDoc._id.getTimestamp();
+      }
+    }
+    
+    let messages = null;
+    
+    // If we have a creation date, search around that time
+    if (creationDate) {
+      const searchDate = new Date(creationDate.getTime() + 24 * 60 * 60 * 1000);
+      const snowflakeId = dateToSnowflake(searchDate);
+      messages = await Promise.race([
+        targetChannel.messages.fetch({ limit: 100, before: snowflakeId }).catch(() => null),
+        new Promise((resolve) => setTimeout(() => resolve(null), 5000))
+      ]);
+    }
+    
+    // Fallback to recent messages
+    if (!messages || messages.size === 0) {
+      messages = await Promise.race([
+        targetChannel.messages.fetch({ limit: 100 }).catch(() => null),
+        new Promise((resolve) => setTimeout(() => resolve(null), 5000))
+      ]);
+    }
+    
+    if (!messages) return null;
 
   const imageUrls = [];
 
@@ -104,10 +161,33 @@ async function fetchRandomImage(loreName, interaction) {
     }
   });
 
-  return imageUrls.length > 0 ? imageUrls[Math.floor(Math.random() * imageUrls.length)] : null;
+    // If we found fresh URLs, update the database
+    if (imageUrls.length > 0 && loreDoc) {
+      try {
+        const db = getDb();
+        await db.collection('lore').updateOne(
+          { name: loreName },
+          { $set: { imageUrls: imageUrls } }
+        );
+      } catch (e) {
+        // Non-fatal
+      }
+    }
+
+    return imageUrls.length > 0 ? imageUrls[Math.floor(Math.random() * imageUrls.length)] : null;
+  } catch (e) {
+    return null;
+  }
 }
 
 module.exports = async (interaction, _client) => {
+  // Defer immediately to prevent timeout
+  try {
+    await interaction.deferReply({ flags: 64 });
+  } catch (deferError) {
+    return;
+  }
+
   const db = getDb();
   const loreCollection = db.collection('lore');
   const [SelectedLoreId] = interaction.values[0].split('::');
@@ -115,18 +195,24 @@ module.exports = async (interaction, _client) => {
   try {
     const lore = await loreCollection.findOne({ name: SelectedLoreId });
     if (!lore) {
-      await interaction.reply({ content: 'Lore not found.', flags: [64] });
+      await interaction.editReply({ content: 'Lore not found.' });
       return;
     }
 
-    const randomImageUrl = await fetchRandomImage(SelectedLoreId, interaction);
-    const embeds = await createEmbeds(lore, interaction, randomImageUrl);
+    const randomImageUrl = await fetchRandomImage(SelectedLoreId, interaction, lore);
+    const embeds = await createEmbeds(lore, interaction);
 
     const userHasKickPermission = interaction.member.permissions.has(
       PermissionsBitField.Flags.KickMembers,
     );
 
     let components = [];
+    let imageEmbed = null;
+    if (randomImageUrl) {
+      imageEmbed = new EmbedBuilder()
+        .setColor('#0099ff')
+        .setImage(randomImageUrl);
+    }
     if (userHasKickPermission) {
       const deleteButton = new ButtonBuilder()
         .setCustomId(`loreDelete_${SelectedLoreId}`)
@@ -135,7 +221,7 @@ module.exports = async (interaction, _client) => {
       components.push(new ActionRowBuilder().addComponents(deleteButton));
     }
 
-    await interaction.reply({ embeds: [embeds.shift()], components: [], flags: [64] });
+    await interaction.editReply({ embeds: [embeds.shift()], components: [] });
 
     for (let embed of embeds) {
       await interaction.followUp({ embeds: [embed], flags: [64] });
@@ -152,24 +238,35 @@ module.exports = async (interaction, _client) => {
         const splitStory = splitTextIntoFields(story, 1024);
         for (let part of splitStory) {
           partNumber++;
-          let isLastPart = partNumber === totalParts;
           await interaction.followUp({
             content: `**Details Part ${partNumber}**\n${part}`,
             flags: [64],
-            components: isLastPart ? components : [],
           });
         }
       }
-    } else {
-      if (embeds.length === 0 && userHasKickPermission) {
-        await interaction.followUp({ content: '**Lore:** Not available', flags: [64], components });
-      }
+    }
+
+    // Send image at the end with delete button
+    if (imageEmbed) {
+      await interaction.followUp({
+        embeds: [imageEmbed],
+        flags: [64],
+        components,
+      });
+    } else if (userHasKickPermission) {
+      await interaction.followUp({
+        content: '\u200b',
+        flags: [64],
+        components,
+      });
     }
   } catch (error) {
-    console.error('Error fetching lore from the database:', error);
-    await interaction.followUp({
-      content: 'An error occurred while fetching character details.',
-      flags: [64],
-    });
+    try {
+      await interaction.editReply({
+        content: 'An error occurred while fetching lore details.',
+      });
+    } catch (e) {
+      // Silent fail
+    }
   }
 };

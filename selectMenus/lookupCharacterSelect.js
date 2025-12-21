@@ -1,0 +1,408 @@
+const {
+  EmbedBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  PermissionsBitField,
+} = require('discord.js');
+const { getDb } = require('../mongoClient');
+
+const MAX_EMBED_CHAR_LIMIT = 6000;
+
+const splitTextIntoFields = (text, maxLength = 1024) => {
+  if (!text || text.length === 0) return [''];
+  
+  let parts = [];
+  let remaining = String(text); // Ensure it's a string
+  
+  while (remaining.length > 0) {
+    if (remaining.length <= maxLength) {
+      parts.push(remaining);
+      break;
+    }
+
+    let splitPoint = maxLength;
+    
+    const paragraphBreak = remaining.lastIndexOf('\n\n', maxLength);
+    if (paragraphBreak > maxLength * 0.3) {
+      splitPoint = paragraphBreak;
+    } else {
+      const lineBreak = remaining.lastIndexOf('\n', maxLength);
+      if (lineBreak > maxLength * 0.3) {
+        splitPoint = lineBreak;
+      } else {
+        const sentenceEnd = remaining.lastIndexOf('. ', maxLength);
+        if (sentenceEnd > maxLength * 0.3) {
+          splitPoint = sentenceEnd + 1;
+        } else {
+          const lastSpace = remaining.lastIndexOf(' ', maxLength);
+          if (lastSpace > maxLength * 0.3) {
+            splitPoint = lastSpace;
+          }
+        }
+      }
+    }
+
+    let part = remaining.substring(0, splitPoint).trim();
+    remaining = remaining.substring(splitPoint).trim();
+    
+    // If we didn't make progress, force a hard split
+    if (part.length === 0 && remaining.length > 0) {
+      part = remaining.substring(0, maxLength);
+      remaining = remaining.substring(maxLength);
+    }
+    
+    if (part.length > 0) {
+      parts.push(part);
+    }
+  }
+  
+  return parts.length > 0 ? parts : [''];
+};
+
+const createEmbeds = async (character, interaction, isImportant = false) => {
+  let userName = 'Unknown';
+  try {
+    const guildMember = await Promise.race([
+      interaction.guild.members.fetch(character.userId).catch(() => null),
+      new Promise((resolve) => setTimeout(() => resolve(null), 3000))
+    ]);
+    if (guildMember) {
+      userName = guildMember.displayName;
+    }
+  } catch (e) {
+    // User may have left the server or timeout
+  }
+
+  const embeds = [];
+  let currentEmbed = new EmbedBuilder().setColor(isImportant ? '#FFD700' : '#0099ff');
+  let currentEmbedSize = 0;
+
+  const addEmbed = () => {
+    embeds.push(currentEmbed);
+    currentEmbed = new EmbedBuilder().setColor(isImportant ? '#FFD700' : '#0099ff');
+    currentEmbedSize = 0;
+  };
+
+  const addFieldToEmbed = (name, values) => {
+    values.forEach((value, index) => {
+      // Skip empty values - Discord rejects empty field values
+      if (!value || value.length === 0) {
+        return;
+      }
+      
+      const fieldName = index === 0 ? name : `${name} (cont.)`;
+      const fieldSize = fieldName.length + value.length;
+
+      if (
+        currentEmbedSize + fieldSize > MAX_EMBED_CHAR_LIMIT ||
+        currentEmbed.data.fields?.length >= 25
+      ) {
+        addEmbed();
+      }
+
+      currentEmbed.addFields({ name: fieldName, value: value, inline: false });
+      currentEmbedSize += fieldSize;
+    });
+  };
+
+  const characterDetails = {
+    Player: [userName || 'Unknown'],
+    Name: [character.name || 'Unknown'],
+    Age: [String(character.age || 'Unknown')],
+    Birthplace: [character.birthplace || 'Unknown'],
+    Gender: [character.gender || 'Unknown'],
+    Title: [character.title || 'None'],
+    Appearance: splitTextIntoFields(character.appearance || 'Not described', 1024),
+    'Eye Color': [character.eyecolor || 'Unknown'],
+    'Hair Color': [character.haircolor || 'Unknown'],
+    Height: [character.height || 'Unknown'],
+    Species: [character.species || 'Unknown'],
+    Armor: splitTextIntoFields(character.armor || 'Not described', 1024),
+    Beliefs: splitTextIntoFields(character.beliefs || 'None', 1024),
+    Powers: splitTextIntoFields(character.powers || 'None', 1024),
+    Weapons: splitTextIntoFields(character.weapons || 'None', 1024),
+  };
+
+  Object.entries(characterDetails).forEach(([name, value]) => {
+    addFieldToEmbed(name, value);
+  });
+
+  if (currentEmbed.data.fields?.length > 0) {
+    addEmbed();
+  }
+
+  return embeds;
+};
+
+async function fetchRandomImage(characterName, userId, interaction, characterDoc = null, isImportant = false) {
+  // Helper to check if a Discord CDN URL is expired
+  const isUrlExpired = (url) => {
+    if (!url) return true;
+    const match = url.match(/ex=([0-9a-f]+)/i);
+    if (match) {
+      const expiryTimestamp = parseInt(match[1], 16);
+      return Date.now() / 1000 > expiryTimestamp;
+    }
+    return false; // No expiry param means it might be a permanent URL
+  };
+  
+  // Helper to convert a Date to a Discord snowflake ID
+  const dateToSnowflake = (date) => {
+    const discordEpoch = 1420070400000n;
+    const timestamp = BigInt(date.getTime());
+    return String((timestamp - discordEpoch) << 22n);
+  };
+  
+  // First, check if the character document already has imageUrls stored
+  if (characterDoc && characterDoc.imageUrls && characterDoc.imageUrls.length > 0) {
+    // Filter out expired URLs
+    const validUrls = characterDoc.imageUrls.filter(url => !isUrlExpired(url));
+    if (validUrls.length > 0) {
+      return validUrls[Math.floor(Math.random() * validUrls.length)];
+    }
+    // All URLs expired, fall through to channel search
+  }
+  
+  // Fallback: search the image channel (for older characters or expired URLs)
+  const targetChannelId = '1206381988559323166';
+  try {
+    const targetChannel = await Promise.race([
+      interaction.client.channels.fetch(targetChannelId).catch(() => null),
+      new Promise((resolve) => setTimeout(() => resolve(null), 5000))
+    ]);
+    if (!targetChannel) {
+      return null;
+    }
+    
+    // Try to get character creation date for smarter searching
+    let creationDate = null;
+    if (characterDoc) {
+      if (characterDoc.createdAt) {
+        creationDate = new Date(characterDoc.createdAt);
+      } else if (characterDoc._id && characterDoc._id.getTimestamp) {
+        creationDate = characterDoc._id.getTimestamp();
+      }
+    }
+    
+    let messages = null;
+    
+    // If we have a creation date, search around that time
+    if (creationDate) {
+      const searchDate = new Date(creationDate.getTime() + 24 * 60 * 60 * 1000);
+      const snowflakeId = dateToSnowflake(searchDate);
+      messages = await Promise.race([
+        targetChannel.messages.fetch({ limit: 100, before: snowflakeId }).catch(() => null),
+        new Promise((resolve) => setTimeout(() => resolve(null), 5000))
+      ]);
+    }
+    
+    // Fallback to recent messages if date-based search fails
+    if (!messages || messages.size === 0) {
+      messages = await Promise.race([
+        targetChannel.messages.fetch({ limit: 100 }).catch(() => null),
+        new Promise((resolve) => setTimeout(() => resolve(null), 5000))
+      ]);
+    }
+    
+    if (!messages) {
+      return null;
+    }
+
+    const imageUrls = [];
+
+    messages.forEach((message) => {
+      if (message.author.bot && message.embeds.length > 0) {
+        const embed = message.embeds[0];
+
+        const hasCharacterName =
+          embed.fields && embed.fields.some((field) => field.value.includes(characterName));
+        const hasUserId = embed.fields && embed.fields.some((field) => field.value.includes(userId));
+
+        if (hasCharacterName && hasUserId) {
+          message.attachments.forEach((attachment) => {
+            if (attachment.contentType && attachment.contentType.startsWith('image/')) {
+              imageUrls.push(attachment.url);
+            }
+          });
+
+          if (embed.image && embed.image.url) {
+            imageUrls.push(embed.image.url);
+          }
+        }
+      }
+    });
+
+    // If we found fresh URLs, update the database
+    if (imageUrls.length > 0 && characterDoc) {
+      try {
+        const db = getDb();
+        const collectionName = isImportant ? 'importantCharacters' : 'characters';
+        await db.collection(collectionName).updateOne(
+          { name: characterName, userId },
+          { $set: { imageUrls: imageUrls } }
+        );
+      } catch (e) {
+        // Non-fatal
+      }
+    }
+
+    return imageUrls.length > 0 ? imageUrls[Math.floor(Math.random() * imageUrls.length)] : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+module.exports = async (interaction, _client) => {
+  // Defer immediately to prevent timeout
+  try {
+    await interaction.deferReply({ flags: 64 });
+  } catch (deferError) {
+    return;
+  }
+
+  const db = getDb();
+  if (!db) {
+    await interaction.editReply({ content: 'Database connection error. Please try again.' });
+    return;
+  }
+  
+  const selectedValue = interaction.values[0];
+  
+  // Parse the selection: "important::CharacterName::userId" or "regular::CharacterName::userId"
+  const parts = selectedValue.split('::');
+  if (parts.length < 3) {
+    await interaction.editReply({ content: 'Invalid selection format.' });
+    return;
+  }
+  
+  const type = parts[0];
+  const userId = parts[parts.length - 1]; // userId is always last
+  const characterName = parts.slice(1, -1).join('::'); // Everything in between is the name
+  const isImportant = type === 'important';
+
+  // Reset the select menu
+  try {
+    const originalMessage = interaction.message;
+    if (originalMessage && originalMessage.components.length > 0) {
+      await interaction.message.edit({ components: [] });
+    }
+  } catch (err) {
+    // Silently fail if we can't reset the menu
+  }
+
+  try {
+    const collectionName = isImportant ? 'importantCharacters' : 'characters';
+    const collection = db.collection(collectionName);
+    
+    const character = await collection.findOne({ name: characterName, userId });
+    
+    if (!character) {
+      await interaction.editReply({ content: 'Character not found.' });
+      return;
+    }
+    
+    const randomImageUrl = await fetchRandomImage(characterName, userId, interaction, character, isImportant);
+    const embeds = await createEmbeds(character, interaction, isImportant);
+
+    const userHasKickPermission = interaction.member.permissions.has(
+      PermissionsBitField.Flags.KickMembers,
+    );
+
+    // Check if the user is the character owner
+    const isOwner = interaction.user.id === userId;
+
+    let components = [];
+    let imageEmbed = null;
+    
+    if (randomImageUrl) {
+      imageEmbed = new EmbedBuilder()
+        .setColor(isImportant ? '#FFD700' : '#0099ff')
+        .setImage(randomImageUrl);
+    }
+    
+    const actionButtons = [];
+
+    // Edit button - only for the character owner (and only for regular characters)
+    if (isOwner && !isImportant) {
+      const editButton = new ButtonBuilder()
+        .setCustomId(`editCharacter_${characterName}_${userId}`)
+        .setLabel('Edit Character')
+        .setStyle(ButtonStyle.Primary);
+      actionButtons.push(editButton);
+    }
+
+    // Delete button - only for admins with kick permission
+    if (userHasKickPermission) {
+      const deleteButtonId = isImportant 
+        ? `deleteImportantCharacter_${characterName}_${userId}`
+        : `deleteCharacter_${characterName}_${userId}`;
+      const deleteButton = new ButtonBuilder()
+        .setCustomId(deleteButtonId)
+        .setLabel('Delete Character')
+        .setStyle(ButtonStyle.Danger);
+      actionButtons.push(deleteButton);
+    }
+
+    if (actionButtons.length > 0) {
+      components.push(new ActionRowBuilder().addComponents(...actionButtons));
+    }
+
+    const typeLabel = isImportant ? '⭐ Important Character' : '👤 Character';
+    
+    await interaction.editReply({ 
+      content: typeLabel,
+      embeds: [embeds.shift()], 
+      components: []
+    });
+
+    for (let embed of embeds) {
+      await interaction.followUp({ embeds: [embed], flags: [64] });
+    }
+
+    if (character.backstory && character.backstory.length) {
+      const backstoryArray = Array.isArray(character.backstory) 
+        ? character.backstory 
+        : [character.backstory];
+      
+      const fullBackstory = backstoryArray.map(s => String(s)).join('\n\n');
+      const splitStory = splitTextIntoFields(fullBackstory, 4000);
+      
+      for (let i = 0; i < splitStory.length; i++) {
+        const part = splitStory[i];
+        
+        const backstoryEmbed = new EmbedBuilder()
+          .setColor(isImportant ? '#FFD700' : '#0099ff')
+          .setTitle(splitStory.length > 1 ? `Backstory (Part ${i + 1}/${splitStory.length})` : 'Backstory')
+          .setDescription(part);
+        
+        await interaction.followUp({
+          embeds: [backstoryEmbed],
+          flags: [64],
+        });
+      }
+    }
+
+    if (imageEmbed) {
+      await interaction.followUp({
+        embeds: [imageEmbed],
+        flags: [64],
+        components,
+      });
+    } else if (userHasKickPermission) {
+      await interaction.followUp({
+        content: '\u200b',
+        flags: [64],
+        components,
+      });
+    }
+  } catch (error) {
+    try {
+      await interaction.editReply({
+        content: 'An error occurred while fetching character details.',
+      });
+    } catch (replyError) {
+      // Silent fail
+    }
+  }
+};

@@ -29,7 +29,7 @@ module.exports = async (interaction, _client) => {
   const attachment = interaction.message.attachments.first();
 
   // Parse the file
-  const { data, error } = await parseFileUpload(attachment);
+  const { data, error } = await parseFileUpload(attachment, 'importantCharacter');
 
   if (error) {
     await interaction.reply({
@@ -77,6 +77,12 @@ module.exports = async (interaction, _client) => {
 
     // Show success with data summary
     const summaryEmbed = createDataSummaryEmbed(normalizedData, 'Important Character');
+    const { formatFullDataAsText } = require('../../helpercommands/processFileUpload');
+    const fullText = formatFullDataAsText(normalizedData);
+
+    console.log('Normalized data keys:', Object.keys(normalizedData));
+    console.log('Full text length:', fullText.length);
+    console.log('Full text preview:', fullText.substring(0, 200));
 
     const actionRow = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
@@ -89,12 +95,40 @@ module.exports = async (interaction, _client) => {
         .setStyle(ButtonStyle.Secondary),
     );
 
+    // Send embed first
     await interaction.reply({
       embeds: [summaryEmbed],
-      content: 'Important character data loaded successfully! What would you like to do next?',
-      components: [actionRow],
       flags: [64],
     });
+
+    // Send full data in chunks (Discord 2000 char limit)
+    const chunkSize = 1900;
+    const chunks = [];
+    
+    for (let i = 0; i < fullText.length; i += chunkSize) {
+      chunks.push(fullText.substring(i, Math.min(i + chunkSize, fullText.length)));
+    }
+
+    console.log('Number of chunks:', chunks.length);
+
+    // Send each chunk as a followUp
+    for (let i = 0; i < chunks.length; i++) {
+      const isLast = i === chunks.length - 1;
+      await interaction.followUp({
+        content: chunks[i],
+        components: isLast ? [actionRow] : [],
+        flags: [64],
+      });
+    }
+
+    // If no chunks (shouldn't happen but safety), send buttons
+    if (chunks.length === 0) {
+      await interaction.followUp({
+        content: 'What would you like to do next?',
+        components: [actionRow],
+        flags: [64],
+      });
+    }
   } catch (error) {
     console.error('Failed to save important character from file upload:', error);
     await interaction.reply({

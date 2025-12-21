@@ -16,7 +16,7 @@ module.exports = async (interaction, _client) => {
   const characterBackstory = [interaction.fields.getTextInputValue('character_backstory')];
 
   const db = getDb();
-  const charactersCollection = db.collection('importantCharacter');
+  const charactersCollection = db.collection('importantCharacterPending');
 
   try {
     await charactersCollection.updateOne(

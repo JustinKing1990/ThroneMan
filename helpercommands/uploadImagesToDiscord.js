@@ -9,26 +9,46 @@ const { AttachmentBuilder, EmbedBuilder } = require('discord.js');
  * @param {string} options.contentName - Name of the content (character/beast/etc)
  * @param {string} options.contentType - Type of content (character/beast/lore/important)
  * @param {Client} options.client - Discord client
- * @returns {Promise<Array<string>>} - Array of Discord image URLs
+ * @returns {Promise<{urls: Array<string>, messageIds: Array<string>}>} - Object with Discord image URLs and message IDs
  */
 async function uploadImagesToDiscord(base64Images, options) {
   const { channelId, userId, contentName, contentType, client } = options;
 
   if (!base64Images || base64Images.length === 0) {
-    return [];
+    return { urls: [], messageIds: [] };
   }
 
   try {
     const channel = await client.channels.fetch(channelId);
     if (!channel) {
-      console.error(`Channel ${channelId} not found`);
-      return [];
+      return { urls: [], messageIds: [] };
     }
 
     const discordUrls = [];
+    const messageIds = [];
 
     for (let i = 0; i < base64Images.length; i++) {
       const base64 = base64Images[i];
+
+      // Skip if it's already a Discord URL (not base64)
+      if (!base64.startsWith('data:') && base64.startsWith('http')) {
+        // It's already a Discord URL, just post it as an embed
+        const imageNumber = i + 1;
+        const embed = new EmbedBuilder()
+          .setColor('#0099ff')
+          .setTitle(`${contentType.charAt(0).toUpperCase() + contentType.slice(1)} Image #${imageNumber}`)
+          .addFields(
+            { name: 'Content Name', value: contentName, inline: true },
+            { name: 'User ID', value: userId, inline: true },
+          )
+          .setImage(base64)
+          .setTimestamp();
+
+        const message = await channel.send({ embeds: [embed] });
+        discordUrls.push(base64);
+        messageIds.push(message.id);
+        continue;
+      }
 
       // Extract base64 data if it's a data URL
       let buffer;
@@ -45,13 +65,13 @@ async function uploadImagesToDiscord(base64Images, options) {
       });
 
       // Create embed with metadata
+      const imageNumber = i + 1;
       const embed = new EmbedBuilder()
         .setColor('#0099ff')
-        .setTitle(`${contentType.charAt(0).toUpperCase() + contentType.slice(1)} Image`)
+        .setTitle(`${contentType.charAt(0).toUpperCase() + contentType.slice(1)} Image #${imageNumber}`)
         .addFields(
           { name: 'Content Name', value: contentName, inline: true },
           { name: 'User ID', value: userId, inline: true },
-          { name: 'Type', value: contentType, inline: true },
         )
         .setTimestamp();
 
@@ -65,13 +85,13 @@ async function uploadImagesToDiscord(base64Images, options) {
       const discordAttachment = message.attachments.first();
       if (discordAttachment) {
         discordUrls.push(discordAttachment.url);
+        messageIds.push(message.id);
       }
     }
 
-    return discordUrls;
+    return { urls: discordUrls, messageIds };
   } catch (error) {
-    console.error('Error uploading images to Discord:', error);
-    return [];
+    return { urls: [], messageIds: [] };
   }
 }
 

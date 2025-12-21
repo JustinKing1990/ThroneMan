@@ -12,7 +12,7 @@ module.exports = async (interaction, _client) => {
   // If no character name in the ID, fetch from the user's most recent important character
   if (!characterName) {
     const db = require('../../mongoClient').getDb();
-    const importantCharacterCollection = db.collection('importantCharacter');
+    const importantCharacterCollection = db.collection('importantCharacterPending');
     const recentCharacter = await importantCharacterCollection
       .findOne({ userId: interaction.user.id }, { sort: { updatedAt: -1 } })
       .catch(() => null);

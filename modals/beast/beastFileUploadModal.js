@@ -9,10 +9,10 @@ const { validateData, normalizeData } = require('../../helpercommands/validateSc
 const {
   createMissingFieldsEmbed,
   createDataSummaryEmbed,
+  createImageAttachments,
 } = require('../../helpercommands/processFileUpload');
 const { getDb } = require('../../mongoClient');
 const { generateImageDescription } = require('../../helpercommands/generateImageDescription');
-const { uploadImagesToDiscord } = require('../../helpercommands/uploadImagesToDiscord');
 
 module.exports = async (interaction, _client) => {
   await interaction.deferReply({ flags: [64] });
@@ -40,7 +40,7 @@ module.exports = async (interaction, _client) => {
   const attachment = attachments.first();
 
   // Process the file
-  const { data, error } = await parseFileUpload(attachment);
+  const { data, error } = await parseFileUpload(attachment, 'beast');
 
   if (error) {
     await interaction.editReply({
@@ -80,7 +80,7 @@ module.exports = async (interaction, _client) => {
   // Keep images as base64 for now - will upload to Discord after approval
   // This prevents orphaned images if submission is cancelled
 
-  // Store in database
+  // Store in database (beast collection)
   const db = getDb();
   const beastCollection = db.collection('bestiary');
 
@@ -132,13 +132,22 @@ module.exports = async (interaction, _client) => {
       components = [actionRow];
     }
 
+    // Convert base64 images to attachments for preview display
+    const { attachments: imageAttachments, filenames } = createImageAttachments(normalizedData.imageUrls);
+    
+    // Set the first image on the embed if we have any
+    if (filenames.length > 0) {
+      summaryEmbed.setImage(`attachment://${filenames[0]}`);
+    }
+
     await interaction.editReply({
       embeds: [summaryEmbed],
       content:
         normalizedData.imageUrls && normalizedData.imageUrls.length > 0
-          ? '✅ Beast data and images loaded successfully! Ready to submit?'
+          ? `✅ Beast data and ${normalizedData.imageUrls.length} image(s) loaded successfully! Ready to submit?`
           : '✅ Beast data loaded successfully! What would you like to do next?',
       components: components,
+      files: imageAttachments,
     });
   } catch (error) {
     console.error('Failed to save beast from file upload:', error);

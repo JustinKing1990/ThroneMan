@@ -38,7 +38,7 @@ module.exports = async (interaction, _client) => {
   const attachment = attachments.first();
 
   // Process the file
-  const { data, error } = await parseFileUpload(attachment);
+  const { data, error } = await parseFileUpload(attachment, 'lore');
 
   if (error) {
     await interaction.editReply({
@@ -61,7 +61,7 @@ module.exports = async (interaction, _client) => {
   // Normalize data
   const normalizedData = normalizeData('lore', data);
 
-  // Store in database
+  // Store in database (lore collection)
   const db = getDb();
   const loreCollection = db.collection('lore');
 

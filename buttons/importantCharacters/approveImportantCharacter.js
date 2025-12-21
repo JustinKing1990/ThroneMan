@@ -15,8 +15,8 @@ const config = require('../../env/config.json');
 module.exports = async (interaction, _client) => {
   await interaction.deferUpdate({ flags: [64] });
   const db = getDb();
-  const sourceCollection = db.collection('importantCharacter');
-  const targetCollection = db.collection('importantCharacters');
+  const pendingCollection = db.collection('importantCharacterPending');
+  const finalCollection = db.collection('importantCharacters');
   const settingsCollection = db.collection('settings');
   const [_action, userId, characterName] = interaction.customId.split('_');
   const receivingChannel = await interaction.client.channels.fetch('1207157063357177947');
@@ -30,77 +30,46 @@ module.exports = async (interaction, _client) => {
       return;
     }
 
-    const characterDocument = await sourceCollection.findOne({
+    const characterDocument = await pendingCollection.findOne({
       userId: userId,
       name: characterName,
     });
 
     if (characterDocument) {
-      // Upload base64 images to Discord now that character is approved
+      // Upload images to Discord now that character is approved
       if (characterDocument.imageUrls && characterDocument.imageUrls.length > 0) {
-        const hasBase64Images = characterDocument.imageUrls.some(url => url.startsWith('data:'));
+        const uploadResult = await uploadImagesToDiscord(characterDocument.imageUrls, {
+          channelId: '1206381988559323166', // Character images channel
+          userId: userId,
+          contentName: characterName,
+          contentType: 'importantCharacter',
+          client: interaction.client,
+        });
         
-        if (hasBase64Images) {
-          console.log(`Uploading ${characterDocument.imageUrls.length} images to Discord for approved important character...`);
-          const discordImageUrls = await uploadImagesToDiscord(characterDocument.imageUrls, {
-            channelId: '1206381988559323166', // Character images channel
-            userId: userId,
-            contentName: characterName,
-            contentType: 'importantCharacter',
-            client: interaction.client,
-          });
-          
-          if (discordImageUrls.length > 0) {
-            characterDocument.imageUrls = discordImageUrls;
-            console.log(`Successfully uploaded ${discordImageUrls.length} images to Discord`);
-          }
+        if (uploadResult.urls.length > 0) {
+          characterDocument.imageUrls = uploadResult.urls;
+          characterDocument.imageMessageIds = uploadResult.messageIds;
         }
       }
       
-      // Assume characterDocument.imageUrls is an array of image URLs
+      // Move document from pending to final collection
+      delete characterDocument._id; // Remove MongoDB ID to avoid conflicts
+      await finalCollection.insertOne(characterDocument);
+      
+      // Fetch and delete all messages from the pending submission
       const messageIds = characterDocument.messageIds || [];
-      let attachments = [];
-
-      // Fetch each message by ID and extract image URLs
-      for (let messageId of messageIds) {
-        try {
-          const message = await receivingChannel.messages.fetch(messageId);
-          const messageAttachments = message.attachments
-            .filter((attachment) => attachment.contentType.startsWith('image/'))
-            .values();
-          attachments = [...attachments, ...Array.from(messageAttachments)];
-        } catch (error) {}
-      }
-      const imageEmbed = new EmbedBuilder()
-        .setColor('#0099ff')
-        .setTitle('Character Images')
-        .setDescription(
-          `Images for character: ${characterName ? characterName : 'Unknown Character'}`,
-        )
-        .addFields(
-          { name: 'User ID', value: interaction.user.id.toString() },
-          { name: 'Character Name', value: characterName },
-        );
-
-      // The channel to post the embed with images
-      const targetChannel = await interaction.client.channels.fetch('1206381988559323166');
-      await targetChannel.send({
-        embeds: [imageEmbed],
-        files: attachments.map((attachment) => attachment.url),
-      });
-      await targetCollection.insertOne(characterDocument);
-      await sourceCollection.deleteOne({ name: characterName, userId: userId });
-
-      if (characterDocument.messageIds && characterDocument.messageIds.length > 0) {
-        const targetChannel = await interaction.client.channels.fetch('1207157063357177947');
-        for (const messageId of characterDocument.messageIds) {
+      if (messageIds && messageIds.length > 0) {
+        for (const messageId of messageIds) {
           try {
-            await targetChannel.messages.delete(messageId);
+            await receivingChannel.messages.delete(messageId);
           } catch (msgError) {
             console.error(`Failed to delete message ${messageId}:`, msgError);
           }
         }
       }
+      
+      // Delete from pending collection
+      await pendingCollection.deleteOne({ name: characterName, userId: userId });
       let newTargetcollection = db.collection('importantCharacters');
       await updateListMessage(
         interaction.client,

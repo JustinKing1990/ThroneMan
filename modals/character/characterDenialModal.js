@@ -1,38 +1,20 @@
 const { PermissionsBitField, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { getDb } = require('../../mongoClient');
+const { createDataSummaryEmbeds } = require('../../helpercommands/processFileUpload');
 
 module.exports = async (interaction, _client) => {
   await interaction.deferReply({ flags: [64] });
   const reason = interaction.fields.getTextInputValue('character_denial');
   const [_action, userId, characterName] = interaction.customId.split('_');
   const db = getDb();
-  const charactersCollection = db.collection('character');
+  const pendingCollection = db.collection('characterPending');
 
   try {
-    const characterData = await charactersCollection.findOne({
+    const characterData = await pendingCollection.findOne({
       userId: userId,
       name: characterName,
     });
     if (characterData) {
-      let messageContent = `Character Information for ${interaction.user.username}:\n`;
-      messageContent += `Name: ${characterData.name || 'N/A'}\n`;
-      messageContent += `Title: ${characterData.title || 'N/A'}\n`;
-      messageContent += `Gender: ${characterData.gender || 'N/A'}\n`;
-      messageContent += `Age: ${characterData.age || 'N/A'}\n`;
-      messageContent += `Birthplace: ${characterData.birthplace || 'N/A'}\n`;
-      messageContent += `Height: ${characterData.height || 'N/A'}\n`;
-      messageContent += `Species: ${characterData.species || 'N/A'}\n`;
-      messageContent += `Eye Color: ${characterData.eyecolor || 'N/A'}\n`;
-      messageContent += `Hair Color: ${characterData.haircolor || 'N/A'}\n`;
-      messageContent += `Appearance: ${characterData.appearance || 'N/A'}\n`;
-      messageContent += `Weapons: ${characterData.weapons || 'N/A'}\n`;
-      messageContent += `Armor: ${characterData.armor || 'N/A'}\n`;
-      messageContent += `Beliefs: ${characterData.beliefs || 'N/A'}\n`;
-      messageContent += `Powers: ${characterData.powers || 'N/A'}\n`;
-      messageContent += `Backstory:\n`;
-      characterData.backstory.forEach((element, index) => {
-        messageContent += `${element}\n`;
-      });
       const categoryID = '905888571079139440';
       const guild = interaction.guild;
 
@@ -46,32 +28,26 @@ module.exports = async (interaction, _client) => {
             deny: [PermissionsBitField.Flags.ViewChannel],
           },
           {
-            id: interaction.user.id,
+            id: userId,
             allow: [PermissionsBitField.Flags.ViewChannel],
           },
         ],
       });
 
-      let startIndex = 0;
-      const chunkSize = 1900;
-
-      while (startIndex < messageContent.length) {
-        const endIndex = Math.min(startIndex + chunkSize, messageContent.length);
-        const chunk = messageContent.substring(startIndex, endIndex);
-        const isLastChunk = endIndex >= messageContent.length;
-
-        const messageOptions = {
-          content: chunk,
-        };
-
-        const sentMessage = await privateChannel.send(messageOptions);
-
-        startIndex += chunkSize;
+      // Post the character data first using embeds
+      const summaryEmbeds = createDataSummaryEmbeds(characterData, 'Your Denied Submission');
+      
+      // Send embeds one at a time to avoid size limits
+      for (const embed of summaryEmbeds) {
+        await privateChannel.send({ embeds: [embed] });
       }
+
+      // Then show the denial reason
       await privateChannel.send(
-        `<@${interaction.user.id}> has denied your character submission **${characterData.name}** was denied for the following reason: ${reason}. Please adjust and resubmit.`,
+        `<@${userId}> Your character submission **${characterData.name}** was denied for the following reason:\n\n**${reason}**\n\nPlease adjust and resubmit.`,
       );
 
+      // Finally the delete buttons
       const confirmButton = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
           .setCustomId(`confirmDeleteChannel_${userId}_${characterName}`)
@@ -107,6 +83,9 @@ module.exports = async (interaction, _client) => {
         }
       }
 
+      // Delete from pending collection
+      await pendingCollection.deleteOne({ userId: userId, name: characterName });
+
       await interaction.editReply({
         content: 'The denial process has been completed.',
         flags: [64],
@@ -116,6 +95,6 @@ module.exports = async (interaction, _client) => {
     }
   } catch (error) {
     console.error('Error processing character denial:', error);
-    await interaction.reply({ content: 'There was an error processing the denial.', flags: [64] });
+    await interaction.editReply({ content: 'There was an error processing the denial.', flags: [64] });
   }
 };

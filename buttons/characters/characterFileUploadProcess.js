@@ -29,7 +29,7 @@ module.exports = async (interaction, _client) => {
   const attachment = interaction.message.attachments.first();
 
   // Parse the file
-  const { data, error } = await parseFileUpload(attachment);
+  const { data, error } = await parseFileUpload(attachment, 'character');
 
   if (error) {
     await interaction.reply({

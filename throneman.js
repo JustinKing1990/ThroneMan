@@ -32,13 +32,26 @@ for (const file of eventFiles) {
   }
 }
 
+client.on('error', (error) => {
+  console.error(`[Discord Error]`, error);
+});
+
+client.on('shardError', (error, shardId) => {
+  console.error(`[Discord] Shard ${shardId} error:`, error);
+});
+
+client.on('invalidated', () => {
+  console.error(`[Discord] Session invalidated! Bot needs restart.`);
+});
+
 async function start() {
   try {
     await mongoClient.connectToServer();
     console.log('Connected to MongoDB.');
 
-    const deployCommands = require('./deploy-commands.js');
-    await deployCommands();
+    // Skip command deployment for now - commands are already registered
+    // const deployCommands = require('./deploy-commands.js');
+    // await deployCommands();
 
     await client.login(env.token);
     console.log('Discord client login initiated.');
